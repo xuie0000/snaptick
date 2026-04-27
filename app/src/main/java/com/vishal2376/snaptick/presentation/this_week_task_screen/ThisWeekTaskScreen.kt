@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -46,7 +47,6 @@ import com.vishal2376.snaptick.util.DummyTasks
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.TextStyle
-import java.time.temporal.WeekFields
 import java.util.Locale
 
 @OptIn(
@@ -62,13 +62,23 @@ fun ThisWeekTaskScreen(
 ) {
 
 
-	val startDayOfWeek = WeekFields.of(DayOfWeek.MONDAY, 1).weekOfYear()
-	val currentWeek = LocalDate.now().get(startDayOfWeek)
-	val previousWeek = LocalDate.now().minusWeeks(1)
+	val today = remember { LocalDate.now() }
+	val startOfWeek = remember(today) { today.with(DayOfWeek.MONDAY) }
 
-	val thisWeekTasks = tasks.filter { task ->
-		val taskWeekOfYear = task.date.get(startDayOfWeek)
-		(taskWeekOfYear == currentWeek) || ((task.date in previousWeek..LocalDate.now()) && task.isRepeated)
+	val thisWeekTasks = remember(tasks, startOfWeek) {
+		val days = (0..6).map { startOfWeek.plusDays(it.toLong()) }
+		val seen = HashSet<Int>()
+		buildList {
+			for (day in days) {
+				for (task in tasks) {
+					if (task.id in seen) continue
+					if (task.shouldOccurOn(day)) {
+						add(task)
+						seen += task.id
+					}
+				}
+			}
+		}
 	}
 
 	Scaffold(topBar = {
