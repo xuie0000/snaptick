@@ -108,7 +108,7 @@ fun HomeScreen(
 	val totalTaskTime = inCompletedTasks.sumOf { it.getDuration(checkPastTask = true) }
 	val freeTimeText = getFreeTime(totalTaskTime, appState.sleepTime)
 
-	val appStreakText = if (appState.streak > 0) appState.streak.toString() else "0"
+	val appStreakText = appState.streak.toString()
 	val context = LocalContext.current
 	val packageInfo = context.packageManager.getPackageInfo(LocalContext.current.packageName, 0)
 

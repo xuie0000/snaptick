@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -322,19 +323,18 @@ class MainViewModel @Inject constructor(
 		}
 		viewModelScope.launch {
 			settingsStore.lastOpenedKey.collect { lastDateString ->
-				if (lastDateString == "") {
-					settingsStore.setLastOpened(LocalDate.now().toString())
-				} else {
-					val lastDate = LocalDate.parse(lastDateString)
-					val isToday = lastDate.isEqual(LocalDate.now())
-					val isYesterday = lastDate.isEqual(LocalDate.now().minusDays(1))
-					if (!isToday) {
-						val currentStreak = _state.value.streak
-						val newStreak = if (isYesterday) currentStreak + 1 else 0
-						settingsStore.setStreak(newStreak)
-						settingsStore.setLastOpened(LocalDate.now().toString())
-					}
+				val today = LocalDate.now()
+				if (lastDateString.isEmpty()) {
+					settingsStore.setLastOpened(today.toString())
+					return@collect
 				}
+				val lastDate = LocalDate.parse(lastDateString)
+				if (lastDate.isEqual(today)) return@collect
+				val storedStreak = settingsStore.streakKey.first()
+				val isYesterday = lastDate.isEqual(today.minusDays(1))
+				val newStreak = if (isYesterday) storedStreak + 1 else 0
+				settingsStore.setStreak(newStreak)
+				settingsStore.setLastOpened(today.toString())
 			}
 		}
 	}
