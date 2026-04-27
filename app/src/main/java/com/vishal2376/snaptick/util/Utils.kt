@@ -9,6 +9,7 @@ import android.os.Vibrator
 import android.widget.Toast
 import androidx.core.net.toUri
 import com.vishal2376.snaptick.R
+import com.vishal2376.snaptick.util.Constants
 import java.time.LocalTime
 
 fun vibrateDevice(
@@ -38,12 +39,12 @@ fun showToast(context: Context, message: String, duration: Int = Toast.LENGTH_LO
 fun getFreeTime(totalDuration: Long, sleepTime: LocalTime): String {
 	val maxTime = sleepTime.toSecondOfDay()
 	val currentTime = LocalTime.now().toSecondOfDay()
+	val effectiveMax = if (maxTime <= currentTime) maxTime + Constants.SECONDS_IN_DAY else maxTime
 
-	val totalFreeDuration = maxTime - currentTime - totalDuration
+	val totalFreeDuration = effectiveMax - currentTime - totalDuration
 
 	val hours = (totalFreeDuration / 3600).toInt()
 	val minutes = ((totalFreeDuration % 3600) / 60).toInt()
-
 
 	val hoursString = if (hours == 1) "hour" else "hours"
 

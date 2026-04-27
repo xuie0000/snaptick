@@ -46,20 +46,26 @@ data class Task(
 	}
 
 	fun getDuration(checkPastTask: Boolean = false): Long {
-		val startTimeSec = startTime.toSecondOfDay()
-		val endTimeSec = endTime.toSecondOfDay()
-		val currentTimeSec = LocalTime.now().toSecondOfDay()
+		val startSec = startTime.toSecondOfDay()
+		val endSec = endTime.toSecondOfDay()
+		val crossesMidnight = endSec < startSec
+		val fullDuration = if (crossesMidnight) endSec + Constants.SECONDS_IN_DAY - startSec else endSec - startSec
 
-		return when {
-			checkPastTask -> {
-				when {
-					currentTimeSec > endTimeSec -> 0
-					currentTimeSec in (startTimeSec + 1)..<endTimeSec -> (endTimeSec - currentTimeSec).toLong()
-					else -> (endTimeSec - startTimeSec).coerceAtLeast(0).toLong()
-				}
+		if (!checkPastTask) return fullDuration.coerceAtLeast(0).toLong()
+
+		val nowSec = LocalTime.now().toSecondOfDay()
+		return if (crossesMidnight) {
+			when {
+				nowSec >= startSec -> (endSec + Constants.SECONDS_IN_DAY - nowSec).toLong()
+				nowSec <= endSec -> (endSec - nowSec).toLong()
+				else -> fullDuration.toLong()
 			}
-
-			else -> (endTimeSec - startTimeSec).coerceAtLeast(0).toLong()
+		} else {
+			when {
+				nowSec > endSec -> 0L
+				nowSec in (startSec + 1)..<endSec -> (endSec - nowSec).toLong()
+				else -> fullDuration.coerceAtLeast(0).toLong()
+			}
 		}
 	}
 }

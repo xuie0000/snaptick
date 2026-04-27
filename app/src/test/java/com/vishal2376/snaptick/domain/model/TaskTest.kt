@@ -30,9 +30,14 @@ class TaskTest {
 		assertEquals(90 * 60L, d)
 	}
 
-	@Test fun `duration is zero when end before start`() {
-		val d = task(LocalTime.of(10, 0), LocalTime.of(9, 0)).getDuration()
-		assertEquals(0L, d)
+	@Test fun `midnight crossing returns correct duration`() {
+		val d = task(LocalTime.of(23, 0), LocalTime.of(1, 0)).getDuration()
+		assertEquals(7200L, d)
+	}
+
+	@Test fun `non crossing duration unchanged`() {
+		val d = task(LocalTime.of(9, 0), LocalTime.of(10, 30)).getDuration()
+		assertEquals(5400L, d)
 	}
 
 	@Test fun `isAllDayTaskEnabled true when start equals end`() {

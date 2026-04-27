@@ -10,13 +10,6 @@ fun checkValidTask(
 	isTaskAllDay: Boolean = false,
 	sleepTime: LocalTime = LocalTime.MAX
 ): Pair<Boolean, String> {
-	val maxTime = sleepTime.toSecondOfDay()
-	val currentTime = LocalTime.now().toSecondOfDay()
-	val freeTime = maxTime - currentTime - totalTasksDuration
-	val formattedFreeTime = getFreeTime(totalTasksDuration, sleepTime)
-
-	val currentDuration = task.getDuration(checkPastTask = true)
-
 	if (task.title.trim().isEmpty()) {
 		return Pair(false, "Title can't be empty")
 	}
@@ -33,14 +26,5 @@ fun checkValidTask(
 		return Pair(true, "Future Task")
 	}
 
-	if (currentDuration >= freeTime) {
-		return Pair(false, "Invalid Duration! You have only $formattedFreeTime remaining.")
-	}
-
-//	if (task.reminder) {
-//		if (startTimeSec < currentTime && !task.isRepeated) {
-//			return Pair(false, "Cannot set a reminder for past time")
-//		}
-//	}
 	return Pair(true, "Valid Task")
 }

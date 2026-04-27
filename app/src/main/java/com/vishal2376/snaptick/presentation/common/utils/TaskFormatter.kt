@@ -7,7 +7,9 @@ private val weekdayShortNames = arrayOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
 
 fun formatTaskTime(task: Task, is24HourFormat: Boolean = false): String {
 	val dtf = if (is24HourFormat) Formatters.time24h else Formatters.time12h
-	return "${task.startTime.format(dtf)} - ${task.endTime.format(dtf)}"
+	val crossesMidnight = task.endTime < task.startTime && !task.isAllDayTaskEnabled()
+	val suffix = if (crossesMidnight) " +1" else ""
+	return "${task.startTime.format(dtf)} - ${task.endTime.format(dtf)}$suffix"
 }
 
 fun formatDuration(task: Task): String = formatDuration(task.getDuration())

@@ -8,6 +8,7 @@ import androidx.work.Configuration
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.vishal2376.snaptick.util.Constants
 import com.vishal2376.snaptick.worker.RescheduleAllRemindersWorker
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.Dispatchers
@@ -36,10 +37,7 @@ class SnaptickApplication : Application(), Configuration.Provider {
 	override fun attachBaseContext(base: Context?) {
 		super.attachBaseContext(base)
 
-		// ACRA init is gated on a build-time email destination. The repo carries
-		// no personal email; CI / local dev injects it via the `acraEmail` Gradle
-		// property. When unset (forks, contributor builds), ACRA stays off.
-		val acraEmail = BuildConfig.ACRA_EMAIL
+		val acraEmail = Constants.EMAIL
 		if (!shouldInitAcra(acraEmail)) return
 
 		ACRA.init(

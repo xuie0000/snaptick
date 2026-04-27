@@ -51,4 +51,10 @@ class ValidationTest {
 		assertTrue(valid)
 		assertEquals("Future Task", msg)
 	}
+
+	@Test fun `midnight crossing task is valid`() {
+		val t = task(start = LocalTime.of(23, 0), end = LocalTime.of(1, 0))
+		val (valid, _) = checkValidTask(task = t)
+		assertTrue(valid)
+	}
 }

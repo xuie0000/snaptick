@@ -28,6 +28,7 @@ android {
 		vectorDrawables {
 			useSupportLibrary = true
 		}
+
 	}
 
 	signingConfigs {

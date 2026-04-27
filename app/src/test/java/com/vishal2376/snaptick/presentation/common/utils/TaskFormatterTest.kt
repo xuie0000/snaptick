@@ -2,6 +2,8 @@ package com.vishal2376.snaptick.presentation.common.utils
 
 import com.vishal2376.snaptick.domain.model.Task
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalTime
 
@@ -51,5 +53,25 @@ class TaskFormatterTest {
 
 	@Test fun `formatWeekDays empty returns empty string`() {
 		assertEquals("", formatWeekDays(emptyList()))
+	}
+
+	@Test fun `midnight crossing task shows +1 suffix`() {
+		val task = Task(
+			id = 1, uuid = "u", title = "t",
+			startTime = LocalTime.of(23, 0),
+			endTime = LocalTime.of(1, 0)
+		)
+		val result = formatTaskTime(task, is24HourFormat = true)
+		assertTrue(result.endsWith("+1"))
+	}
+
+	@Test fun `normal task has no +1 suffix`() {
+		val task = Task(
+			id = 1, uuid = "u", title = "t",
+			startTime = LocalTime.of(9, 0),
+			endTime = LocalTime.of(10, 0)
+		)
+		val result = formatTaskTime(task, is24HourFormat = true)
+		assertFalse(result.endsWith("+1"))
 	}
 }
