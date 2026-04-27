@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vishal2376.snaptick.data.repositories.TaskRepository
+import com.vishal2376.snaptick.util.Constants
 import com.vishal2376.snaptick.presentation.add_edit_screen.action.AddEditAction
 import com.vishal2376.snaptick.presentation.add_edit_screen.events.AddEditEvent
 import com.vishal2376.snaptick.presentation.add_edit_screen.state.AddEditState
@@ -42,7 +43,21 @@ class AddEditViewModel @Inject constructor(
 	fun onAction(action: AddEditAction) {
 		when (action) {
 			is AddEditAction.UpdateTitle -> _state.update { it.copy(title = action.title) }
-			is AddEditAction.UpdateStartTime -> _state.update { it.copy(startTime = action.time) }
+			is AddEditAction.UpdateStartTime -> _state.update {
+				val oldStartSec = it.startTime.toSecondOfDay()
+				val oldEndSec = it.endTime.toSecondOfDay()
+				val gapSec = if (oldEndSec < oldStartSec) {
+					oldEndSec + Constants.SECONDS_IN_DAY - oldStartSec
+				} else {
+					oldEndSec - oldStartSec
+				}
+				val gapMin = (gapSec / 60L).coerceAtLeast(0L)
+				it.copy(
+					startTime = action.time,
+					endTime = action.time.plusMinutes(gapMin),
+					duration = gapMin
+				)
+			}
 			is AddEditAction.UpdateEndTime -> _state.update { it.copy(endTime = action.time) }
 			is AddEditAction.UpdateDate -> _state.update { it.copy(date = action.date) }
 			is AddEditAction.UpdateReminder -> _state.update { it.copy(reminder = action.enabled) }
