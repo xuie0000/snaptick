@@ -30,13 +30,16 @@ class ExactAlarmFallbackTest {
 		val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 		val scheduler = ReminderScheduler(context, am)
 
+		// Use tomorrow's date with a fixed start time so the test isn't flaky
+		// near midnight (LocalTime.now().plusHours(1) can wrap past 00:00 while
+		// task.date stays today, putting the fire instant in the past).
 		val task = Task(
 			id = 8888, uuid = "fallback",
 			title = "T",
-			startTime = LocalTime.now().plusHours(1),
-			endTime = LocalTime.now().plusHours(2),
+			startTime = LocalTime.of(9, 0),
+			endTime = LocalTime.of(10, 0),
 			reminder = true,
-			date = LocalDate.now(),
+			date = LocalDate.now().plusDays(1),
 		)
 
 		// Should not throw under either exact or inexact path.

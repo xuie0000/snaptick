@@ -54,12 +54,12 @@ class ToggleTaskActionTest {
 		ToggleTaskAction().onAction(context, glanceId, params)
 
 		val toggled = db.taskDao().getTaskById(1)
-		assertTrue(toggled.isCompleted)
+		assertTrue(toggled?.isCompleted == true)
 
 		// toggle again → back to false
 		ToggleTaskAction().onAction(context, glanceId, params)
 		val back = db.taskDao().getTaskById(1)
-		assertFalse(back.isCompleted)
+		assertFalse(back?.isCompleted == true)
 	}
 
 	@Test fun onAction_noopForMissingParam() = runBlocking {
@@ -67,6 +67,6 @@ class ToggleTaskActionTest {
 		val glanceId = object : GlanceId {}
 		ToggleTaskAction().onAction(context, glanceId, params)
 		// task 1 still not completed
-		assertFalse(db.taskDao().getTaskById(1).isCompleted)
+		assertFalse(db.taskDao().getTaskById(1)?.isCompleted == true)
 	}
 }
