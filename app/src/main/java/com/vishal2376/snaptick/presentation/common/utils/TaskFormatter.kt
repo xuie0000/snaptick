@@ -1,6 +1,7 @@
 package com.vishal2376.snaptick.presentation.common.utils
 
 import com.vishal2376.snaptick.domain.model.Task
+import com.vishal2376.snaptick.util.Constants
 import java.time.LocalTime
 
 private val weekdayShortNames = arrayOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
@@ -15,7 +16,13 @@ fun formatTaskTime(task: Task, is24HourFormat: Boolean = false): String {
 fun formatDuration(task: Task): String = formatDuration(task.getDuration())
 
 fun formatDuration(startTime: LocalTime, endTime: LocalTime): String {
-	val seconds = (endTime.toSecondOfDay() - startTime.toSecondOfDay()).coerceAtLeast(0).toLong()
+	val startSec = startTime.toSecondOfDay()
+	val endSec = endTime.toSecondOfDay()
+	val seconds = if (endSec < startSec) {
+		(endSec + Constants.SECONDS_IN_DAY - startSec).toLong()
+	} else {
+		(endSec - startSec).coerceAtLeast(0).toLong()
+	}
 	return formatDuration(seconds)
 }
 

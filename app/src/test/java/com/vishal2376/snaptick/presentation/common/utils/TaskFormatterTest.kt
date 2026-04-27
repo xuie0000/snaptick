@@ -35,6 +35,10 @@ class TaskFormatterTest {
 		assertEquals("2 hours", formatDuration(LocalTime.of(9, 0), LocalTime.of(11, 0)))
 	}
 
+	@Test fun `formatDuration midnight crossing returns correct duration`() {
+		assertEquals("2 hours", formatDuration(LocalTime.of(23, 0), LocalTime.of(1, 0)))
+	}
+
 	@Test fun `formatDuration minutes only`() {
 		assertEquals("45 min", formatDuration(LocalTime.of(9, 0), LocalTime.of(9, 45)))
 	}
