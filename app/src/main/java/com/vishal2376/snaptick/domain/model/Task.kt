@@ -41,6 +41,13 @@ data class Task(
 				.map { it.toInt() }
 	}
 
+	fun shouldOccurOn(target: LocalDate): Boolean {
+		if (!isRepeated) return date == target
+		if (target < date) return false
+		val weekdayIndex = target.dayOfWeek.value - 1
+		return getRepeatWeekList().contains(weekdayIndex)
+	}
+
 	fun isValidPomodoroSession(timeLeft: Long): Boolean {
 		return (getDuration() - timeLeft) >= Constants.MIN_VALID_POMODORO_SESSION * 60
 	}

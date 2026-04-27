@@ -62,22 +62,34 @@ class TaskRepository(
 	}
 
 	/**
-	 * Today's tasks with per-date completion state merged in. Repeat-template
-	 * tasks have their `isCompleted` flag flipped to `true` when a row exists
-	 * in `task_completions` for `(uuid, today)`. One-off tasks pass through
-	 * unchanged.
+	 * Today's tasks with per-date completion state merged in. The list is the
+	 * union of one-off tasks dated today and repeat templates whose creation
+	 * date is on or before today and whose weekday matches today. Repeat
+	 * templates have their `isCompleted` flag flipped to `true` when a row
+	 * exists in `task_completions` for `(uuid, today)`.
 	 */
 	fun getTodayTasksWithCompletions(): Flow<List<Task>> {
-		val today = LocalDate.now().toString()
+		val today = LocalDate.now()
+		val todayIso = today.toString()
 		return combine(
-			dao.getTasksByDate(today),
-			completionDao.completedUuidsOn(today),
-		) { tasks, completedUuids ->
+			dao.getTasksByDate(todayIso),
+			dao.getActiveRepeats(todayIso),
+			completionDao.completedUuidsOn(todayIso),
+		) { dated, repeats, completedUuids ->
 			val completedSet = completedUuids.toHashSet()
-			tasks.map { task ->
-				if (task.isRepeated && task.uuid in completedSet) task.copy(isCompleted = true)
-				else task
+			val seen = HashSet<Int>()
+			val out = ArrayList<Task>(dated.size + repeats.size)
+			for (task in dated) {
+				if (seen.add(task.id) && task.shouldOccurOn(today)) out += task
 			}
+			for (task in repeats) {
+				if (task.id in seen) continue
+				if (!task.shouldOccurOn(today)) continue
+				val merged = if (task.uuid in completedSet) task.copy(isCompleted = true) else task
+				out += merged
+				seen += task.id
+			}
+			out
 		}
 	}
 
@@ -91,14 +103,26 @@ class TaskRepository(
 
 	/**
 	 * Records a completion for the given repeating task on the given date.
-	 * One-off task completion still flows through `updateTask`.
+	 * One-off task completion still flows through `updateTask`. After writing,
+	 * we re-arm the reminder so the next-fire instant skips today and points
+	 * at the following scheduled occurrence.
 	 */
 	suspend fun markCompletedForDate(uuid: String, date: LocalDate) {
 		completionDao.insert(TaskCompletion(uuid = uuid, date = date.toString()))
+		dao.getTaskByUuid(uuid)?.let { task ->
+			reminderScheduler.cancel(task.id)
+			reminderScheduler.schedule(task, skipToday = date == LocalDate.now())
+		}
+		WidgetUpdateWorker.enqueueWorker(context)
 	}
 
 	suspend fun unmarkCompletedForDate(uuid: String, date: LocalDate) {
 		completionDao.delete(uuid, date.toString())
+		dao.getTaskByUuid(uuid)?.let { task ->
+			reminderScheduler.cancel(task.id)
+			reminderScheduler.schedule(task)
+		}
+		WidgetUpdateWorker.enqueueWorker(context)
 	}
 
 	suspend fun isCompletedOn(uuid: String, date: LocalDate): Boolean {

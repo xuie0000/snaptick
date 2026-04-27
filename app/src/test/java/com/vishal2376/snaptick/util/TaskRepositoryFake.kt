@@ -44,7 +44,7 @@ class TaskRepositoryFake {
 		}
 		every { repo.getAllTasks() } returns tasks
 		every { repo.getTodayTasksWithCompletions() } answers {
-			tasks.map { list -> list.filter { it.date == LocalDate.now() } }
+			tasks.map { list -> list.filter { it.shouldOccurOn(LocalDate.now()) } }
 		}
 		coJustRun { repo.markCompletedForDate(any(), any()) }
 		coJustRun { repo.unmarkCompletedForDate(any(), any()) }

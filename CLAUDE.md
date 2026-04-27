@@ -44,8 +44,9 @@ No god `TaskViewModel` — the old monolithic one has been split and deleted. Pe
 - `presentation/common/utils/` — `Formatters.kt` (all `DateTimeFormatter` constants) and `TaskFormatter.kt` (pure task display helpers). Every date/time display site goes through these.
 - `presentation/` — one package per screen. Navigation in `presentation/navigation/{AppNavigation,Routes}.kt`. `AppNavigation` collects each screen's VM state/events and passes `state + events + onAction` into the composable.
 - `ui/theme/` — `LightColorScheme`, `DarkColorScheme`, `AmoledDarkColorScheme`. Widget reuses these via `ColorProviders` so themes match.
-- `util/` — `SettingsStore` (DataStore Preferences), `BackupManager` (Gson JSON export/import via SAF; errors surfaced via `Log.e`), `NotificationHelper`, `LocaleHelper` (15+ locales), `AudioUtil`, `TaskReminderScheduler` (`@Singleton`, schedules/cancels per-task `NotificationWorker`).
-- `worker/` — `RepeatTaskWorker` (daily at midnight; re-creates repeated tasks for today), `NotificationWorker` (per-task reminder).
+- `util/` — `SettingsStore` (DataStore Preferences), `BackupManager` (Gson JSON export/import via SAF; errors surfaced via `Log.e`), `NotificationHelper`, `LocaleHelper` (15+ locales), `AudioUtil`, `ReminderScheduler` (`@Singleton`, AlarmManager-based exact alarms with auto-rearm for repeats).
+- `worker/` — `RescheduleAllRemindersWorker` (boot/upgrade/time-change rearm), `RescheduleSingleReminderWorker` (per-task next-fire arm after a reminder fires).
+- Repeating tasks have a single template row in `task_table` with `isRepeated = 1` + `repeatWeekdays`. Today's view is the union of one-off tasks dated today and repeat templates whose creation date ≤ today and weekday matches; `task_completions(uuid, date)` tracks per-day completion separately.
 
 ### Widget (Glance)
 
@@ -63,7 +64,7 @@ Separate subtree under `widget/` with its own DI module (`widget/di/WidgetModule
 `SnaptickApplication` (`@HiltAndroidApp`, `Configuration.Provider`):
 1. Initializes ACRA (crash reports emailed to `Constants.EMAIL`).
 2. Provides `HiltWorkerFactory` to WorkManager.
-3. Schedules `RepeatTaskWorker` as a unique periodic job (`"Repeat-Tasks"`, `KEEP`) with initial delay until midnight.
+3. Enqueues a one-shot `RescheduleAllRemindersWorker` on every cold start as a safety net for AlarmManager state loss (force-stop, settings clear). Reboot/upgrade/time-change rearm is handled by `SystemEventReceiver`.
 
 Do **not** rely on the default WorkManager initializer — it's disabled via `tools:node="remove"` on `InitializationProvider` in the manifest. Hilt-injected workers need `HiltWorkerFactory`, so new workers must be `@HiltWorker` + `@AssistedInject`.
 

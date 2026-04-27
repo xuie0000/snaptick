@@ -46,7 +46,6 @@ import com.vishal2376.snaptick.presentation.task_list.viewmodel.TaskListViewMode
 import com.vishal2376.snaptick.presentation.this_week_task_screen.ThisWeekTaskScreen
 import com.vishal2376.snaptick.util.openMail
 import com.vishal2376.snaptick.util.showToast
-import java.time.LocalDate
 
 @Composable
 fun AppNavigation(
@@ -118,12 +117,8 @@ fun AppNavigation(
 		composable(route = Routes.HomeScreen.name) {
 			val taskListViewModel: TaskListViewModel = hiltViewModel()
 			val todayTasks by taskListViewModel.todayTasks.collectAsStateWithLifecycle(initialValue = emptyList())
-			val dayOfWeek = LocalDate.now().dayOfWeek.value - 1
-			val updatedTodayTasks = todayTasks.filter { task ->
-				if (task.isRepeated) task.getRepeatWeekList().contains(dayOfWeek) else true
-			}
 			HomeScreen(
-				tasks = updatedTodayTasks,
+				tasks = todayTasks,
 				appState = mainState,
 				onAction = mainViewModel::onAction,
 				onTaskAction = taskListViewModel::onAction,
@@ -140,12 +135,8 @@ fun AppNavigation(
 		composable(route = Routes.CompletedTaskScreen.name) {
 			val taskListViewModel: TaskListViewModel = hiltViewModel()
 			val todayTasks by taskListViewModel.todayTasks.collectAsStateWithLifecycle(initialValue = emptyList())
-			val dayOfWeek = LocalDate.now().dayOfWeek.value - 1
-			val updatedTodayTasks = todayTasks.filter { task ->
-				if (task.isRepeated) task.getRepeatWeekList().contains(dayOfWeek) else true
-			}
 			CompletedTaskScreen(
-				tasks = updatedTodayTasks,
+				tasks = todayTasks,
 				appState = mainState,
 				onTaskAction = taskListViewModel::onAction,
 				onBack = {
@@ -192,12 +183,8 @@ fun AppNavigation(
 		composable(route = Routes.FreeTimeScreen.name) {
 			val taskListViewModel: TaskListViewModel = hiltViewModel()
 			val todayTasks by taskListViewModel.todayTasks.collectAsStateWithLifecycle(initialValue = emptyList())
-			val dayOfWeek = LocalDate.now().dayOfWeek.value - 1
-			val updatedTodayTasks = todayTasks.filter { task ->
-				if (task.isRepeated) task.getRepeatWeekList().contains(dayOfWeek) else true
-			}
 			FreeTimeScreen(
-				tasks = updatedTodayTasks,
+				tasks = todayTasks,
 				appState = mainState,
 				onBack = {
 					if (navController.isValidBackStack) {

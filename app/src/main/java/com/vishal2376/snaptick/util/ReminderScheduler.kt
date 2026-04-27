@@ -11,7 +11,9 @@ import com.vishal2376.snaptick.domain.model.Task
 import com.vishal2376.snaptick.presentation.common.utils.formatTaskTime
 import com.vishal2376.snaptick.receiver.ReminderReceiver
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneId
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -44,14 +46,20 @@ class ReminderScheduler @Inject constructor(
 
 	/**
 	 * Arms the next fire for [task]. No-op when reminders are off, the task is
-	 * globally completed (one-off case), or no future occurrence exists.
+	 * globally completed (one-off case), or no future occurrence exists. Pass
+	 * [skipToday] = true to push the search past today (used after a repeating
+	 * task is marked completed for today).
 	 */
-	fun schedule(task: Task) {
+	fun schedule(task: Task, skipToday: Boolean = false) {
 		if (!task.reminder || task.isCompleted) {
 			cancel(task.id)
 			return
 		}
-		val fireAt = nextFireMillis(task) ?: run {
+		val from = if (skipToday)
+			LocalDateTime.of(LocalDate.now(), LocalTime.MAX)
+		else
+			LocalDateTime.now()
+		val fireAt = nextFireMillis(task, from) ?: run {
 			cancel(task.id)
 			return
 		}
@@ -137,7 +145,7 @@ class ReminderScheduler @Inject constructor(
 		if (weekdays.isEmpty()) return null
 
 		val today = now.toLocalDate()
-		for (offset in 0..7) {
+		for (offset in 0..6) {
 			val candidateDate = today.plusDays(offset.toLong())
 			val candidateDow = candidateDate.dayOfWeek.value - 1 // Mon=0 … Sun=6
 			if (candidateDow !in weekdays) continue
