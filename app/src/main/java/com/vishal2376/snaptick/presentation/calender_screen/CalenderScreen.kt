@@ -83,7 +83,7 @@ fun CalenderScreen(
 ) {
 	val scope = rememberCoroutineScope()
 	val context = LocalContext.current
-	var calenderView by remember { mutableStateOf(appState.calenderView) }
+	var calenderView by remember(appState.calenderView) { mutableStateOf(appState.calenderView) }
 	val firstDayOfWeek = remember { firstDayOfWeekFromLocale() }
 
 	// monthly calender
@@ -108,8 +108,7 @@ fun CalenderScreen(
 	)
 
 	var selectedDay by remember { mutableStateOf<LocalDate>(currentDate) }
-	var currentMonthTitle by remember { mutableStateOf(currentMonth.month) }
-	currentMonthTitle = if (calenderView == CalenderView.WEEKLY)
+	val currentMonthTitle = if (calenderView == CalenderView.WEEKLY)
 		weekState.firstVisibleWeek.days[0].date.month
 	else
 		monthState.lastVisibleMonth.yearMonth.month

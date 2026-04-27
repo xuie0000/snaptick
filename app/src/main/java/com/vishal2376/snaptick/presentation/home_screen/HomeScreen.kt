@@ -80,12 +80,11 @@ import com.vishal2376.snaptick.ui.theme.SnaptickTheme
 import com.vishal2376.snaptick.ui.theme.Yellow
 import com.vishal2376.snaptick.util.Constants
 import com.vishal2376.snaptick.util.DummyTasks
-import com.vishal2376.snaptick.util.SettingsStore
 import com.vishal2376.snaptick.util.SoundEvent
 import com.vishal2376.snaptick.util.getFreeTime
 import com.vishal2376.snaptick.util.playSound
-import com.vishal2376.snaptick.util.updateLocale
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 
 @OptIn(
@@ -102,21 +101,18 @@ fun HomeScreen(
 	onBackupData: () -> Unit,
 	onRestoreData: () -> Unit
 ) {
-	val completedTasks = tasks.filter { it.isCompleted }
-	val inCompletedTasks = tasks.filter { !it.isCompleted }
+	val today = remember { LocalDate.now() }
+	val context = LocalContext.current
 
-	val totalTaskTime = inCompletedTasks.sumOf { it.getDuration(checkPastTask = true) }
+	val completedTasks = remember(tasks) { tasks.filter { it.isCompleted } }
+	val inCompletedTasks = remember(tasks) { tasks.filter { !it.isCompleted } }
+
+	val totalTaskTime = remember(inCompletedTasks) { inCompletedTasks.sumOf { it.getDuration(checkPastTask = true) } }
 	val freeTimeText = getFreeTime(totalTaskTime, appState.sleepTime)
 
 	val appStreakText = appState.streak.toString()
-	val context = LocalContext.current
-	val packageInfo = context.packageManager.getPackageInfo(LocalContext.current.packageName, 0)
-
-	LaunchedEffect(Unit) {
-		val store = SettingsStore(context)
-		store.languageKey.collect {
-			updateLocale(context, it)
-		}
+	val packageVersionCode = remember(context) {
+		context.packageManager.getPackageInfo(context.packageName, 0).versionCode
 	}
 
 	val totalTasks = tasks.size
@@ -257,11 +253,11 @@ fun HomeScreen(
 					}
 				)
 
-			if ((appState.showWhatsNew && appState.firstTimeOpened) || appState.buildVersionCode != packageInfo.versionCode) {
+			if ((appState.showWhatsNew && appState.firstTimeOpened) || appState.buildVersionCode != packageVersionCode) {
 				WhatsNewDialogComponent(appState = appState) {
 					onAction(MainAction.UpdateFirstTimeOpened(false))
 					onAction(MainAction.UpdateShowWhatsNew(it))
-					onAction(MainAction.UpdateBuildVersionCode(packageInfo.versionCode))
+					onAction(MainAction.UpdateBuildVersionCode(packageVersionCode))
 				}
 			}
 
@@ -419,6 +415,7 @@ fun HomeScreen(
 									TaskComponent(
 										task = task,
 										is24HourTimeFormat = appState.is24hourTimeFormat,
+										today = today,
 										onEdit = { taskId ->
 											onNavigate("${Routes.EditTaskScreen.name}/$taskId")
 										},

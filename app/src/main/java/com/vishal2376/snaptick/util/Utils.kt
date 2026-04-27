@@ -42,6 +42,7 @@ fun getFreeTime(totalDuration: Long, sleepTime: LocalTime): String {
 	val effectiveMax = if (maxTime <= currentTime) maxTime + Constants.SECONDS_IN_DAY else maxTime
 
 	val totalFreeDuration = effectiveMax - currentTime - totalDuration
+	if (totalFreeDuration <= 0) return "0 min"
 
 	val hours = (totalFreeDuration / 3600).toInt()
 	val minutes = ((totalFreeDuration % 3600) / 60).toInt()

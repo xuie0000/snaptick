@@ -62,7 +62,8 @@ fun TaskComponent(
 	onPomodoro: (Int) -> Unit,
 	onDelete: (Int) -> Unit = {},
 	animDelay: Int = 100,
-	is24HourTimeFormat: Boolean = false
+	is24HourTimeFormat: Boolean = false,
+	today: LocalDate = LocalDate.now()
 ) {
 
 	val alphaAnimation = remember { Animatable(initialValue = 0f) }
@@ -229,7 +230,7 @@ fun TaskComponent(
 					}
 
 				}
-				if (!task.isCompleted && task.date.isEqual(LocalDate.now()) && !task.isAllDayTaskEnabled()) {
+				if (!task.isCompleted && task.date.isEqual(today) && !task.isAllDayTaskEnabled()) {
 					IconButton(
 						onClick = { onPomodoro(task.id) },
 						modifier = Modifier.weight(0.1f)
@@ -241,7 +242,7 @@ fun TaskComponent(
 						)
 					}
 				}
-				if (task.date < LocalDate.now()) {
+				if (task.date < today) {
 					IconButton(
 						onClick = { onDelete(task.id) },
 						modifier = Modifier.weight(0.1f)

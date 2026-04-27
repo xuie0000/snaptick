@@ -26,6 +26,7 @@ import com.vishal2376.snaptick.util.SplashThemeMirror
 import com.vishal2376.snaptick.util.updateLocale
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -37,6 +38,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalTime
 import javax.inject.Inject
@@ -291,9 +293,12 @@ class MainViewModel @Inject constructor(
 	}
 
 	private fun loadBuildVersion() {
-		val versionName = context.packageManager
-			.getPackageInfo(context.packageName, 0).versionName ?: "0.0"
-		_state.update { it.copy(buildVersion = versionName) }
+		viewModelScope.launch {
+			val versionName = withContext(Dispatchers.IO) {
+				context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "0.0"
+			}
+			_state.update { it.copy(buildVersion = versionName) }
+		}
 	}
 
 	private fun loadPersistedState() {
@@ -302,7 +307,12 @@ class MainViewModel @Inject constructor(
 		viewModelScope.launch { settingsStore.timePickerKey.collect { v -> _state.update { it.copy(isWheelTimePicker = v) } } }
 		viewModelScope.launch { settingsStore.streakKey.collect { v -> _state.update { it.copy(streak = v) } } }
 		viewModelScope.launch { settingsStore.sleepTimeKey.collect { v -> _state.update { it.copy(sleepTime = LocalTime.parse(v)) } } }
-		viewModelScope.launch { settingsStore.languageKey.collect { v -> _state.update { it.copy(language = v) } } }
+		viewModelScope.launch {
+			settingsStore.languageKey.collect { v ->
+				_state.update { it.copy(language = v) }
+				updateLocale(context, v)
+			}
+		}
 		viewModelScope.launch { settingsStore.calenderViewKey.collect { v -> _state.update { it.copy(calenderView = CalenderView.entries[v]) } } }
 		viewModelScope.launch { settingsStore.timeFormatKey.collect { v -> _state.update { it.copy(is24hourTimeFormat = v) } } }
 		viewModelScope.launch { settingsStore.sortTaskKey.collect { v -> _state.update { it.copy(sortBy = SortTask.entries[v]) } } }
