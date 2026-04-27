@@ -22,12 +22,12 @@ private const val TAG = "BackupManager"
 class BackupManager @Inject constructor(
 	@ApplicationContext val context: Context
 ) {
-	private val timestamp = LocalDate.now()
-	private val backupFileName = "Snaptick_Backup_$timestamp.json"
 	private val gson: Gson = GsonBuilder()
 		.registerTypeAdapter(LocalDate::class.java, LocalDateAdapter())
 		.registerTypeAdapter(LocalTime::class.java, LocalTimeAdapter())
 		.create()
+
+	private fun backupFileName(): String = "Snaptick_Backup_${LocalDate.now()}.json"
 
 	suspend fun createBackup(uri: Uri, data: BackupData): Boolean {
 		return withContext(Dispatchers.IO) {
@@ -67,7 +67,7 @@ class BackupManager @Inject constructor(
 		val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
 			addCategory(Intent.CATEGORY_OPENABLE)
 			type = "application/json"
-			putExtra(Intent.EXTRA_TITLE, backupFileName)
+			putExtra(Intent.EXTRA_TITLE, backupFileName())
 		}
 		return intent
 	}

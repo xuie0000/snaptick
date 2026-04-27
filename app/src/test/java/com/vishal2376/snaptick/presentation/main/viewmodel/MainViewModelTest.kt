@@ -93,8 +93,8 @@ class MainViewModelTest {
 
 	@Test fun `CreateBackup success emits ShowToast with success text`() = runTest {
 		val uri = mockk<Uri>()
-		val data = BackupData(emptyList())
-		coEvery { backupManager.createBackup(uri, data) } returns true
+		val data = BackupData(tasks = emptyList())
+		coEvery { backupManager.createBackup(any(), any()) } returns true
 
 		val vm = buildVm()
 		advanceUntilIdle()
@@ -120,7 +120,7 @@ class MainViewModelTest {
 
 	@Test fun `PreviewBackup stages pendingRestore and emits BackupPreviewReady`() = runTest {
 		val uri = mockk<Uri>()
-		val data = BackupData(emptyList())
+		val data = BackupData(tasks = emptyList())
 		coEvery { backupManager.loadBackup(uri) } returns data
 
 		val vm = buildVm()
@@ -134,11 +134,10 @@ class MainViewModelTest {
 		coVerify(exactly = 0) { repoFake.repo.deleteAllTasks() }
 	}
 
-	@Test fun `ConfirmRestore wipes DB and inserts staged tasks`() = runTest {
+	@Test fun `ConfirmRestore invokes restoreFromBackup`() = runTest {
 		val uri = mockk<Uri>()
-		val data = BackupData(emptyList())
+		val data = BackupData(tasks = emptyList())
 		coEvery { backupManager.loadBackup(uri) } returns data
-		coJustRun { repoFake.repo.deleteAllTasks() }
 
 		val vm = buildVm()
 		advanceUntilIdle()
@@ -147,12 +146,12 @@ class MainViewModelTest {
 		vm.onAction(MainAction.ConfirmRestore)
 		advanceUntilIdle()
 
-		coVerify(exactly = 1) { repoFake.repo.deleteAllTasks() }
+		coVerify(exactly = 1) { repoFake.repo.restoreFromBackup(any()) }
 	}
 
 	@Test fun `CancelRestore clears pendingRestore without DB writes`() = runTest {
 		val uri = mockk<Uri>()
-		val data = BackupData(emptyList())
+		val data = BackupData(tasks = emptyList())
 		coEvery { backupManager.loadBackup(uri) } returns data
 
 		val vm = buildVm()

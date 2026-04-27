@@ -1,6 +1,7 @@
 package com.vishal2376.snaptick.util
 
 import com.google.gson.GsonBuilder
+import com.vishal2376.snaptick.domain.model.BackupCompletion
 import com.vishal2376.snaptick.domain.model.BackupData
 import com.vishal2376.snaptick.domain.model.Task
 import org.junit.Assert.assertEquals
@@ -43,10 +44,25 @@ class BackupGsonTest {
 		assertEquals(original, decoded)
 	}
 
+	@Test fun backupData_roundTrip_preservesCompletionsAndVersion() {
+		val original = BackupData(
+			version = 1,
+			tasks = emptyList(),
+			completions = listOf(
+				BackupCompletion(uuid = "u1", date = "2026-04-27"),
+				BackupCompletion(uuid = "u2", date = "2026-04-28"),
+			)
+		)
+		val decoded = gson.fromJson(gson.toJson(original), BackupData::class.java)
+		assertEquals(original, decoded)
+	}
+
 	@Test fun empty_backup_roundTrips() {
-		val empty = BackupData(emptyList())
+		val empty = BackupData(tasks = emptyList())
 		val decoded = gson.fromJson(gson.toJson(empty), BackupData::class.java)
 		assertEquals(empty, decoded)
+		assertEquals(1, decoded.version)
+		assertEquals(emptyList<BackupCompletion>(), decoded.completions)
 	}
 
 	@Test fun localDate_adapter_usesIsoFormat() {

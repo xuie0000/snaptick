@@ -54,11 +54,12 @@ object AppModule {
 	fun providesTaskRepository(
 		dao: TaskDao,
 		completionDao: TaskCompletionDao,
+		database: TaskDatabase,
 		@ApplicationContext context: Context,
 		calendarPusher: CalendarPusher,
 		reminderScheduler: ReminderScheduler,
 	): TaskRepository {
-		return TaskRepository(dao, completionDao, context, calendarPusher, reminderScheduler)
+		return TaskRepository(dao, completionDao, database, context, calendarPusher, reminderScheduler)
 	}
 
 }

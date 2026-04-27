@@ -9,6 +9,7 @@ import com.vishal2376.snaptick.data.calendar.CalendarImporter
 import com.vishal2376.snaptick.data.calendar.CalendarInfo
 import com.vishal2376.snaptick.data.calendar.CalendarRepository
 import com.vishal2376.snaptick.data.repositories.TaskRepository
+import com.vishal2376.snaptick.domain.model.BACKUP_VERSION
 import com.vishal2376.snaptick.domain.model.BackupData
 import com.vishal2376.snaptick.domain.model.Task
 import com.vishal2376.snaptick.presentation.common.AppTheme
@@ -45,6 +46,7 @@ import javax.inject.Inject
 
 private const val MAX_ICS_BYTES: Long = 8L * 1024 * 1024  // 8 MiB
 private const val MAX_BACKUP_TASKS = 10_000
+private const val MAX_TASK_FIELD_LENGTH = 4 * 1024  // 4 KiB per text field
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -63,7 +65,7 @@ class MainViewModel @Inject constructor(
 	val events = _events.asSharedFlow()
 
 	val backupData: StateFlow<BackupData> = repository.getAllTasks()
-		.map { BackupData(it) }
+		.map { BackupData(tasks = it) }
 		.stateIn(viewModelScope, SharingStarted.Eagerly, BackupData())
 
 	init {
@@ -214,9 +216,10 @@ class MainViewModel @Inject constructor(
 		viewModelScope.launch { _events.emit(MainEvent.OpenMail(subject)) }
 	}
 
-	private fun createBackup(uri: Uri, backupData: BackupData) {
+	private fun createBackup(uri: Uri, @Suppress("UNUSED_PARAMETER") legacyBackupData: BackupData) {
 		viewModelScope.launch {
-			val success = backupManager.createBackup(uri, backupData)
+			val snapshot = repository.snapshotBackup()
+			val success = backupManager.createBackup(uri, snapshot)
 			_events.emit(MainEvent.ShowToast(if (success) "Backup created successfully" else "Failed to create backup"))
 		}
 	}
@@ -234,15 +237,18 @@ class MainViewModel @Inject constructor(
 				_events.emit(MainEvent.ShowToast("Failed to read backup file"))
 				return@launch
 			}
+			if (data.version != BACKUP_VERSION) {
+				_events.emit(MainEvent.ImportFailed("Unsupported backup version (${data.version})"))
+				return@launch
+			}
 			if (data.tasks.size > MAX_BACKUP_TASKS) {
 				_events.emit(MainEvent.ImportFailed("Backup too large (max $MAX_BACKUP_TASKS tasks)"))
 				return@launch
 			}
-			// Drop tasks whose date/time fields can't round-trip through their
-			// Java-time parsers. Gson tolerates malformed strings here, but Room
-			// would crash later. Better to drop with a warning than wipe the DB
-			// then fail mid-insert.
 			val validTasks = data.tasks.filter { task ->
+				if (task.title.length > MAX_TASK_FIELD_LENGTH) return@filter false
+				if (task.repeatWeekdays.length > MAX_TASK_FIELD_LENGTH) return@filter false
+				if (task.uuid.length > MAX_TASK_FIELD_LENGTH) return@filter false
 				runCatching {
 					task.startTime.toString()
 					task.endTime.toString()
@@ -250,8 +256,10 @@ class MainViewModel @Inject constructor(
 				}.isSuccess
 			}
 			val droppedCount = data.tasks.size - validTasks.size
+			val keptUuids = validTasks.map { it.uuid }.toHashSet()
+			val validCompletions = data.completions.filter { it.uuid in keptUuids }
 			val pending = PendingRestore(
-				data = data.copy(tasks = validTasks),
+				data = data.copy(tasks = validTasks, completions = validCompletions),
 				taskCount = validTasks.size,
 				droppedCount = droppedCount,
 			)
@@ -273,8 +281,7 @@ class MainViewModel @Inject constructor(
 				return@launch
 			}
 			try {
-				repository.deleteAllTasks()
-				for (task in pending.data.tasks) repository.insertTask(task)
+				repository.restoreFromBackup(pending.data)
 				val msg = if (pending.droppedCount > 0)
 					"Restored ${pending.taskCount} tasks (${pending.droppedCount} skipped)"
 				else

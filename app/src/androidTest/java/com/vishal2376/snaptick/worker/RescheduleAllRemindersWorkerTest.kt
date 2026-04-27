@@ -63,7 +63,7 @@ class RescheduleAllRemindersWorkerTest {
 		scheduler = ReminderScheduler(context, am)
 		val settings = SettingsStore(context)
 		val pusher = CalendarPusher(CalendarRepository(context), db.taskDao(), settings)
-		repo = TaskRepository(db.taskDao(), db.taskCompletionDao(), context, pusher, scheduler)
+		repo = TaskRepository(db.taskDao(), db.taskCompletionDao(), db, context, pusher, scheduler)
 
 		// Clear any leftover alarms from prior runs so assertions are clean.
 		listOf(activeId, completedId, noReminderId).forEach { scheduler.cancel(it) }

@@ -48,6 +48,12 @@ class TaskRepositoryFake {
 		}
 		coJustRun { repo.markCompletedForDate(any(), any()) }
 		coJustRun { repo.unmarkCompletedForDate(any(), any()) }
+		coEvery { repo.snapshotBackup() } answers {
+			com.vishal2376.snaptick.domain.model.BackupData(tasks = tasks.value)
+		}
+		coEvery { repo.restoreFromBackup(any()) } answers {
+			tasks.value = firstArg<com.vishal2376.snaptick.domain.model.BackupData>().tasks
+		}
 	}
 
 	fun seed(items: List<Task>) {
