@@ -12,15 +12,24 @@ interface TaskCompletionDao {
 	@Insert(onConflict = OnConflictStrategy.IGNORE)
 	suspend fun insert(completion: TaskCompletion)
 
+	@Insert(onConflict = OnConflictStrategy.IGNORE)
+	suspend fun insertAll(completions: List<TaskCompletion>)
+
 	@Query("DELETE FROM task_completions WHERE uuid = :uuid AND date = :date")
 	suspend fun delete(uuid: String, date: String)
 
 	@Query("DELETE FROM task_completions WHERE uuid = :uuid")
 	suspend fun deleteAllForTask(uuid: String)
 
+	@Query("DELETE FROM task_completions")
+	suspend fun deleteAll()
+
 	@Query("SELECT EXISTS(SELECT 1 FROM task_completions WHERE uuid = :uuid AND date = :date)")
 	suspend fun isCompleted(uuid: String, date: String): Boolean
 
 	@Query("SELECT uuid FROM task_completions WHERE date = :date")
 	fun completedUuidsOn(date: String): Flow<List<String>>
+
+	@Query("SELECT * FROM task_completions")
+	suspend fun getAllSnapshot(): List<TaskCompletion>
 }

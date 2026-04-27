@@ -1,10 +1,14 @@
 package com.vishal2376.snaptick.data.repositories
 
 import android.content.Context
+import androidx.room.withTransaction
 import com.vishal2376.snaptick.data.calendar.CalendarPusher
 import com.vishal2376.snaptick.data.local.TaskCompletion
 import com.vishal2376.snaptick.data.local.TaskCompletionDao
 import com.vishal2376.snaptick.data.local.TaskDao
+import com.vishal2376.snaptick.data.local.TaskDatabase
+import com.vishal2376.snaptick.domain.model.BackupCompletion
+import com.vishal2376.snaptick.domain.model.BackupData
 import com.vishal2376.snaptick.domain.model.Task
 import com.vishal2376.snaptick.util.ReminderScheduler
 import com.vishal2376.snaptick.widget.worker.WidgetUpdateWorker
@@ -16,6 +20,7 @@ import java.time.LocalDate
 class TaskRepository(
 	private val dao: TaskDao,
 	private val completionDao: TaskCompletionDao,
+	private val database: TaskDatabase,
 	private val context: Context,
 	private val calendarPusher: CalendarPusher,
 	private val reminderScheduler: ReminderScheduler,
@@ -100,6 +105,35 @@ class TaskRepository(
 	}
 
 	suspend fun getAllTasksSnapshot(): List<Task> = dao.getAllTasksSnapshot()
+
+	suspend fun snapshotBackup(): BackupData {
+		val tasks = dao.getAllTasksSnapshot()
+		val completions = completionDao.getAllSnapshot()
+			.map { BackupCompletion(uuid = it.uuid, date = it.date) }
+		return BackupData(tasks = tasks, completions = completions)
+	}
+
+	/**
+	 * Atomically replaces the database contents with [data]. Wipes both
+	 * `task_table` and `task_completions`, then inserts the provided rows
+	 * inside a single transaction so a mid-restore failure rolls back to the
+	 * pre-restore state. Reminder rearm + widget refresh happen after commit.
+	 */
+	suspend fun restoreFromBackup(data: BackupData) {
+		database.withTransaction {
+			dao.deleteAllTasks()
+			completionDao.deleteAll()
+			for (task in data.tasks) dao.insertTask(task)
+			if (data.completions.isNotEmpty()) {
+				completionDao.insertAll(
+					data.completions.map { TaskCompletion(uuid = it.uuid, date = it.date) }
+				)
+			}
+		}
+		val saved = dao.getAllTasksSnapshot()
+		reminderScheduler.rescheduleAll(saved)
+		WidgetUpdateWorker.enqueueWorker(context)
+	}
 
 	/**
 	 * Records a completion for the given repeating task on the given date.

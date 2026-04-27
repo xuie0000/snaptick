@@ -5,6 +5,7 @@ import com.vishal2376.snaptick.data.calendar.CalendarPusher
 import com.vishal2376.snaptick.data.local.TaskCompletion
 import com.vishal2376.snaptick.data.local.TaskCompletionDao
 import com.vishal2376.snaptick.data.local.TaskDao
+import com.vishal2376.snaptick.data.local.TaskDatabase
 import com.vishal2376.snaptick.domain.model.Task
 import com.vishal2376.snaptick.util.ReminderScheduler
 import com.vishal2376.snaptick.widget.worker.WidgetUpdateWorker
@@ -40,6 +41,7 @@ class TaskRepositoryTest {
 
 	private lateinit var dao: TaskDao
 	private lateinit var completionDao: TaskCompletionDao
+	private lateinit var database: TaskDatabase
 	private lateinit var context: Context
 	private lateinit var calendarPusher: CalendarPusher
 	private lateinit var scheduler: ReminderScheduler
@@ -62,6 +64,7 @@ class TaskRepositoryTest {
 	@Before fun setUp() {
 		dao = mockk(relaxed = true)
 		completionDao = mockk(relaxed = true)
+		database = mockk(relaxed = true)
 		context = mockk(relaxed = true)
 		calendarPusher = mockk(relaxed = true)
 		scheduler = mockk(relaxed = true)
@@ -84,7 +87,7 @@ class TaskRepositoryTest {
 		coJustRun { completionDao.delete(any(), any()) }
 		coJustRun { completionDao.deleteAllForTask(any()) }
 
-		repo = TaskRepository(dao, completionDao, context, calendarPusher, scheduler)
+		repo = TaskRepository(dao, completionDao, database, context, calendarPusher, scheduler)
 	}
 
 	@After fun tearDown() {
