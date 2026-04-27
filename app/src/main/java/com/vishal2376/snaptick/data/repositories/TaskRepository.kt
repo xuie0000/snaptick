@@ -81,11 +81,6 @@ class TaskRepository(
 		}
 	}
 
-	fun getLastRepeatedTasks(): List<Task> {
-		val today = LocalDate.now().toString()
-		return dao.getLastRepeatedTasks(today)
-	}
-
 	fun getAllTasks(): Flow<List<Task>> {
 		return dao.getAllTasks().onEach {
 			WidgetUpdateWorker.enqueueWorker(context)

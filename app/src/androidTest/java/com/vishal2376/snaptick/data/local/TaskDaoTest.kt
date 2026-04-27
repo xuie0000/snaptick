@@ -40,7 +40,11 @@ class TaskDaoTest {
 	@Test fun insertAndGetById_roundtrip() = runBlocking {
 		dao.insertTask(task(id = 1))
 		val loaded = dao.getTaskById(1)
-		assertEquals("T1", loaded.title)
+		assertEquals("T1", loaded?.title)
+	}
+
+	@Test fun getTaskById_returnsNullForMissing() = runBlocking {
+		assertEquals(null, dao.getTaskById(99))
 	}
 
 	@Test fun getTasksByDate_filtersToTheDate() = runBlocking {
@@ -59,18 +63,10 @@ class TaskDaoTest {
 		assertTrue(rows.isEmpty())
 	}
 
-	@Test fun getLastRepeatedTasks_filtersRepeatedAndPast() = runBlocking {
-		dao.insertTask(task(id = 1, date = LocalDate.now().minusDays(1), repeated = true))
-		dao.insertTask(task(id = 2, date = LocalDate.now(), repeated = true))
-		dao.insertTask(task(id = 3, date = LocalDate.now().minusDays(1), repeated = false))
-		val result = dao.getLastRepeatedTasks(LocalDate.now().toString())
-		assertEquals(listOf(1), result.map { it.id })
-	}
-
 	@Test fun updateTask_persistsChanges() = runBlocking {
 		dao.insertTask(task(id = 1))
 		dao.updateTask(task(id = 1).copy(title = "Updated"))
-		assertEquals("Updated", dao.getTaskById(1).title)
+		assertEquals("Updated", dao.getTaskById(1)?.title)
 	}
 
 	@Test fun deleteTask_removesRow() = runBlocking {

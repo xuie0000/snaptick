@@ -27,7 +27,6 @@ object AppModule {
 	@Singleton
 	fun providesLocalDatabase(@ApplicationContext context: Context): TaskDatabase {
 		return Room.databaseBuilder(context, TaskDatabase::class.java, "local_db")
-			.fallbackToDestructiveMigration()
 			.addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
 			.build()
 	}
