@@ -105,18 +105,12 @@ fun HomeScreen(
 	val completedTasks = tasks.filter { it.isCompleted }
 	val inCompletedTasks = tasks.filter { !it.isCompleted }
 
-	// calc free time
 	val totalTaskTime = inCompletedTasks.sumOf { it.getDuration(checkPastTask = true) }
 	val freeTimeText = getFreeTime(totalTaskTime, appState.sleepTime)
 
-	// streak
 	val appStreakText = if (appState.streak > 0) appState.streak.toString() else "0"
 	val context = LocalContext.current
 	val packageInfo = context.packageManager.getPackageInfo(LocalContext.current.packageName, 0)
-
-	LaunchedEffect(inCompletedTasks) {
-		onAction(MainAction.UpdateTotalTaskDuration(totalTaskTime))
-	}
 
 	LaunchedEffect(Unit) {
 		val store = SettingsStore(context)

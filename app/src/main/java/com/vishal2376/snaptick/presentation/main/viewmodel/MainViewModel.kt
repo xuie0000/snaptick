@@ -91,7 +91,6 @@ class MainViewModel @Inject constructor(
 			is MainAction.UpdateFirstTimeOpened -> _state.update { it.copy(firstTimeOpened = action.isFirstTimeOpened) }
 			is MainAction.UpdateBuildVersionCode -> persist { _state.update { s -> s.copy(buildVersionCode = action.versionCode) }; settingsStore.setBuildVersionCode(action.versionCode) }
 			is MainAction.UpdateSwipeBehaviour -> persist { _state.update { s -> s.copy(swipeBehaviour = action.swipeBehaviour) }; settingsStore.setSwipeBehaviour(action.swipeBehaviour.ordinal) }
-			is MainAction.UpdateTotalTaskDuration -> _state.update { it.copy(totalTaskDuration = action.durationSeconds) }
 			is MainAction.OnClickNavDrawerItem -> handleNavDrawerClick(action.item)
 			is MainAction.CreateBackup -> createBackup(action.uri, action.backupData)
 			is MainAction.PreviewBackup -> previewBackup(action.uri)
