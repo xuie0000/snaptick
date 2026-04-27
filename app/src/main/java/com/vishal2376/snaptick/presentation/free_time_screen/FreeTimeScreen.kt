@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -50,11 +51,11 @@ fun FreeTimeScreen(
 	onBack: () -> Unit
 ) {
 
-	val inCompletedTasks = tasks.filter { !it.isCompleted }
-	val sortedTasks = inCompletedTasks.sortedBy { -it.getDuration() }
+	val inCompletedTasks = remember(tasks) { tasks.filter { !it.isCompleted } }
+	val sortedTasks = remember(inCompletedTasks) { inCompletedTasks.sortedBy { -it.getDuration() } }
 	val totalColors = pieChartColors.size
 
-	val totalTaskTime = inCompletedTasks.sumOf { it.getDuration(checkPastTask = true) }
+	val totalTaskTime = remember(inCompletedTasks) { inCompletedTasks.sumOf { it.getDuration(checkPastTask = true) } }
 	val freeTimeText = getFreeTime(totalTaskTime, appState.sleepTime)
 
 	Scaffold(topBar = {
@@ -122,7 +123,10 @@ fun FreeTimeScreen(
 					.fillMaxSize()
 					.padding(horizontal = 16.dp)
 			) {
-				itemsIndexed(items = sortedTasks) { index, item ->
+				itemsIndexed(
+					items = sortedTasks,
+					key = { _, task -> task.id }
+				) { index, item ->
 					PieChartItemComponent(
 						task = item,
 						itemColor = pieChartColors[index % totalColors],

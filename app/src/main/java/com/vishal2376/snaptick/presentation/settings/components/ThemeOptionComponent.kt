@@ -58,8 +58,8 @@ fun ThemeOptionComponent(
 	onSelect: (AppTheme) -> Unit,
 	onChangedDynamicTheme: (Boolean) -> Unit
 ) {
-	var selectedOption by remember { mutableStateOf(defaultTheme) }
-	var isDynamicThemeEnabled by remember { mutableStateOf(dynamicTheme) }
+	var selectedOption by remember(defaultTheme) { mutableStateOf(defaultTheme) }
+	var isDynamicThemeEnabled by remember(dynamicTheme) { mutableStateOf(dynamicTheme) }
 
 	val themeList = listOf(
 		ThemeColor(White500, White200, Black500),

@@ -30,13 +30,10 @@ import com.vishal2376.snaptick.ui.theme.Blue
 
 @Composable
 fun LanguageOptionComponent(defaultLanguage: String, onSelect: (String) -> Unit) {
-	var selectedLanguage by remember { mutableStateOf(TopLanguage.ENGLISH) }
-
-	for (language in TopLanguage.entries) {
-		if (language.languageCode == defaultLanguage) {
-			selectedLanguage = language
-			break
-		}
+	var selectedLanguage by remember(defaultLanguage) {
+		mutableStateOf(
+			TopLanguage.entries.firstOrNull { it.languageCode == defaultLanguage } ?: TopLanguage.ENGLISH
+		)
 	}
 
 	Column(horizontalAlignment = Alignment.CenterHorizontally) {
