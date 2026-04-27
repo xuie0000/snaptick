@@ -21,7 +21,7 @@ interface TaskDao {
 	suspend fun updateTask(task: Task)
 
 	@Query("SELECT * FROM task_table WHERE id=:id")
-	suspend fun getTaskById(id: Int): Task
+	suspend fun getTaskById(id: Int): Task?
 
 	@Query("SELECT * FROM task_table WHERE uuid=:uuid LIMIT 1")
 	suspend fun getTaskByUuid(uuid: String): Task?
@@ -34,9 +34,6 @@ interface TaskDao {
 
 	@Query("SELECT * FROM task_table WHERE date = :selectedDate")
 	fun getTasksByDate(selectedDate: String): Flow<List<Task>>
-
-	@Query("SELECT * FROM task_table WHERE isRepeated = 1 AND date < :today")
-	fun getLastRepeatedTasks(today: String): List<Task>
 
 	@Query("DELETE FROM task_table")
 	suspend fun deleteAllTasks()
