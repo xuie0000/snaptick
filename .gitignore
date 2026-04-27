@@ -21,3 +21,6 @@ release/
 *.jks
 *.keystore
 keystore.properties
+
+# Claude Code session files
+.claude/
