@@ -25,7 +25,6 @@ sealed interface MainAction {
 	data class UpdateFirstTimeOpened(val isFirstTimeOpened: Boolean) : MainAction
 	data class UpdateBuildVersionCode(val versionCode: Int) : MainAction
 	data class UpdateSwipeBehaviour(val swipeBehaviour: SwipeBehavior) : MainAction
-	data class UpdateTotalTaskDuration(val durationSeconds: Long) : MainAction
 	data class OnClickNavDrawerItem(val item: NavDrawerItem) : MainAction
 	data class CreateBackup(val uri: Uri, val backupData: BackupData) : MainAction
 	/**

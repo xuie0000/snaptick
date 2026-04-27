@@ -11,7 +11,6 @@ import com.vishal2376.snaptick.domain.model.Task
 import com.vishal2376.snaptick.presentation.common.utils.formatTaskTime
 import com.vishal2376.snaptick.receiver.ReminderReceiver
 import dagger.hilt.android.qualifiers.ApplicationContext
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import javax.inject.Inject
@@ -152,8 +151,5 @@ class ReminderScheduler @Inject constructor(
 
 	companion object {
 		private const val TAG = "ReminderScheduler"
-
-		/** Today's date as ISO yyyy-MM-dd. Shared helper for completion writes. */
-		fun todayIso(): String = LocalDate.now().toString()
 	}
 }
