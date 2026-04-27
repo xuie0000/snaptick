@@ -31,7 +31,7 @@ fun WeekDaysComponent(
 	onChange: (String) -> Unit
 ) {
 	val weekDays = listOf("M", "T", "W", "T", "F", "S", "S")
-	var selectedDays by remember { mutableStateOf(defaultRepeatedDays) }
+	var selectedDays by remember(defaultRepeatedDays) { mutableStateOf(defaultRepeatedDays) }
 
 	Row(
 		modifier = Modifier

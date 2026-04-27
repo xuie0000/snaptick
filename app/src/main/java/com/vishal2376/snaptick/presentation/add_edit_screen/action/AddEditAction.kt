@@ -18,5 +18,4 @@ sealed interface AddEditAction {
 	data object SaveTask : AddEditAction
 	data object UpdateTask : AddEditAction
 	data object DeleteTask : AddEditAction
-	data object ResetPomodoroTimer : AddEditAction
 }

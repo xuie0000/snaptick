@@ -32,6 +32,7 @@ class AddEditViewModel @Inject constructor(
 	init {
 		val taskId: Int = savedStateHandle.get<Int>("id") ?: -1
 		if (taskId > 0) {
+			_state.update { it.copy(isLoaded = false) }
 			viewModelScope.launch {
 				repository.getTaskById(taskId)?.let { task ->
 					_state.value = AddEditState.fromTask(task)
@@ -55,10 +56,21 @@ class AddEditViewModel @Inject constructor(
 				it.copy(
 					startTime = action.time,
 					endTime = action.time.plusMinutes(gapMin),
-					duration = gapMin
+					duration = gapMin,
+					timeUpdateTick = it.timeUpdateTick + 1
 				)
 			}
-			is AddEditAction.UpdateEndTime -> _state.update { it.copy(endTime = action.time) }
+			is AddEditAction.UpdateEndTime -> _state.update {
+				val startSec = it.startTime.toSecondOfDay()
+				val endSec = action.time.toSecondOfDay()
+				val gapSec = if (endSec < startSec) {
+					endSec + Constants.SECONDS_IN_DAY - startSec
+				} else {
+					endSec - startSec
+				}
+				val gapMin = (gapSec / 60L).coerceAtLeast(0L)
+				it.copy(endTime = action.time, duration = gapMin)
+			}
 			is AddEditAction.UpdateDate -> _state.update { it.copy(date = action.date) }
 			is AddEditAction.UpdateReminder -> _state.update { it.copy(reminder = action.enabled) }
 			is AddEditAction.UpdateAllDay -> _state.update {
@@ -71,10 +83,10 @@ class AddEditViewModel @Inject constructor(
 				it.copy(
 					duration = action.minutes,
 					endTime = it.startTime.plusMinutes(action.minutes),
-					timeUpdateTick = it.timeUpdateTick + 1
+					timeUpdateTick = it.timeUpdateTick + 1,
+					pomodoroTimer = -1
 				)
 			}
-			is AddEditAction.ResetPomodoroTimer -> _state.update { it.copy(pomodoroTimer = -1) }
 			is AddEditAction.SaveTask -> saveTask()
 			is AddEditAction.UpdateTask -> updateTask()
 			is AddEditAction.DeleteTask -> deleteTask()

@@ -21,7 +21,8 @@ data class AddEditState(
 	val duration: Long = 60,
 	val pomodoroTimer: Int = -1,
 	val isCompleted: Boolean = false,
-	val timeUpdateTick: Int = 0
+	val timeUpdateTick: Int = 0,
+	val isLoaded: Boolean = true
 ) {
 	fun toTask(): Task = Task(
 		id = taskId,
@@ -53,7 +54,8 @@ data class AddEditState(
 			priority = Priority.entries.getOrElse(task.priority) { Priority.LOW },
 			duration = task.getDuration() / 60,
 			pomodoroTimer = task.pomodoroTimer,
-			isCompleted = task.isCompleted
+			isCompleted = task.isCompleted,
+			isLoaded = true
 		)
 	}
 }

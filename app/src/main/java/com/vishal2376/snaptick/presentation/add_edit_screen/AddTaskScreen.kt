@@ -455,9 +455,13 @@ fun AddTaskScreen(
 					}
 
 					AnimatedVisibility(visible = state.isRepeated) {
-						val dayOfWeek = LocalDate.now().dayOfWeek.value - 1
+						val repeatDays = if (state.repeatWeekdays.isEmpty()) {
+							listOf(LocalDate.now().dayOfWeek.value - 1)
+						} else {
+							state.repeatWeekdays.split(",").map { it.toInt() }
+						}
 						WeekDaysComponent(
-							defaultRepeatedDays = listOf(dayOfWeek),
+							defaultRepeatedDays = repeatDays,
 							onChange = { onAction(AddEditAction.UpdateRepeatWeekDays(it)) }
 						)
 					}
@@ -485,8 +489,7 @@ fun AddTaskScreen(
 						val task = state.toTask()
 						val (isValid, errorMessage) = checkValidTask(
 							task = task,
-							isTaskAllDay = state.isAllDay,
-							totalTasksDuration = appState.totalTaskDuration
+							isTaskAllDay = state.isAllDay
 						)
 
 						if (isValid) {

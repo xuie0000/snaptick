@@ -2,13 +2,10 @@ package com.vishal2376.snaptick.util
 
 import com.vishal2376.snaptick.domain.model.Task
 import java.time.LocalDate
-import java.time.LocalTime
 
 fun checkValidTask(
 	task: Task,
-	totalTasksDuration: Long = 0,
-	isTaskAllDay: Boolean = false,
-	sleepTime: LocalTime = LocalTime.MAX
+	isTaskAllDay: Boolean = false
 ): Pair<Boolean, String> {
 	if (task.title.trim().isEmpty()) {
 		return Pair(false, "Title can't be empty")

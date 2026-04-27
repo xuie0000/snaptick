@@ -66,13 +66,52 @@ class AddEditViewModelTest {
 
 	@Test fun `UpdateDurationMinutes sets endTime and bumps timeUpdateTick`() = runTest {
 		val vm = buildVm()
-		val tickBefore = vm.state.value.timeUpdateTick
 		vm.onAction(AddEditAction.UpdateStartTime(LocalTime.of(9, 0)))
+		val tickBefore = vm.state.value.timeUpdateTick
 		vm.onAction(AddEditAction.UpdateDurationMinutes(90))
 		val s = vm.state.value
 		assertEquals(90L, s.duration)
 		assertEquals(LocalTime.of(10, 30), s.endTime)
 		assertEquals(tickBefore + 1, s.timeUpdateTick)
+	}
+
+	@Test fun `UpdateEndTime recomputes duration from gap`() = runTest {
+		val vm = buildVm()
+		vm.onAction(AddEditAction.UpdateStartTime(LocalTime.of(9, 0)))
+		vm.onAction(AddEditAction.UpdateEndTime(LocalTime.of(10, 15)))
+		assertEquals(75L, vm.state.value.duration)
+	}
+
+	@Test fun `UpdateEndTime midnight crossing duration is positive`() = runTest {
+		val vm = buildVm()
+		vm.onAction(AddEditAction.UpdateStartTime(LocalTime.of(23, 0)))
+		vm.onAction(AddEditAction.UpdateEndTime(LocalTime.of(1, 0)))
+		assertEquals(120L, vm.state.value.duration)
+	}
+
+	@Test fun `UpdateStartTime preserves duration and shifts endTime`() = runTest {
+		val vm = buildVm()
+		vm.onAction(AddEditAction.UpdateStartTime(LocalTime.of(9, 0)))
+		vm.onAction(AddEditAction.UpdateDurationMinutes(60))
+		val tickBefore = vm.state.value.timeUpdateTick
+		vm.onAction(AddEditAction.UpdateStartTime(LocalTime.of(11, 0)))
+		val s = vm.state.value
+		assertEquals(LocalTime.of(11, 0), s.startTime)
+		assertEquals(LocalTime.of(12, 0), s.endTime)
+		assertEquals(60L, s.duration)
+		assertEquals(tickBefore + 1, s.timeUpdateTick)
+	}
+
+	@Test fun `add starts isLoaded true and edit toggles false then true`() = runTest {
+		val addVm = buildVm()
+		assertTrue(addVm.state.value.isLoaded)
+
+		val existing = Task(id = 9, uuid = "u9", title = "X", startTime = LocalTime.of(9, 0), endTime = LocalTime.of(10, 0), date = LocalDate.now())
+		repoFake.seed(listOf(existing))
+		val editVm = buildVm(SavedStateHandle(mapOf("id" to 9)))
+		assertEquals(false, editVm.state.value.isLoaded)
+		advanceUntilIdle()
+		assertTrue(editVm.state.value.isLoaded)
 	}
 
 	@Test fun `SaveTask inserts, schedules reminder, emits TaskSaved`() = runTest {

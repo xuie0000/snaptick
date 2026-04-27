@@ -95,12 +95,6 @@ fun EditTaskScreen(
 	var showDialogStartTimePicker by remember { mutableStateOf(false) }
 	var showDialogEndTimePicker by remember { mutableStateOf(false) }
 
-	LaunchedEffect(state.timeUpdateTick) {
-		if (state.timeUpdateTick > 0) {
-			onAction(AddEditAction.ResetPomodoroTimer)
-		}
-	}
-
 	LaunchedEffect(Unit) {
 		events.collect { event ->
 			when (event) {
@@ -246,11 +240,13 @@ fun EditTaskScreen(
 						)
 						Spacer(modifier = Modifier.height(8.dp))
 						if (appState.isWheelTimePicker) {
-							ShowTimePicker(
-								time = state.startTime,
-								is24hourFormat = appState.is24hourTimeFormat
-							) { snappedTime ->
-								onAction(AddEditAction.UpdateStartTime(snappedTime))
+							if (state.isLoaded) {
+								ShowTimePicker(
+									time = state.startTime,
+									is24hourFormat = appState.is24hourTimeFormat
+								) { snappedTime ->
+									onAction(AddEditAction.UpdateStartTime(snappedTime))
+								}
 							}
 						} else {
 							ShowNativeTimePicker(
@@ -270,12 +266,14 @@ fun EditTaskScreen(
 							)
 							Spacer(modifier = Modifier.height(8.dp))
 							if (appState.isWheelTimePicker) {
-								ShowTimePicker(
-									time = state.endTime,
-									is24hourFormat = appState.is24hourTimeFormat,
-									isTimeUpdated = state.timeUpdateTick % 2 == 1
-								) { snappedTime ->
-									onAction(AddEditAction.UpdateEndTime(snappedTime))
+								if (state.isLoaded) {
+									ShowTimePicker(
+										time = state.endTime,
+										is24hourFormat = appState.is24hourTimeFormat,
+										isTimeUpdated = state.timeUpdateTick % 2 == 1
+									) { snappedTime ->
+										onAction(AddEditAction.UpdateEndTime(snappedTime))
+									}
 								}
 							} else {
 								ShowNativeTimePicker(
@@ -438,10 +436,7 @@ fun EditTaskScreen(
 						val task = state.toTask()
 						val (isValid, errorMessage) = checkValidTask(
 							task = task,
-							isTaskAllDay = state.isAllDay,
-							totalTasksDuration = appState.totalTaskDuration - task.getDuration(
-								checkPastTask = true
-							)
+							isTaskAllDay = state.isAllDay
 						)
 
 						if (isValid) {
