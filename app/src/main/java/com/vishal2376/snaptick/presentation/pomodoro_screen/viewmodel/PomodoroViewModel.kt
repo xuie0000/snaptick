@@ -12,8 +12,6 @@ import com.vishal2376.snaptick.presentation.pomodoro_screen.state.PomodoroState
 import com.vishal2376.snaptick.util.vibrateDevice
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -27,6 +25,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+private const val PERSIST_INTERVAL_TICKS = 10
 
 @HiltViewModel
 class PomodoroViewModel @Inject constructor(
@@ -52,7 +52,7 @@ class PomodoroViewModel @Inject constructor(
 				currentTask = task
 				val total = task.getDuration()
 				val resuming = task.pomodoroTimer != -1
-				val left = if (resuming) task.pomodoroTimer.toLong() else total
+				val left = if (resuming) task.pomodoroTimer.toLong().coerceIn(0L, total) else total
 				_state.value = PomodoroState(
 					taskId = task.id,
 					taskTitle = task.title,
@@ -88,6 +88,7 @@ class PomodoroViewModel @Inject constructor(
 				.distinctUntilChanged()
 				.collectLatest { stopped ->
 					if (stopped) return@collectLatest
+					var ticksSincePersist = 0
 					while (isActive) {
 						delay(1000L)
 						val cur = _state.value
@@ -99,6 +100,11 @@ class PomodoroViewModel @Inject constructor(
 								isCompleted = newLeft <= 0
 							)
 						}
+						ticksSincePersist++
+						if (ticksSincePersist >= PERSIST_INTERVAL_TICKS) {
+							ticksSincePersist = 0
+							persistRemaining(newLeft)
+						}
 						if (newLeft <= 0) {
 							vibrateDevice(context)
 							_events.emit(PomodoroEvent.TimerCompleted)
@@ -106,6 +112,16 @@ class PomodoroViewModel @Inject constructor(
 					}
 				}
 		}
+	}
+
+	private suspend fun persistRemaining(timeLeft: Long) {
+		val task = currentTask ?: return
+		val snapshot = if (task.isValidPomodoroSession(timeLeft))
+			task.copy(pomodoroTimer = timeLeft.toInt())
+		else
+			task.copy(pomodoroTimer = -1)
+		repository.updateTask(snapshot)
+		currentTask = snapshot
 	}
 
 	private fun markCompleted() {
@@ -117,16 +133,8 @@ class PomodoroViewModel @Inject constructor(
 		}
 	}
 
-	@OptIn(kotlinx.coroutines.DelicateCoroutinesApi::class)
 	override fun onCleared() {
 		super.onCleared()
 		tickerJob?.cancel()
-		val task = currentTask ?: return
-		val s = _state.value
-		val toSave = if (task.isValidPomodoroSession(s.timeLeft))
-			task.copy(pomodoroTimer = s.timeLeft.toInt())
-		else
-			task.copy(pomodoroTimer = -1)
-		GlobalScope.launch(Dispatchers.IO) { repository.updateTask(toSave) }
 	}
 }
