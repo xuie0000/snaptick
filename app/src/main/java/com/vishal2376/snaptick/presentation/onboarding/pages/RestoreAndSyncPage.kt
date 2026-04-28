@@ -49,21 +49,29 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.vishal2376.snaptick.R
+import com.vishal2376.snaptick.data.calendar.CalendarInfo
 import com.vishal2376.snaptick.presentation.common.h1TextStyle
 import com.vishal2376.snaptick.presentation.common.h3TextStyle
 import com.vishal2376.snaptick.presentation.common.infoDescTextStyle
+import com.vishal2376.snaptick.presentation.common.taskDescTextStyle
+import com.vishal2376.snaptick.presentation.common.taskTextStyle
 import com.vishal2376.snaptick.ui.theme.Blue
 import com.vishal2376.snaptick.ui.theme.LightGreen
 import com.vishal2376.snaptick.ui.theme.Red
 import com.vishal2376.snaptick.ui.theme.Yellow
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.filled.Check
 
 @Composable
 fun RestoreAndSyncPage(
 	calendarSyncEnabled: Boolean,
 	notificationsEnabled: Boolean,
+	writableCalendars: List<CalendarInfo>,
+	selectedCalendarId: Long?,
 	onRestoreClick: () -> Unit,
 	onPickIcsClick: () -> Unit,
 	onCalendarSyncToggle: (Boolean) -> Unit,
+	onSelectCalendar: (Long) -> Unit,
 	onEnableNotifications: () -> Unit,
 ) {
 	val haptic = LocalHapticFeedback.current
@@ -139,6 +147,37 @@ fun RestoreAndSyncPage(
 				onCalendarSyncToggle(!calendarSyncEnabled)
 			}
 		)
+
+		AnimatedVisibility(visible = calendarSyncEnabled) {
+			Column(
+				modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+				verticalArrangement = Arrangement.spacedBy(6.dp)
+			) {
+				if (writableCalendars.isEmpty()) {
+					Text(
+						text = "No writable calendars found. Enable later from Settings.",
+						style = infoDescTextStyle,
+						color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+					)
+				} else {
+					Text(
+						text = "Pick a calendar",
+						style = h3TextStyle,
+						color = MaterialTheme.colorScheme.onBackground
+					)
+					writableCalendars.forEach { cal ->
+						OnboardingCalendarRow(
+							info = cal,
+							selected = cal.id == selectedCalendarId,
+							onClick = {
+								haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+								onSelectCalendar(cal.id)
+							}
+						)
+					}
+				}
+			}
+		}
 
 		AnimatedVisibility(visible = !notificationsEnabled) {
 			Column {
@@ -345,6 +384,61 @@ private fun NotificationActionCard(
 			},
 			onClick = { if (!notificationsEnabled) onEnable() }
 		)
+	}
+}
+
+@Composable
+private fun OnboardingCalendarRow(
+	info: CalendarInfo,
+	selected: Boolean,
+	onClick: () -> Unit,
+) {
+	val shape = RoundedCornerShape(10.dp)
+	val rowMod = if (selected) {
+		Modifier
+			.fillMaxWidth()
+			.clickable { onClick() }
+			.background(MaterialTheme.colorScheme.primaryContainer, shape)
+			.border(2.dp, MaterialTheme.colorScheme.primary, shape)
+			.padding(horizontal = 10.dp, vertical = 12.dp)
+	} else {
+		Modifier
+			.fillMaxWidth()
+			.clickable { onClick() }
+			.background(Color.Transparent, shape)
+			.padding(horizontal = 10.dp, vertical = 12.dp)
+	}
+	Row(
+		modifier = rowMod,
+		verticalAlignment = Alignment.CenterVertically,
+		horizontalArrangement = Arrangement.spacedBy(12.dp)
+	) {
+		Box(
+			modifier = Modifier
+				.size(14.dp)
+				.background(Color(0xFF000000.toInt() or info.colorArgb), CircleShape)
+		)
+		Column(modifier = Modifier.weight(1f)) {
+			Text(
+				text = info.displayName.ifBlank { info.accountName },
+				style = taskTextStyle,
+				color = MaterialTheme.colorScheme.onBackground
+			)
+			if (info.accountName.isNotBlank()) {
+				Text(
+					text = info.accountName,
+					style = taskDescTextStyle,
+					color = MaterialTheme.colorScheme.onPrimaryContainer
+				)
+			}
+		}
+		if (selected) {
+			Icon(
+				imageVector = Icons.Default.Check,
+				contentDescription = null,
+				tint = MaterialTheme.colorScheme.primary
+			)
+		}
 	}
 }
 

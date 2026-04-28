@@ -38,6 +38,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.drop
+import com.vishal2376.snaptick.data.calendar.CalendarInfo
 import com.vishal2376.snaptick.presentation.common.AppTheme
 import com.vishal2376.snaptick.presentation.common.taskTextStyle
 import com.vishal2376.snaptick.presentation.main.action.MainAction
@@ -57,6 +58,8 @@ fun OnboardingScreen(
 	onRestoreBackup: () -> Unit,
 	onPickIcsFile: () -> Unit,
 	onToggleCalendarSync: (Boolean) -> Unit,
+	writableCalendars: List<CalendarInfo>,
+	onSelectCalendar: (Long) -> Unit,
 	notificationsEnabled: Boolean,
 	onEnableNotifications: () -> Unit,
 	onFinish: () -> Unit,
@@ -107,9 +110,12 @@ fun OnboardingScreen(
 				2 -> RestoreAndSyncPage(
 					calendarSyncEnabled = state.calendarSyncEnabled,
 					notificationsEnabled = notificationsEnabled,
+					writableCalendars = writableCalendars,
+					selectedCalendarId = state.calendarSyncCalendarId,
 					onRestoreClick = onRestoreBackup,
 					onPickIcsClick = onPickIcsFile,
 					onCalendarSyncToggle = onToggleCalendarSync,
+					onSelectCalendar = onSelectCalendar,
 					onEnableNotifications = onEnableNotifications,
 				)
 			}
