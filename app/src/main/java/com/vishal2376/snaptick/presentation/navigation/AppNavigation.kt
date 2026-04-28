@@ -14,6 +14,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -288,6 +291,12 @@ fun AppNavigation(
 		}
 
 		composable(route = Routes.Onboarding.name) {
+			var onboardingCalendars by remember { mutableStateOf(emptyList<com.vishal2376.snaptick.data.calendar.CalendarInfo>()) }
+			LaunchedEffect(mainState.calendarSyncEnabled) {
+				if (mainState.calendarSyncEnabled && onboardingCalendars.isEmpty()) {
+					onboardingCalendars = mainViewModel.loadWritableCalendars()
+				}
+			}
 			OnboardingScreen(
 				state = mainState,
 				onAction = mainViewModel::onAction,
@@ -309,6 +318,10 @@ fun AppNavigation(
 				},
 				onToggleCalendarSync = { enabled ->
 					mainViewModel.onAction(MainAction.SetCalendarSyncEnabled(enabled))
+				},
+				writableCalendars = onboardingCalendars,
+				onSelectCalendar = { id ->
+					mainViewModel.onAction(MainAction.SetCalendarSyncTarget(id))
 				},
 				notificationsEnabled = activity.notificationGrantedState.value,
 				onEnableNotifications = {
