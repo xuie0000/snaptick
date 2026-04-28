@@ -1,12 +1,20 @@
 package com.vishal2376.snaptick.presentation.settings
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -15,6 +23,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -36,6 +46,7 @@ import com.vishal2376.snaptick.R
 import com.vishal2376.snaptick.presentation.common.AppTheme
 import com.vishal2376.snaptick.presentation.common.h1TextStyle
 import com.vishal2376.snaptick.presentation.common.infoDescTextStyle
+import com.vishal2376.snaptick.presentation.common.settingItemTextStyle
 import com.vishal2376.snaptick.presentation.main.action.MainAction
 import com.vishal2376.snaptick.presentation.main.state.MainState
 import com.vishal2376.snaptick.presentation.settings.common.SettingCategoryItem
@@ -282,6 +293,10 @@ fun SettingsScreen(
 					categoryTitle = stringResource(R.string.general_settings),
 					categoryList = settingsGeneral
 				)
+				SoundToggleRow(
+					enabled = appState.soundEnabled,
+					onToggle = { onAction(MainAction.UpdateSoundEnabled(it)) }
+				)
 				SettingsCategoryComponent(
 					categoryTitle = stringResource(R.string.calendar_sync),
 					categoryList = settingsCalendar
@@ -299,6 +314,45 @@ fun SettingsScreen(
 				color = MaterialTheme.colorScheme.onPrimaryContainer
 			)
 		}
+	}
+}
+
+@Composable
+private fun SoundToggleRow(
+	enabled: Boolean,
+	onToggle: (Boolean) -> Unit,
+) {
+	Row(
+		modifier = Modifier
+			.padding(horizontal = 16.dp)
+			.fillMaxWidth()
+			.clip(RoundedCornerShape(8.dp))
+			.background(MaterialTheme.colorScheme.primaryContainer)
+			.clickable { onToggle(!enabled) }
+			.padding(horizontal = 16.dp, vertical = 8.dp),
+		verticalAlignment = Alignment.CenterVertically,
+		horizontalArrangement = Arrangement.spacedBy(8.dp)
+	) {
+		Icon(
+			modifier = Modifier.size(20.dp),
+			painter = painterResource(R.drawable.ic_clock),
+			contentDescription = null,
+			tint = MaterialTheme.colorScheme.onBackground
+		)
+		Text(
+			modifier = Modifier.weight(1f),
+			text = stringResource(R.string.enable_sounds),
+			style = settingItemTextStyle,
+			color = MaterialTheme.colorScheme.onBackground
+		)
+		Switch(
+			checked = enabled,
+			onCheckedChange = onToggle,
+			colors = SwitchDefaults.colors(
+				checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+				checkedTrackColor = MaterialTheme.colorScheme.primary
+			)
+		)
 	}
 }
 

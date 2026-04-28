@@ -135,6 +135,10 @@ class MainViewModel @Inject constructor(
 				_state.update { it.copy(onboardingCompleted = true) }
 				settingsStore.setOnboardingCompleted(true)
 			}
+			is MainAction.UpdateSoundEnabled -> persist {
+				_state.update { it.copy(soundEnabled = action.enabled) }
+				settingsStore.setSoundEnabled(action.enabled)
+			}
 		}
 	}
 
@@ -328,6 +332,7 @@ class MainViewModel @Inject constructor(
 		viewModelScope.launch { settingsStore.buildVersionCode.collect { v -> _state.update { it.copy(buildVersionCode = v) } } }
 		viewModelScope.launch { settingsStore.calendarSyncEnabledKey.collect { v -> _state.update { it.copy(calendarSyncEnabled = v) } } }
 		viewModelScope.launch { settingsStore.calendarSyncCalendarIdKey.collect { v -> _state.update { it.copy(calendarSyncCalendarId = v) } } }
+		viewModelScope.launch { settingsStore.soundEnabledKey.collect { v -> _state.update { it.copy(soundEnabled = v) } } }
 		viewModelScope.launch {
 			settingsStore.onboardingCompletedKey.collect { v ->
 				_state.update {

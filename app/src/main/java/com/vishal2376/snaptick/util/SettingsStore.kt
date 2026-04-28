@@ -39,6 +39,7 @@ class SettingsStore(val context: Context) {
 		private val CALENDAR_SYNC_ENABLED_KEY = booleanPreferencesKey("calendar_sync_enabled_key")
 		private val CALENDAR_SYNC_CALENDAR_ID_KEY = stringPreferencesKey("calendar_sync_calendar_id_key")
 		private val ONBOARDING_COMPLETED_KEY = booleanPreferencesKey("onboarding_completed_key")
+		private val SOUND_ENABLED_KEY = booleanPreferencesKey("sound_enabled_key")
 
 		private const val DEFAULT_LANGUAGE = "en"
 		private val DEFAULT_THEME = AppTheme.Amoled.ordinal
@@ -56,6 +57,7 @@ class SettingsStore(val context: Context) {
 		private const val DEFAULT_CALENDAR_SYNC_ENABLED = false
 		private const val DEFAULT_CALENDAR_SYNC_CALENDAR_ID = ""
 		private const val DEFAULT_ONBOARDING_COMPLETED = false
+		private const val DEFAULT_SOUND_ENABLED = true
 	}
 
 
@@ -123,6 +125,10 @@ class SettingsStore(val context: Context) {
 
 	val onboardingCompletedKey: Flow<Boolean> = context.dataStore.data.map { preferences ->
 		preferences[ONBOARDING_COMPLETED_KEY] ?: DEFAULT_ONBOARDING_COMPLETED
+	}
+
+	val soundEnabledKey: Flow<Boolean> = context.dataStore.data.map { preferences ->
+		preferences[SOUND_ENABLED_KEY] ?: DEFAULT_SOUND_ENABLED
 	}
 
 	suspend fun setTheme(theme: Int) {
@@ -216,6 +222,10 @@ class SettingsStore(val context: Context) {
 
 	suspend fun setOnboardingCompleted(completed: Boolean) {
 		context.dataStore.edit { it[ONBOARDING_COMPLETED_KEY] = completed }
+	}
+
+	suspend fun setSoundEnabled(enabled: Boolean) {
+		context.dataStore.edit { it[SOUND_ENABLED_KEY] = enabled }
 	}
 
 }

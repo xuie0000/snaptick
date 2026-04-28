@@ -32,6 +32,7 @@ data class MainState(
 	val importPreview: List<Task> = emptyList(),
 	val onboardingCompleted: Boolean = true,
 	val bootResolved: Boolean = false,
+	val soundEnabled: Boolean = true,
 	/**
 	 * Set when the user picks a backup .json. UI renders a confirmation dialog
 	 * with the parsed task count. Cleared by ConfirmRestore (after wipe+insert)

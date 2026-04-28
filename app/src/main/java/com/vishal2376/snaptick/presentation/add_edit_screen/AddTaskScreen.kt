@@ -493,7 +493,7 @@ fun AddTaskScreen(
 						)
 
 						if (isValid) {
-							playSound(context, SoundEvent.TASK_ADDED)
+							playSound(context, SoundEvent.TASK_ADDED, appState.soundEnabled)
 							onAction(AddEditAction.SaveTask)
 						} else {
 							showCustomSnackbar(errorMessage)

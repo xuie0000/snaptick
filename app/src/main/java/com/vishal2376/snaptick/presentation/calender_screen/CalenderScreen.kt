@@ -259,7 +259,7 @@ fun CalenderScreen(
 								},
 								onComplete = {
 									if (task.date >= LocalDate.now()) {
-										playSound(context,SoundEvent.TASK_COMPLETED)
+										playSound(context, SoundEvent.TASK_COMPLETED, appState.soundEnabled)
 										onTaskAction(TaskListAction.ToggleCompletion(it, !task.isCompleted))
 									}
 								},

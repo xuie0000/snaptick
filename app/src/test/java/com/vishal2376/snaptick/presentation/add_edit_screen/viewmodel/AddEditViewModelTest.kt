@@ -5,6 +5,7 @@ import app.cash.turbine.test
 import com.vishal2376.snaptick.domain.model.Task
 import com.vishal2376.snaptick.presentation.add_edit_screen.action.AddEditAction
 import com.vishal2376.snaptick.presentation.add_edit_screen.events.AddEditEvent
+import com.vishal2376.snaptick.presentation.add_edit_screen.state.AddEditState
 import com.vishal2376.snaptick.presentation.common.Priority
 import com.vishal2376.snaptick.util.MainDispatcherRule
 import com.vishal2376.snaptick.util.TaskRepositoryFake
@@ -100,6 +101,12 @@ class AddEditViewModelTest {
 		assertEquals(LocalTime.of(12, 0), s.endTime)
 		assertEquals(60L, s.duration)
 		assertEquals(tickBefore + 1, s.timeUpdateTick)
+	}
+
+	@Test fun `default state has reminder off and isLoaded true`() = runTest {
+		val s = AddEditState()
+		assertEquals(false, s.reminder)
+		assertTrue(s.isLoaded)
 	}
 
 	@Test fun `add starts isLoaded true and edit toggles false then true`() = runTest {
