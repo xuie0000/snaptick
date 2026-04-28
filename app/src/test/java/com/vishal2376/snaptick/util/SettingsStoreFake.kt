@@ -22,6 +22,11 @@ class SettingsStoreFake {
 	val showWhatsNew = MutableStateFlow(true)
 	val buildVersionCode = MutableStateFlow(1)
 	val swipeBehaviour = MutableStateFlow(0)
+	val onboardingCompleted = MutableStateFlow(true)
+	val calendarSyncEnabled = MutableStateFlow(false)
+	val calendarSyncCalendarId = MutableStateFlow<Long?>(null)
+	val soundEnabled = MutableStateFlow(true)
+	val lastUpdateCheckAt = MutableStateFlow(System.currentTimeMillis())
 
 	init {
 		every { store.themeKey } returns theme
@@ -37,6 +42,11 @@ class SettingsStoreFake {
 		every { store.showWhatsNewKey } returns showWhatsNew
 		every { store.buildVersionCode } returns buildVersionCode
 		every { store.swipeBehaviourKey } returns swipeBehaviour
+		every { store.onboardingCompletedKey } returns onboardingCompleted
+		every { store.calendarSyncEnabledKey } returns calendarSyncEnabled
+		every { store.calendarSyncCalendarIdKey } returns calendarSyncCalendarId
+		every { store.soundEnabledKey } returns soundEnabled
+		every { store.lastUpdateCheckAtKey } returns lastUpdateCheckAt
 
 		coJustRun { store.setTheme(any()) }
 		coJustRun { store.setDynamicTheme(any()) }
@@ -51,5 +61,10 @@ class SettingsStoreFake {
 		coJustRun { store.setShowWhatsNew(any()) }
 		coJustRun { store.setBuildVersionCode(any()) }
 		coJustRun { store.setSwipeBehaviour(any()) }
+		coJustRun { store.setOnboardingCompleted(any()) }
+		coJustRun { store.setCalendarSyncEnabled(any()) }
+		coJustRun { store.setCalendarSyncCalendarId(any()) }
+		coJustRun { store.setSoundEnabled(any()) }
+		coJustRun { store.setLastUpdateCheckAt(any()) }
 	}
 }

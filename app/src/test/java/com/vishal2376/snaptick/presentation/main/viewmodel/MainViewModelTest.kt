@@ -61,6 +61,7 @@ class MainViewModelTest {
 		repoFake.repo,
 		mockk(relaxed = true),
 		mockk(relaxed = true),
+		mockk(relaxed = true),
 	)
 
 	@Test fun `UpdateAppTheme updates state and persists`() = runTest {
