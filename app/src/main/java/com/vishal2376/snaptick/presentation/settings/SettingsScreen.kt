@@ -87,6 +87,10 @@ fun SettingsScreen(
 	}
 
 	val settingsAbout = listOf(
+		SettingCategoryItem(title = stringResource(R.string.check_for_updates),
+			resId = R.drawable.ic_info,
+			onClick = { onAction(MainAction.CheckForUpdates(ignoreThrottle = true)) }
+		),
 		SettingCategoryItem(title = stringResource(R.string.about),
 			resId = R.drawable.ic_info,
 			onClick = { onClickAbout() }

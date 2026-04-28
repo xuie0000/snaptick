@@ -29,8 +29,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.vishal2376.snaptick.MainActivity
+import com.vishal2376.snaptick.R
 import com.vishal2376.snaptick.presentation.about_screen.AboutScreen
 import com.vishal2376.snaptick.presentation.common.BackupRestoreConfirmDialog
+import com.vishal2376.snaptick.presentation.common.UpdateAvailableDialog
+import com.vishal2376.snaptick.util.openUrl
 import com.vishal2376.snaptick.presentation.add_edit_screen.AddTaskScreen
 import com.vishal2376.snaptick.presentation.add_edit_screen.EditTaskScreen
 import com.vishal2376.snaptick.presentation.add_edit_screen.viewmodel.AddEditViewModel
@@ -85,8 +88,21 @@ fun AppNavigation(
 							Manifest.permission.WRITE_CALENDAR
 						)
 					)
+				is MainEvent.UpToDate ->
+					showToast(activity, activity.getString(R.string.up_to_date), Toast.LENGTH_SHORT)
 			}
 		}
+	}
+
+	mainState.updateAvailable?.let { release ->
+		UpdateAvailableDialog(
+			release = release,
+			onOpenInBrowser = {
+				openUrl(activity, release.htmlUrl)
+				mainViewModel.onAction(MainAction.DismissUpdateBanner)
+			},
+			onDismiss = { mainViewModel.onAction(MainAction.DismissUpdateBanner) },
+		)
 	}
 
 	if (!mainState.bootResolved) {
