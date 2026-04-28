@@ -89,6 +89,11 @@
     <string name="enable_24_hour_format">Enable 24-Hour Format</string>
     <string name="enable_sounds">Enable In-App Sounds</string>
     <string name="sounds">Sounds</string>
+    <string name="check_for_updates">Check for Updates</string>
+    <string name="update_available">Update available</string>
+    <string name="up_to_date">You are on the latest version</string>
+    <string name="open_in_browser">Open in browser</string>
+    <string name="later">Later</string>
     <string name="backup_restore_data">Backup/Restore Data</string>
     <string name="material_you">Material You</string>
     <string name="disable_all_day_option">Disable All-Day Option</string>

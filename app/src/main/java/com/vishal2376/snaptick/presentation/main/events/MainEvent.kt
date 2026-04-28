@@ -9,4 +9,5 @@ sealed interface MainEvent {
 	data class ImportFailed(val message: String) : MainEvent
 	data class BackupPreviewReady(val taskCount: Int, val droppedCount: Int) : MainEvent
 	data object CalendarPermissionRequired : MainEvent
+	data object UpToDate : MainEvent
 }

@@ -1,6 +1,7 @@
 package com.vishal2376.snaptick.presentation.main.state
 
 import com.vishal2376.snaptick.domain.model.BackupData
+import com.vishal2376.snaptick.domain.model.GitHubRelease
 import com.vishal2376.snaptick.domain.model.Task
 import com.vishal2376.snaptick.presentation.common.AppTheme
 import com.vishal2376.snaptick.presentation.common.CalenderView
@@ -33,6 +34,8 @@ data class MainState(
 	val onboardingCompleted: Boolean = true,
 	val bootResolved: Boolean = false,
 	val soundEnabled: Boolean = true,
+	val updateAvailable: GitHubRelease? = null,
+	val updateCheckInFlight: Boolean = false,
 	/**
 	 * Set when the user picks a backup .json. UI renders a confirmation dialog
 	 * with the parsed task count. Cleared by ConfirmRestore (after wipe+insert)

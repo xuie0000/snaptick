@@ -5,13 +5,17 @@ import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vishal2376.snaptick.R
+import com.vishal2376.snaptick.BuildConfig
 import com.vishal2376.snaptick.data.calendar.CalendarImporter
 import com.vishal2376.snaptick.data.calendar.CalendarInfo
 import com.vishal2376.snaptick.data.calendar.CalendarRepository
+import com.vishal2376.snaptick.data.network.GitHubReleaseClient
 import com.vishal2376.snaptick.data.repositories.TaskRepository
 import com.vishal2376.snaptick.domain.model.BACKUP_VERSION
 import com.vishal2376.snaptick.domain.model.BackupData
 import com.vishal2376.snaptick.domain.model.Task
+import com.vishal2376.snaptick.domain.model.compareVersions
+import com.vishal2376.snaptick.util.Constants
 import com.vishal2376.snaptick.presentation.common.AppTheme
 import com.vishal2376.snaptick.presentation.common.CalenderView
 import com.vishal2376.snaptick.presentation.common.NavDrawerItem
@@ -56,6 +60,7 @@ class MainViewModel @Inject constructor(
 	private val repository: TaskRepository,
 	private val calendarRepository: CalendarRepository,
 	private val calendarImporter: CalendarImporter,
+	private val gitHubReleaseClient: GitHubReleaseClient,
 ) : ViewModel() {
 
 	private val _state = MutableStateFlow(MainState())
@@ -71,6 +76,7 @@ class MainViewModel @Inject constructor(
 	init {
 		loadPersistedState()
 		loadBuildVersion()
+		viewModelScope.launch { checkForUpdates(ignoreThrottle = false) }
 	}
 
 	fun onAction(action: MainAction) {
@@ -139,7 +145,39 @@ class MainViewModel @Inject constructor(
 				_state.update { it.copy(soundEnabled = action.enabled) }
 				settingsStore.setSoundEnabled(action.enabled)
 			}
+			is MainAction.CheckForUpdates -> viewModelScope.launch {
+				checkForUpdates(ignoreThrottle = action.ignoreThrottle)
+			}
+			is MainAction.DismissUpdateBanner -> _state.update { it.copy(updateAvailable = null) }
 		}
+	}
+
+	private suspend fun checkForUpdates(ignoreThrottle: Boolean) {
+		if (_state.value.updateCheckInFlight) return
+		val now = System.currentTimeMillis()
+		if (!ignoreThrottle) {
+			val last = settingsStore.lastUpdateCheckAtKey.first()
+			if (now - last < Constants.UPDATE_CHECK_THROTTLE_MILLIS) return
+		}
+		_state.update { it.copy(updateCheckInFlight = true) }
+		val release = gitHubReleaseClient.fetchLatest()
+		settingsStore.setLastUpdateCheckAt(now)
+		if (release == null) {
+			_state.update { it.copy(updateCheckInFlight = false) }
+			if (ignoreThrottle) _events.emit(MainEvent.ShowToast("Update check failed"))
+			return
+		}
+		val current = BuildConfig.VERSION_NAME
+			.split('.', '-')
+			.mapNotNull { it.takeWhile(Char::isDigit).toIntOrNull() }
+		val isNewer = compareVersions(release.versionParts(), current) > 0
+		_state.update {
+			it.copy(
+				updateAvailable = if (isNewer) release else null,
+				updateCheckInFlight = false,
+			)
+		}
+		if (ignoreThrottle && !isNewer) _events.emit(MainEvent.UpToDate)
 	}
 
 	private fun parseIcsFile(uri: Uri) {

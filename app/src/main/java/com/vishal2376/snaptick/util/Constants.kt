@@ -4,6 +4,8 @@ object Constants {
 
 	const val EMAIL = "vishalsingh2376@gmail.com"
 	const val GITHUB = "https://github.com/vishal2376"
+	const val GITHUB_LATEST_RELEASE_API = "https://api.github.com/repos/vishal2376/snaptick/releases/latest"
+	const val UPDATE_CHECK_THROTTLE_MILLIS = 24L * 60 * 60 * 1000  // 24 hours
 	const val LINKEDIN = "https://www.linkedin.com/in/vishal2376"
 	const val TWITTER = "https://twitter.com/vishal2376"
 	const val INSTAGRAM = "https://www.instagram.com/vishal_2376/"
