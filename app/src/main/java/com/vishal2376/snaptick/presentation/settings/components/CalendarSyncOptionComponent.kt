@@ -1,6 +1,7 @@
 package com.vishal2376.snaptick.presentation.settings.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,9 +16,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -84,8 +88,8 @@ fun CalendarSyncOptionComponent(
 				checked = enabled,
 				onCheckedChange = onEnabledChange,
 				colors = SwitchDefaults.colors(
-					checkedThumbColor = MaterialTheme.colorScheme.primary,
-					checkedTrackColor = MaterialTheme.colorScheme.primaryContainer,
+					checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+					checkedTrackColor = MaterialTheme.colorScheme.primary,
 					uncheckedTrackColor = MaterialTheme.colorScheme.primaryContainer
 				)
 			)
@@ -148,14 +152,23 @@ private fun CalendarRow(
 	selected: Boolean,
 	onClick: () -> Unit,
 ) {
-	val bg = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-	else Color.Transparent
-	Row(
-		modifier = Modifier
+	val shape = RoundedCornerShape(10.dp)
+	val rowModifier = if (selected) {
+		Modifier
 			.fillMaxWidth()
 			.clickable { onClick() }
-			.background(bg, RoundedCornerShape(8.dp))
-			.padding(horizontal = 8.dp, vertical = 10.dp),
+			.background(MaterialTheme.colorScheme.primaryContainer, shape)
+			.border(2.dp, MaterialTheme.colorScheme.primary, shape)
+			.padding(horizontal = 10.dp, vertical = 12.dp)
+	} else {
+		Modifier
+			.fillMaxWidth()
+			.clickable { onClick() }
+			.background(Color.Transparent, shape)
+			.padding(horizontal = 10.dp, vertical = 12.dp)
+	}
+	Row(
+		modifier = rowModifier,
 		verticalAlignment = Alignment.CenterVertically,
 		horizontalArrangement = Arrangement.spacedBy(12.dp)
 	) {
@@ -177,6 +190,13 @@ private fun CalendarRow(
 					color = MaterialTheme.colorScheme.onPrimaryContainer
 				)
 			}
+		}
+		if (selected) {
+			Icon(
+				imageVector = Icons.Default.Check,
+				contentDescription = null,
+				tint = MaterialTheme.colorScheme.primary
+			)
 		}
 	}
 }
