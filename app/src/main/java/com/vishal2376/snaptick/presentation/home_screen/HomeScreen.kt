@@ -49,9 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -60,8 +58,6 @@ import com.vishal2376.snaptick.domain.model.Task
 import com.vishal2376.snaptick.presentation.common.SnackbarController.showCustomSnackbar
 import com.vishal2376.snaptick.presentation.common.SortTask
 import com.vishal2376.snaptick.presentation.common.SwipeActionBox
-import com.vishal2376.snaptick.presentation.common.durationTextStyle
-import com.vishal2376.snaptick.presentation.common.fontRobotoMono
 import com.vishal2376.snaptick.presentation.common.h1TextStyle
 import com.vishal2376.snaptick.presentation.common.h2TextStyle
 import com.vishal2376.snaptick.presentation.home_screen.components.EmptyTaskComponent
@@ -77,7 +73,6 @@ import com.vishal2376.snaptick.presentation.task_list.action.TaskListAction
 import com.vishal2376.snaptick.ui.theme.Blue
 import com.vishal2376.snaptick.ui.theme.LightGreen
 import com.vishal2376.snaptick.ui.theme.SnaptickTheme
-import com.vishal2376.snaptick.ui.theme.Yellow
 import com.vishal2376.snaptick.util.Constants
 import com.vishal2376.snaptick.util.DummyTasks
 import com.vishal2376.snaptick.util.SoundEvent
@@ -110,7 +105,6 @@ fun HomeScreen(
 	val totalTaskTime = remember(inCompletedTasks) { inCompletedTasks.sumOf { it.getDuration(checkPastTask = true) } }
 	val freeTimeText = getFreeTime(totalTaskTime, appState.sleepTime)
 
-	val appStreakText = appState.streak.toString()
 	val packageVersionCode = remember(context) {
 		context.packageManager.getPackageInfo(context.packageName, 0).versionCode
 	}
@@ -201,27 +195,10 @@ fun HomeScreen(
 					}
 				},
 				actions = {
-					Row(
-						horizontalArrangement = Arrangement.spacedBy(2.dp),
-						verticalAlignment = Alignment.CenterVertically
-					) {
-						IconButton(onClick = { onNavigate(Routes.CalenderScreen.name) }) {
-							Icon(
-								imageVector = Icons.Default.CalendarMonth,
-								contentDescription = null
-							)
-						}
-						Text(
-							text = appStreakText,
-							style = durationTextStyle,
-							color = MaterialTheme.colorScheme.onBackground,
-							fontFamily = fontRobotoMono,
-							fontWeight = FontWeight.Bold
-						)
+					IconButton(onClick = { onNavigate(Routes.CalenderScreen.name) }) {
 						Icon(
-							painter = painterResource(id = R.drawable.ic_fire),
-							contentDescription = null,
-							tint = Yellow,
+							imageVector = Icons.Default.CalendarMonth,
+							contentDescription = null
 						)
 					}
 					Spacer(modifier = Modifier.width(8.dp))
@@ -232,6 +209,7 @@ fun HomeScreen(
 					onClick = {
 						onNavigate(Routes.AddTaskScreen.name)
 					},
+					modifier = Modifier.padding(end = 4.dp, bottom = 4.dp),
 					containerColor = MaterialTheme.colorScheme.primary,
 					contentColor = MaterialTheme.colorScheme.onPrimary
 				) {

@@ -30,7 +30,6 @@ import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
-import androidx.glance.layout.width
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
@@ -39,7 +38,6 @@ import com.vishal2376.snaptick.MainActivity
 import com.vishal2376.snaptick.R
 import com.vishal2376.snaptick.domain.model.Task
 import com.vishal2376.snaptick.presentation.navigation.Routes
-import com.vishal2376.snaptick.widget.action.RefreshWidgetAction
 import com.vishal2376.snaptick.widget.action.ToggleTaskAction
 import com.vishal2376.snaptick.widget.presentation.components.EmptyTaskWidgetComponent
 import com.vishal2376.snaptick.widget.presentation.components.TaskWidgetComponent
@@ -76,23 +74,14 @@ fun SnaptickTaskWidget(
 							fontSize = 20.sp,
 							fontWeight = FontWeight.Bold,
 						),
-						modifier = GlanceModifier
-							.defaultWeight()
-							.clickable(actionStartActivity(getOpenAppIntent(context)))
+						modifier = GlanceModifier.defaultWeight()
 					)
-					Row {
-						CustomIconButton(
-							icon = R.drawable.ic_refresh,
-							onClick = actionRunCallback<RefreshWidgetAction>()
-						)
-						Spacer(modifier = GlanceModifier.width(8.dp))
-						CustomIconButton(
-							icon = R.drawable.ic_add,
-							tint = GlanceTheme.colors.onPrimary,
-							bgColor = GlanceTheme.colors.primary,
-							onClick = actionStartActivity(getAddTaskIntent(context))
-						)
-					}
+					CustomIconButton(
+						icon = R.drawable.ic_add,
+						tint = GlanceTheme.colors.onPrimary,
+						bgColor = GlanceTheme.colors.primary,
+						onClick = actionStartActivity(getAddTaskIntent(context))
+					)
 				}
 
 				Spacer(modifier = GlanceModifier.height(16.dp))
@@ -123,15 +112,6 @@ private fun getAddTaskIntent(context: Context): Intent {
 	return Intent(context, MainActivity::class.java).apply {
 		flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
 		putExtra(EXTRA_NAVIGATE_TO, Routes.AddTaskScreen.name)
-	}
-}
-
-/**
- * Creates an intent to simply open the app (home screen).
- */
-private fun getOpenAppIntent(context: Context): Intent {
-	return Intent(context, MainActivity::class.java).apply {
-		flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
 	}
 }
 

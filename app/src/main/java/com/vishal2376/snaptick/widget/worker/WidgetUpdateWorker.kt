@@ -45,63 +45,11 @@ class WidgetUpdateWorker @AssistedInject constructor(
 
 	override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
 		try {
-			if (BuildConfig.DEBUG) Log.d(TAG, "Starting widget data sync")
-
-			// Fetch today's tasks with per-date completion merged. For repeat
-			// templates, `isCompleted` reflects today's row in `task_completions`;
-			// for one-offs, it reflects the row's own flag.
-			val allTasks = taskRepository.getTodayTasksWithCompletions().first()
-			val dayOfWeek = LocalDate.now().dayOfWeek.value - 1
-
-			// Filter to incomplete tasks, handling repeated tasks' weekday set.
-			val incompleteTasks = allTasks.filter { task ->
-				if (task.isRepeated) {
-					task.getRepeatWeekList().contains(dayOfWeek)
-				} else {
-					true
-				}
-			}.filter { !it.isCompleted }
-
-			if (BuildConfig.DEBUG) Log.d(TAG, "Found ${incompleteTasks.size} incomplete tasks for today")
-
-			// Fetch settings
-			val is24HourFormat = settingsStore.timeFormatKey.first()
-			val themeOrdinal = settingsStore.themeKey.first()
-			val theme = AppTheme.entries.getOrElse(themeOrdinal) { AppTheme.Amoled }
-			val useDynamicTheme = settingsStore.dynamicThemeKey.first()
-
-			if (BuildConfig.DEBUG) Log.d(
-				TAG,
-				"Settings - is24h: $is24HourFormat, theme: $theme, dynamicTheme: $useDynamicTheme"
-			)
-
-			// Create new widget state
-			val newState = WidgetState(
-				tasks = incompleteTasks,
-				is24HourFormat = is24HourFormat,
-				theme = theme,
-				useDynamicTheme = useDynamicTheme
-			)
-
-			// Update widget state
-			WidgetStateDefinition.updateState(context, newState)
-
-			// Trigger widget update
-			TaskAppWidget().updateAll(context)
-
-			if (BuildConfig.DEBUG) Log.d(TAG, "Widget data sync completed successfully")
-
-			Result.success(
-				workDataOf(
-					SUCCESS_KEY to "Widget updated with ${incompleteTasks.size} tasks"
-				)
-			)
+			val count = refreshNow(context, taskRepository, settingsStore)
+			Result.success(workDataOf(SUCCESS_KEY to "Widget updated with $count tasks"))
 		} catch (e: Exception) {
 			Log.e(TAG, "Widget data sync failed", e)
-			e.printStackTrace()
-			Result.failure(
-				workDataOf(ERROR_KEY to e.message)
-			)
+			Result.failure(workDataOf(ERROR_KEY to e.message))
 		}
 	}
 
@@ -110,6 +58,41 @@ class WidgetUpdateWorker @AssistedInject constructor(
 		private const val PERIODIC_WORKER_NAME = "widget_periodic_update_worker"
 		const val SUCCESS_KEY = "widget_update_success"
 		const val ERROR_KEY = "widget_update_error"
+
+		/**
+		 * Runs the widget refresh inline on the caller's coroutine. Used by
+		 * Glance actions (toggle, etc.) where WorkManager dispatch latency
+		 * makes the widget feel laggy. Returns the count of incomplete tasks
+		 * pushed to widget state.
+		 */
+		suspend fun refreshNow(
+			context: Context,
+			taskRepository: TaskRepository,
+			settingsStore: SettingsStore,
+		): Int {
+			if (BuildConfig.DEBUG) Log.d(TAG, "Starting inline widget data sync")
+
+			val allTasks = taskRepository.getTodayTasksWithCompletions().first()
+			val dayOfWeek = LocalDate.now().dayOfWeek.value - 1
+			val incompleteTasks = allTasks.filter { task ->
+				if (task.isRepeated) task.getRepeatWeekList().contains(dayOfWeek) else true
+			}.filter { !it.isCompleted }
+
+			val is24HourFormat = settingsStore.timeFormatKey.first()
+			val themeOrdinal = settingsStore.themeKey.first()
+			val theme = AppTheme.entries.getOrElse(themeOrdinal) { AppTheme.Amoled }
+			val useDynamicTheme = settingsStore.dynamicThemeKey.first()
+
+			val newState = WidgetState(
+				tasks = incompleteTasks,
+				is24HourFormat = is24HourFormat,
+				theme = theme,
+				useDynamicTheme = useDynamicTheme,
+			)
+			WidgetStateDefinition.updateState(context, newState)
+			TaskAppWidget().updateAll(context)
+			return incompleteTasks.size
+		}
 
 		/**
 		 * Enqueue a one-time widget update.

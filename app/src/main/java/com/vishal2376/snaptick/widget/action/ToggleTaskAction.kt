@@ -36,9 +36,10 @@ class ToggleTaskAction : ActionCallback {
 		val taskId = parameters[TaskIdKey] ?: return
 
 		withContext(Dispatchers.IO) {
-			val repo = EntryPointAccessors
+			val entry = EntryPointAccessors
 				.fromApplication(context.applicationContext, WidgetEntryPoint::class.java)
-				.taskRepository()
+			val repo = entry.taskRepository()
+			val settings = entry.settingsStore()
 
 			val task = repo.getTaskById(taskId) ?: return@withContext
 
@@ -53,7 +54,7 @@ class ToggleTaskAction : ActionCallback {
 				repo.updateTask(task.copy(isCompleted = !task.isCompleted))
 			}
 
-			WidgetUpdateWorker.enqueueWorker(context)
+			WidgetUpdateWorker.refreshNow(context, repo, settings)
 		}
 	}
 }

@@ -170,6 +170,7 @@ fun CalenderScreen(
 						onAction(MainAction.UpdateCalenderDate(selectedDay))
 						onNavigate(Routes.AddTaskScreen.name)
 					},
+					modifier = Modifier.padding(end = 4.dp, bottom = 4.dp),
 					containerColor = MaterialTheme.colorScheme.primary,
 					contentColor = MaterialTheme.colorScheme.primaryContainer
 				) {
