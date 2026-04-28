@@ -13,7 +13,7 @@ data class AddEditState(
 	val startTime: LocalTime = LocalTime.now(),
 	val endTime: LocalTime = LocalTime.now().plusHours(1),
 	val date: LocalDate = LocalDate.now(),
-	val reminder: Boolean = true,
+	val reminder: Boolean = false,
 	val isRepeated: Boolean = false,
 	val isAllDay: Boolean = false,
 	val repeatWeekdays: String = "",

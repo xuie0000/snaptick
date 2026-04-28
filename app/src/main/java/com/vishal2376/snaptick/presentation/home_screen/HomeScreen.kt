@@ -373,7 +373,7 @@ fun HomeScreen(
 									item = task,
 									swipeBehavior = appState.swipeBehaviour,
 									onDelete = {
-										playSound(context, SoundEvent.TASK_DELETED)
+										playSound(context, SoundEvent.TASK_DELETED, appState.soundEnabled)
 										onTaskAction(TaskListAction.SwipeTask(it))
 										showCustomSnackbar(
 											msg = "Task Deleted",
@@ -382,7 +382,7 @@ fun HomeScreen(
 										)
 									},
 									onComplete = {
-										playSound(context, SoundEvent.TASK_COMPLETED)
+										playSound(context, SoundEvent.TASK_COMPLETED, appState.soundEnabled)
 										onTaskAction(TaskListAction.ToggleCompletion(it.id, true))
 										showCustomSnackbar(
 											msg = "Task Completed",
@@ -398,7 +398,7 @@ fun HomeScreen(
 											onNavigate("${Routes.EditTaskScreen.name}/$taskId")
 										},
 										onComplete = {
-											playSound(context, SoundEvent.TASK_COMPLETED)
+											playSound(context, SoundEvent.TASK_COMPLETED, appState.soundEnabled)
 											onTaskAction(TaskListAction.ToggleCompletion(it, true))
 										},
 										onPomodoro = { taskId ->

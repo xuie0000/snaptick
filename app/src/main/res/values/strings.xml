@@ -87,6 +87,8 @@
     <string name="manage_tasks_in_calendar_view">Manage tasks in Calendar View</string>
     <string name="analyze_free_time">Analyze Free Time</string>
     <string name="enable_24_hour_format">Enable 24-Hour Format</string>
+    <string name="enable_sounds">Enable In-App Sounds</string>
+    <string name="sounds">Sounds</string>
     <string name="backup_restore_data">Backup/Restore Data</string>
     <string name="material_you">Material You</string>
     <string name="disable_all_day_option">Disable All-Day Option</string>

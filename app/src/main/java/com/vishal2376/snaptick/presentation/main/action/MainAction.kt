@@ -49,4 +49,5 @@ sealed interface MainAction {
 	data object ClearImportPreview : MainAction
 	data object SyncAllTasksNow : MainAction
 	data object CompleteOnboarding : MainAction
+	data class UpdateSoundEnabled(val enabled: Boolean) : MainAction
 }
