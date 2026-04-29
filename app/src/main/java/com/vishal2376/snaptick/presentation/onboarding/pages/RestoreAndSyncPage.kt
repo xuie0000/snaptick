@@ -23,8 +23,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronRight
@@ -34,13 +37,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.window.Dialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -75,6 +80,26 @@ fun RestoreAndSyncPage(
 	onEnableNotifications: () -> Unit,
 ) {
 	val haptic = LocalHapticFeedback.current
+	var showCalendarDialog by remember { mutableStateOf(false) }
+
+	if (showCalendarDialog) {
+		CalendarPickerDialog(
+			writableCalendars = writableCalendars,
+			selectedCalendarId = selectedCalendarId,
+			onSelect = { id ->
+				haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+				onSelectCalendar(id)
+				if (!calendarSyncEnabled) onCalendarSyncToggle(true)
+				showCalendarDialog = false
+			},
+			onDismiss = {
+				// User exited without picking - keep sync off so we don't end
+				// up enabled with no target calendar.
+				showCalendarDialog = false
+				if (calendarSyncEnabled) onCalendarSyncToggle(false)
+			},
+		)
+	}
 
 	Column(
 		modifier = Modifier
@@ -124,6 +149,17 @@ fun RestoreAndSyncPage(
 		)
 		Spacer(Modifier.height(12.dp))
 
+		val onCalendarToggle: (Boolean) -> Unit = { enabled ->
+			haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+			if (enabled) {
+				// Don't flip the toggle on yet; only flip it on after the user
+				// picks a calendar. If they cancel, the toggle stays off.
+				showCalendarDialog = true
+			} else {
+				onCalendarSyncToggle(false)
+			}
+		}
+
 		ActionCard(
 			iconRes = R.drawable.ic_calendar_sync,
 			accent = LightGreen,
@@ -132,52 +168,15 @@ fun RestoreAndSyncPage(
 			trailing = {
 				Switch(
 					checked = calendarSyncEnabled,
-					onCheckedChange = {
-						haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-						onCalendarSyncToggle(it)
-					},
+					onCheckedChange = onCalendarToggle,
 					colors = SwitchDefaults.colors(
 						checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
 						checkedTrackColor = MaterialTheme.colorScheme.primary
 					)
 				)
 			},
-			onClick = {
-				haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-				onCalendarSyncToggle(!calendarSyncEnabled)
-			}
+			onClick = { onCalendarToggle(!calendarSyncEnabled) }
 		)
-
-		AnimatedVisibility(visible = calendarSyncEnabled) {
-			Column(
-				modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-				verticalArrangement = Arrangement.spacedBy(6.dp)
-			) {
-				if (writableCalendars.isEmpty()) {
-					Text(
-						text = "No writable calendars found. Enable later from Settings.",
-						style = infoDescTextStyle,
-						color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
-					)
-				} else {
-					Text(
-						text = "Pick a calendar",
-						style = h3TextStyle,
-						color = MaterialTheme.colorScheme.onBackground
-					)
-					writableCalendars.forEach { cal ->
-						OnboardingCalendarRow(
-							info = cal,
-							selected = cal.id == selectedCalendarId,
-							onClick = {
-								haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-								onSelectCalendar(cal.id)
-							}
-						)
-					}
-				}
-			}
-		}
 
 		AnimatedVisibility(visible = !notificationsEnabled) {
 			Column {
@@ -312,15 +311,6 @@ private fun NotificationActionCard(
 		),
 		label = "notif-breath-alpha"
 	)
-	val breathScale by breathTransition.animateFloat(
-		initialValue = 0.985f,
-		targetValue = 1.015f,
-		animationSpec = infiniteRepeatable(
-			animation = tween(durationMillis = 1100, easing = FastOutSlowInEasing),
-			repeatMode = RepeatMode.Reverse
-		),
-		label = "notif-breath-scale"
-	)
 
 	if (notificationsEnabled) {
 		ActionCard(
@@ -346,23 +336,8 @@ private fun NotificationActionCard(
 	Box(
 		modifier = Modifier
 			.fillMaxWidth()
-			.padding(8.dp)
-			.graphicsLayer { scaleX = breathScale; scaleY = breathScale }
-			.background(
-				brush = Brush.radialGradient(
-					colors = listOf(
-						Red.copy(alpha = 0.55f * breathAlpha),
-						Red.copy(alpha = 0.18f * breathAlpha),
-						Color.Transparent
-					),
-					center = Offset.Unspecified,
-					radius = 1200f
-				),
-				shape = RoundedCornerShape(28.dp)
-			)
-			.padding(8.dp)
 			.border(
-				width = 3.dp,
+				width = 2.dp,
 				color = Red.copy(alpha = breathAlpha),
 				shape = RoundedCornerShape(20.dp)
 			)
@@ -384,6 +359,61 @@ private fun NotificationActionCard(
 			},
 			onClick = { if (!notificationsEnabled) onEnable() }
 		)
+	}
+}
+
+@Composable
+private fun CalendarPickerDialog(
+	writableCalendars: List<CalendarInfo>,
+	selectedCalendarId: Long?,
+	onSelect: (Long) -> Unit,
+	onDismiss: () -> Unit,
+) {
+	Dialog(onDismissRequest = onDismiss) {
+		Column(
+			modifier = Modifier
+				.fillMaxWidth()
+				.background(MaterialTheme.colorScheme.background, RoundedCornerShape(16.dp))
+				.padding(20.dp),
+			verticalArrangement = Arrangement.spacedBy(12.dp)
+		) {
+			Text(
+				text = "Pick a calendar",
+				style = h1TextStyle,
+				color = MaterialTheme.colorScheme.onBackground,
+			)
+			if (writableCalendars.isEmpty()) {
+				Text(
+					text = "No writable calendars found. Enable later from Settings.",
+					style = infoDescTextStyle,
+					color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.85f)
+				)
+			} else {
+				Column(
+					modifier = Modifier
+						.fillMaxWidth()
+						.heightIn(max = 320.dp)
+						.verticalScroll(rememberScrollState()),
+					verticalArrangement = Arrangement.spacedBy(6.dp)
+				) {
+					writableCalendars.forEach { cal ->
+						OnboardingCalendarRow(
+							info = cal,
+							selected = cal.id == selectedCalendarId,
+							onClick = { onSelect(cal.id) }
+						)
+					}
+				}
+			}
+			Row(
+				modifier = Modifier.fillMaxWidth(),
+				horizontalArrangement = Arrangement.End,
+			) {
+				TextButton(onClick = onDismiss) {
+					Text(text = "Cancel")
+				}
+			}
+		}
 	}
 }
 

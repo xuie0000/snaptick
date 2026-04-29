@@ -109,7 +109,7 @@ fun ThemePreviewPage(
 				items(demoOrder, key = { it.uuid }) { task ->
 					Box(
 						modifier = Modifier.animateItemPlacement(
-							tween(durationMillis = 400, easing = FastOutSlowInEasing)
+							tween(durationMillis = 500, easing = FastOutSlowInEasing)
 						)
 					) {
 						TaskComponent(
