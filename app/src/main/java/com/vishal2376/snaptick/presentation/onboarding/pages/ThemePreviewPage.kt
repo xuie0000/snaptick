@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -52,7 +51,6 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.vishal2376.snaptick.domain.model.Task
 import com.vishal2376.snaptick.presentation.common.AppTheme
@@ -111,11 +109,7 @@ fun ThemePreviewPage(
 				items(demoOrder, key = { it.uuid }) { task ->
 					Box(
 						modifier = Modifier.animateItemPlacement(
-							spring(
-								dampingRatio = 0.6f,
-								stiffness = Spring.StiffnessMediumLow,
-								visibilityThreshold = IntOffset.VisibilityThreshold
-							)
+							tween(durationMillis = 400, easing = FastOutSlowInEasing)
 						)
 					) {
 						TaskComponent(
