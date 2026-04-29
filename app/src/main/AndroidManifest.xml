@@ -10,6 +10,8 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
     <application
         android:name=".SnaptickApplication"
@@ -83,6 +85,17 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/snaptick_widget_info" />
         </receiver>
+
+        <!--
+            Pomodoro foreground service. Keeps the timer ticking when the app
+            is in the background or process is swiped away. Type dataSync is
+            chosen over shortService to avoid the 3-minute cap; user-initiated
+            timers are an acceptable use of dataSync per Play policy.
+        -->
+        <service
+            android:name=".service.PomodoroService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
 
         <provider
             android:name="androidx.startup.InitializationProvider"
