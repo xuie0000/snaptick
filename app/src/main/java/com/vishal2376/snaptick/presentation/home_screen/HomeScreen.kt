@@ -154,6 +154,12 @@ fun HomeScreen(
 							drawerState.close()
 						}
 					},
+					onClickAnalytics = {
+						onNavigate(Routes.AnalyticsScreen.name)
+						scope.launch {
+							drawerState.close()
+						}
+					},
 					onClickSettings = {
 						onNavigate(Routes.SettingsScreen.name)
 						scope.launch {

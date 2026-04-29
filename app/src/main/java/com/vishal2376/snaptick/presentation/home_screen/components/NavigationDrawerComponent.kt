@@ -15,6 +15,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Backup
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Settings
@@ -46,6 +47,7 @@ fun NavigationDrawerComponent(
 	appState: MainState,
 	onAction: (MainAction) -> Unit,
 	onClickThisWeek: () -> Unit,
+	onClickAnalytics: () -> Unit,
 	onClickSettings: () -> Unit,
 	onClickBackup: () -> Unit,
 	onClickRestore: () -> Unit
@@ -93,6 +95,13 @@ fun NavigationDrawerComponent(
 				icon = Icons.Default.CalendarMonth,
 				label = stringResource(R.string.this_week)
 			) { onClickThisWeek() }
+
+			Spacer(modifier = Modifier.height(8.dp))
+
+			NavDrawerItemUI(
+				icon = Icons.Default.BarChart,
+				label = stringResource(R.string.analytics)
+			) { onClickAnalytics() }
 
 			Spacer(modifier = Modifier.height(8.dp))
 
@@ -155,5 +164,5 @@ fun NavDrawerItemUI(icon: ImageVector, label: String, onClick: () -> Unit) {
 @Preview(widthDp = 350)
 @Composable
 fun NavigationDrawerComponentPreview() {
-	NavigationDrawerComponent(MainState(), {}, {}, {}, {}, {})
+	NavigationDrawerComponent(MainState(), {}, {}, {}, {}, {}, {})
 }
