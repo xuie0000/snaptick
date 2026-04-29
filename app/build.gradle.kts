@@ -189,6 +189,9 @@ dependencies {
 	//calender
 	implementation("com.kizitonwose.calendar:compose:2.4.1")
 
+	//analytics charts
+	implementation("io.github.ehsannarmani:compose-charts:0.0.18")
+
 	//widget
 	implementation("androidx.glance:glance-appwidget:1.1.1")
 	implementation("androidx.glance:glance-material3:1.1.1")

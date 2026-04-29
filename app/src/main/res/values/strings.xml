@@ -90,6 +90,7 @@
     <string name="enable_sounds">Enable In-App Sounds</string>
     <string name="sounds">Sounds</string>
     <string name="check_for_updates">Check for Updates</string>
+    <string name="analytics">Analytics</string>
     <string name="pomodoro_channel_name">Pomodoro Timer</string>
     <string name="pomodoro_complete">Pomodoro complete</string>
     <string name="play">Play</string>

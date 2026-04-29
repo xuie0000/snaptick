@@ -11,5 +11,6 @@ enum class Routes {
 	CalenderScreen,
 	SettingsScreen,
 	AboutScreen,
+	AnalyticsScreen,
 	Onboarding,
 }

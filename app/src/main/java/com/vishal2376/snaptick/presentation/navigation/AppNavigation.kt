@@ -31,6 +31,8 @@ import androidx.navigation.navArgument
 import com.vishal2376.snaptick.MainActivity
 import com.vishal2376.snaptick.R
 import com.vishal2376.snaptick.presentation.about_screen.AboutScreen
+import com.vishal2376.snaptick.presentation.analytics_screen.AnalyticsScreen
+import com.vishal2376.snaptick.presentation.analytics_screen.viewmodel.AnalyticsViewModel
 import com.vishal2376.snaptick.presentation.common.BackupRestoreConfirmDialog
 import com.vishal2376.snaptick.presentation.common.UpdateAvailableDialog
 import com.vishal2376.snaptick.util.openUrl
@@ -292,6 +294,17 @@ fun AppNavigation(
 					}
 				},
 				mainViewModel = mainViewModel,
+			)
+		}
+
+		composable(route = Routes.AnalyticsScreen.name) {
+			val analyticsViewModel: AnalyticsViewModel = hiltViewModel()
+			val analyticsState by analyticsViewModel.state.collectAsStateWithLifecycle()
+			AnalyticsScreen(
+				state = analyticsState,
+				onBack = {
+					if (navController.isValidBackStack) navController.popBackStack()
+				},
 			)
 		}
 
