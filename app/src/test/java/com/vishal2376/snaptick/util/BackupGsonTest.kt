@@ -61,7 +61,7 @@ class BackupGsonTest {
 		val empty = BackupData(tasks = emptyList())
 		val decoded = gson.fromJson(gson.toJson(empty), BackupData::class.java)
 		assertEquals(empty, decoded)
-		assertEquals(1, decoded.version)
+		assertEquals(2, decoded.version)
 		assertEquals(emptyList<BackupCompletion>(), decoded.completions)
 	}
 

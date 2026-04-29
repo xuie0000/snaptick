@@ -64,7 +64,7 @@ class RescheduleSingleReminderWorkerTest {
 		scheduler = ReminderScheduler(context, am)
 		val settings = SettingsStore(context)
 		val pusher = CalendarPusher(CalendarRepository(context), db.taskDao(), settings)
-		repo = TaskRepository(db.taskDao(), db.taskCompletionDao(), db, context, pusher, scheduler)
+		repo = TaskRepository(db.taskDao(), db.taskCompletionDao(), db.taskReminderDao(), db, context, pusher, scheduler)
 		// Wipe any leftover pending intent from prior runs.
 		scheduler.cancel(testTaskId)
 	}

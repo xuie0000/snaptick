@@ -46,7 +46,7 @@ class WidgetUpdateWorkerTest {
 		val pusher = CalendarPusher(CalendarRepository(context), db.taskDao(), settings)
 		val am = context.getSystemService(android.content.Context.ALARM_SERVICE) as android.app.AlarmManager
 		val scheduler = com.vishal2376.snaptick.util.ReminderScheduler(context, am)
-		repo = TaskRepository(db.taskDao(), db.taskCompletionDao(), db, context, pusher, scheduler)
+		repo = TaskRepository(db.taskDao(), db.taskCompletionDao(), db.taskReminderDao(), db, context, pusher, scheduler)
 	}
 
 	@After fun tearDown() { db.close() }

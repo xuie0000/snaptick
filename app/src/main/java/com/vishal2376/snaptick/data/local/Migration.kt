@@ -82,3 +82,28 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
 		)
 	}
 }
+
+/**
+ * v4 -> v5 migration. Introduces the `task_reminders` table: each row is one
+ * (task uuid, offset minutes before start) pair. Pre-existing tasks with
+ * `reminder = 1` get a single (uuid, 0) row so they keep their on-time
+ * reminder behavior. The `Task.reminder` boolean column stays as a "any
+ * reminders enabled" flag - cheap query, no full join.
+ */
+val MIGRATION_4_5 = object : Migration(4, 5) {
+	override fun migrate(db: SupportSQLiteDatabase) {
+		db.execSQL(
+			"""
+			CREATE TABLE IF NOT EXISTS `task_reminders` (
+				`uuid` TEXT NOT NULL,
+				`offsetMinutes` INTEGER NOT NULL,
+				PRIMARY KEY(`uuid`, `offsetMinutes`)
+			)
+			""".trimIndent()
+		)
+		db.execSQL(
+			"INSERT OR IGNORE INTO `task_reminders` (uuid, offsetMinutes) " +
+				"SELECT uuid, 0 FROM `task_table` WHERE reminder = 1"
+		)
+	}
+}

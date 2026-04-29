@@ -7,9 +7,11 @@ import com.vishal2376.snaptick.data.calendar.CalendarPusher
 import com.vishal2376.snaptick.data.local.MIGRATION_1_2
 import com.vishal2376.snaptick.data.local.MIGRATION_2_3
 import com.vishal2376.snaptick.data.local.MIGRATION_3_4
+import com.vishal2376.snaptick.data.local.MIGRATION_4_5
 import com.vishal2376.snaptick.data.local.TaskCompletionDao
 import com.vishal2376.snaptick.data.local.TaskDao
 import com.vishal2376.snaptick.data.local.TaskDatabase
+import com.vishal2376.snaptick.data.local.TaskReminderDao
 import com.vishal2376.snaptick.data.repositories.TaskRepository
 import com.vishal2376.snaptick.util.ReminderScheduler
 import dagger.Module
@@ -27,7 +29,7 @@ object AppModule {
 	@Singleton
 	fun providesLocalDatabase(@ApplicationContext context: Context): TaskDatabase {
 		return Room.databaseBuilder(context, TaskDatabase::class.java, "local_db")
-			.addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+			.addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
 			.build()
 	}
 
@@ -45,6 +47,12 @@ object AppModule {
 
 	@Provides
 	@Singleton
+	fun providesTaskReminderDao(db: TaskDatabase): TaskReminderDao {
+		return db.taskReminderDao()
+	}
+
+	@Provides
+	@Singleton
 	fun providesAlarmManager(@ApplicationContext context: Context): AlarmManager {
 		return context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 	}
@@ -54,12 +62,13 @@ object AppModule {
 	fun providesTaskRepository(
 		dao: TaskDao,
 		completionDao: TaskCompletionDao,
+		reminderDao: TaskReminderDao,
 		database: TaskDatabase,
 		@ApplicationContext context: Context,
 		calendarPusher: CalendarPusher,
 		reminderScheduler: ReminderScheduler,
 	): TaskRepository {
-		return TaskRepository(dao, completionDao, database, context, calendarPusher, reminderScheduler)
+		return TaskRepository(dao, completionDao, reminderDao, database, context, calendarPusher, reminderScheduler)
 	}
 
 }

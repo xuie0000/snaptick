@@ -279,7 +279,7 @@ class MainViewModel @Inject constructor(
 				_events.emit(MainEvent.ShowToast("Failed to read backup file"))
 				return@launch
 			}
-			if (data.version != BACKUP_VERSION) {
+			if (data.version > BACKUP_VERSION || data.version < 1) {
 				_events.emit(MainEvent.ImportFailed("Unsupported backup version (${data.version})"))
 				return@launch
 			}
