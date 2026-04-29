@@ -45,13 +45,17 @@ class ReminderScheduler @Inject constructor(
 ) {
 
 	/**
-	 * Arms the next fire for [task]. No-op when reminders are off, the task is
-	 * globally completed (one-off case), or no future occurrence exists. Pass
-	 * [skipToday] = true to push the search past today (used after a repeating
-	 * task is marked completed for today).
+	 * Arms the next fire for [task] using [offsets] (minutes before the task's
+	 * start time). Pass an empty list to disable. Multiple offsets compress to
+	 * a single re-arming alarm: pick the earliest future fire instant across
+	 * all (offset, weekday) pairs; the receiver enqueues a worker to arm the
+	 * next-earliest after the alarm fires.
+	 *
+	 * Pass [skipToday] = true to push the search past today (used after a
+	 * repeating task is marked completed for today).
 	 */
-	fun schedule(task: Task, skipToday: Boolean = false) {
-		if (!task.reminder || task.isCompleted) {
+	fun schedule(task: Task, offsets: List<Int> = listOf(0), skipToday: Boolean = false) {
+		if (!task.reminder || task.isCompleted || offsets.isEmpty()) {
 			cancel(task.id)
 			return
 		}
@@ -59,7 +63,8 @@ class ReminderScheduler @Inject constructor(
 			LocalDateTime.of(LocalDate.now(), LocalTime.MAX)
 		else
 			LocalDateTime.now()
-		val fireAt = nextFireMillis(task, from) ?: run {
+		val fireAt = offsets.mapNotNull { nextFireMillis(task, from, offsetMinutes = it) }
+			.minOrNull() ?: run {
 			cancel(task.id)
 			return
 		}
@@ -107,9 +112,9 @@ class ReminderScheduler @Inject constructor(
 		}
 	}
 
-	/** Re-arms reminders for every supplied task. Idempotent. */
-	fun rescheduleAll(tasks: List<Task>) {
-		tasks.forEach { schedule(it) }
+	/** Re-arms reminders for every supplied (task, offsets) pair. Idempotent. */
+	fun rescheduleAll(tasksWithOffsets: List<Pair<Task, List<Int>>>) {
+		tasksWithOffsets.forEach { (task, offsets) -> schedule(task, offsets) }
 	}
 
 	private fun buildPendingIntent(task: Task, flags: Int): PendingIntent {
@@ -133,11 +138,15 @@ class ReminderScheduler @Inject constructor(
 	 *   today's slot is in the past and today is in the weekday set, today is
 	 *   skipped and the next match wins.
 	 */
-	internal fun nextFireMillis(task: Task, now: LocalDateTime = LocalDateTime.now()): Long? {
+	internal fun nextFireMillis(
+		task: Task,
+		now: LocalDateTime = LocalDateTime.now(),
+		offsetMinutes: Int = 0,
+	): Long? {
 		val zone = ZoneId.systemDefault()
 
 		if (!task.isRepeated) {
-			val fire = LocalDateTime.of(task.date, task.startTime)
+			val fire = LocalDateTime.of(task.date, task.startTime).minusMinutes(offsetMinutes.toLong())
 			return if (fire.isAfter(now)) fire.atZone(zone).toInstant().toEpochMilli() else null
 		}
 
@@ -149,7 +158,7 @@ class ReminderScheduler @Inject constructor(
 			val candidateDate = today.plusDays(offset.toLong())
 			val candidateDow = candidateDate.dayOfWeek.value - 1 // Mon=0 … Sun=6
 			if (candidateDow !in weekdays) continue
-			val candidate = LocalDateTime.of(candidateDate, task.startTime)
+			val candidate = LocalDateTime.of(candidateDate, task.startTime).minusMinutes(offsetMinutes.toLong())
 			if (candidate.isAfter(now)) {
 				return candidate.atZone(zone).toInstant().toEpochMilli()
 			}

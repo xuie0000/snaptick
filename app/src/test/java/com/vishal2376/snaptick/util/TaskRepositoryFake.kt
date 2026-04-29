@@ -16,15 +16,16 @@ class TaskRepositoryFake {
 	val repo: TaskRepository = mockk(relaxed = true)
 
 	init {
-		coEvery { repo.insertTask(any()) } answers {
+		coEvery { repo.insertTask(task = any(), reminderOffsets = any()) } answers {
 			val t = firstArg<Task>()
 			val assigned = if (t.id == 0) t.copy(id = (tasks.value.maxOfOrNull { it.id } ?: 0) + 1) else t
 			tasks.value = tasks.value + assigned
 		}
-		coEvery { repo.updateTask(any()) } answers {
+		coEvery { repo.updateTask(task = any(), reminderOffsets = any()) } answers {
 			val t = firstArg<Task>()
 			tasks.value = tasks.value.map { if (it.id == t.id) t else it }
 		}
+		coEvery { repo.getReminderOffsets(any()) } returns emptyList()
 		coEvery { repo.deleteTask(any()) } answers {
 			val t = firstArg<Task>()
 			tasks.value = tasks.value.filterNot { it.id == t.id }

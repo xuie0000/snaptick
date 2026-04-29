@@ -7,12 +7,13 @@ import androidx.room.RoomDatabase
 import com.vishal2376.snaptick.domain.model.Task
 
 @Database(
-	entities = [Task::class, TaskCompletion::class],
-	version = 4,
+	entities = [Task::class, TaskCompletion::class, TaskReminder::class],
+	version = 5,
 )
 abstract class TaskDatabase : RoomDatabase() {
 	abstract fun taskDao(): TaskDao
 	abstract fun taskCompletionDao(): TaskCompletionDao
+	abstract fun taskReminderDao(): TaskReminderDao
 
 	companion object {
 		@Volatile
@@ -29,7 +30,7 @@ abstract class TaskDatabase : RoomDatabase() {
 					TaskDatabase::class.java,
 					"local_db"
 				)
-					.addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+					.addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
 					.build()
 				INSTANCE = instance
 				instance

@@ -15,6 +15,8 @@ sealed interface AddEditAction {
 	data class UpdateRepeatWeekDays(val weekDays: String) : AddEditAction
 	data class UpdatePriority(val priority: Priority) : AddEditAction
 	data class UpdateDurationMinutes(val minutes: Long) : AddEditAction
+	data class ToggleReminderOffset(val offsetMinutes: Int) : AddEditAction
+	data class SetCustomReminderOffset(val offsetMinutes: Int) : AddEditAction
 	data object SaveTask : AddEditAction
 	data object UpdateTask : AddEditAction
 	data object DeleteTask : AddEditAction

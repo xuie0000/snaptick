@@ -57,8 +57,10 @@ import com.vishal2376.snaptick.R
 import com.vishal2376.snaptick.presentation.add_edit_screen.action.AddEditAction
 import com.vishal2376.snaptick.presentation.add_edit_screen.components.ConfirmDeleteDialog
 import com.vishal2376.snaptick.presentation.add_edit_screen.components.CustomDurationDialogComponent
+import com.vishal2376.snaptick.presentation.add_edit_screen.components.CustomReminderDialog
 import com.vishal2376.snaptick.presentation.add_edit_screen.components.DurationComponent
 import com.vishal2376.snaptick.presentation.add_edit_screen.components.PriorityComponent
+import com.vishal2376.snaptick.presentation.add_edit_screen.components.ReminderChipsComponent
 import com.vishal2376.snaptick.presentation.add_edit_screen.components.ShowNativeTimePicker
 import com.vishal2376.snaptick.presentation.add_edit_screen.components.WeekDaysComponent
 import com.vishal2376.snaptick.presentation.add_edit_screen.events.AddEditEvent
@@ -379,6 +381,20 @@ fun EditTaskScreen(
 							)
 						)
 					}
+
+					var showDialogCustomReminder by remember { mutableStateOf(false) }
+					if (showDialogCustomReminder) {
+						CustomReminderDialog(
+							onClose = { showDialogCustomReminder = false },
+							onSelect = { onAction(AddEditAction.SetCustomReminderOffset(it)) }
+						)
+					}
+					ReminderChipsComponent(
+						visible = state.reminder,
+						selectedOffsets = state.reminderOffsets,
+						onToggleOffset = { onAction(AddEditAction.ToggleReminderOffset(it)) },
+						onCustomClick = { showDialogCustomReminder = true },
+					)
 					Row(
 						modifier = Modifier
 							.fillMaxWidth()

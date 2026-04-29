@@ -6,6 +6,7 @@ import com.vishal2376.snaptick.data.local.TaskCompletion
 import com.vishal2376.snaptick.data.local.TaskCompletionDao
 import com.vishal2376.snaptick.data.local.TaskDao
 import com.vishal2376.snaptick.data.local.TaskDatabase
+import com.vishal2376.snaptick.data.local.TaskReminderDao
 import com.vishal2376.snaptick.domain.model.Task
 import com.vishal2376.snaptick.util.ReminderScheduler
 import com.vishal2376.snaptick.widget.worker.WidgetUpdateWorker
@@ -41,6 +42,7 @@ class TaskRepositoryTest {
 
 	private lateinit var dao: TaskDao
 	private lateinit var completionDao: TaskCompletionDao
+	private lateinit var reminderDao: TaskReminderDao
 	private lateinit var database: TaskDatabase
 	private lateinit var context: Context
 	private lateinit var calendarPusher: CalendarPusher
@@ -64,6 +66,7 @@ class TaskRepositoryTest {
 	@Before fun setUp() {
 		dao = mockk(relaxed = true)
 		completionDao = mockk(relaxed = true)
+		reminderDao = mockk(relaxed = true)
 		database = mockk(relaxed = true)
 		context = mockk(relaxed = true)
 		calendarPusher = mockk(relaxed = true)
@@ -75,6 +78,8 @@ class TaskRepositoryTest {
 		justRun { WidgetUpdateWorker.enqueueWorker(any(), any()) }
 
 		justRun { scheduler.schedule(any()) }
+		justRun { scheduler.schedule(any(), any()) }
+		justRun { scheduler.schedule(any(), any(), any()) }
 		justRun { scheduler.cancel(any()) }
 		coJustRun { calendarPusher.pushInsert(any()) }
 		coJustRun { calendarPusher.pushUpdate(any()) }
@@ -87,7 +92,7 @@ class TaskRepositoryTest {
 		coJustRun { completionDao.delete(any(), any()) }
 		coJustRun { completionDao.deleteAllForTask(any()) }
 
-		repo = TaskRepository(dao, completionDao, database, context, calendarPusher, scheduler)
+		repo = TaskRepository(dao, completionDao, reminderDao, database, context, calendarPusher, scheduler)
 	}
 
 	@After fun tearDown() {
@@ -101,7 +106,7 @@ class TaskRepositoryTest {
 		repo.insertTask(t)
 
 		coVerify(exactly = 1) { dao.insertTask(t) }
-		verify(exactly = 1) { scheduler.schedule(match { it.id == 1 }) }
+		verify(exactly = 1) { scheduler.schedule(match { it.id == 1 }, any(), any()) }
 		coVerify(exactly = 1) { calendarPusher.pushInsert(any()) }
 	}
 
@@ -112,7 +117,7 @@ class TaskRepositoryTest {
 		// Order matters: cancel first so a stale alarm can't fire while we update.
 		verify(exactly = 1) { scheduler.cancel(7) }
 		coVerify(exactly = 1) { dao.updateTask(t) }
-		verify(exactly = 1) { scheduler.schedule(t) }
+		verify(exactly = 1) { scheduler.schedule(eq(t), any(), any()) }
 	}
 
 	@Test fun `updateTask with reminder off still calls schedule (scheduler is the policy)`() = runTest {
@@ -122,7 +127,7 @@ class TaskRepositoryTest {
 		val t = task(id = 5, reminder = false)
 		repo.updateTask(t)
 		verify(exactly = 1) { scheduler.cancel(5) }
-		verify(exactly = 1) { scheduler.schedule(t) }
+		verify(exactly = 1) { scheduler.schedule(eq(t), any(), any()) }
 	}
 
 	@Test fun `deleteTask cancels alarm and clears all completions for that uuid`() = runTest {
@@ -178,6 +183,6 @@ class TaskRepositoryTest {
 
 		repo.rescheduleAllReminders()
 
-		verify(exactly = 1) { scheduler.rescheduleAll(listOf(active)) }
+		verify(exactly = 1) { scheduler.rescheduleAll(match { list -> list.size == 1 && list[0].first.id == active.id }) }
 	}
 }

@@ -35,7 +35,8 @@ class AddEditViewModel @Inject constructor(
 			_state.update { it.copy(isLoaded = false) }
 			viewModelScope.launch {
 				repository.getTaskById(taskId)?.let { task ->
-					_state.value = AddEditState.fromTask(task)
+					val offsets = repository.getReminderOffsets(task.uuid)
+					_state.value = AddEditState.fromTask(task).copy(reminderOffsets = offsets)
 				}
 			}
 		}
@@ -72,7 +73,24 @@ class AddEditViewModel @Inject constructor(
 				it.copy(endTime = action.time, duration = gapMin)
 			}
 			is AddEditAction.UpdateDate -> _state.update { it.copy(date = action.date) }
-			is AddEditAction.UpdateReminder -> _state.update { it.copy(reminder = action.enabled) }
+			is AddEditAction.UpdateReminder -> _state.update {
+				val nextOffsets = if (action.enabled && it.reminderOffsets.isEmpty()) listOf(0) else it.reminderOffsets
+				it.copy(
+					reminder = action.enabled,
+					reminderOffsets = if (action.enabled) nextOffsets else emptyList(),
+				)
+			}
+			is AddEditAction.ToggleReminderOffset -> _state.update {
+				val current = it.reminderOffsets
+				val next = if (action.offsetMinutes in current) current - action.offsetMinutes
+				else (current + action.offsetMinutes).sorted()
+				it.copy(reminderOffsets = next, reminder = next.isNotEmpty())
+			}
+			is AddEditAction.SetCustomReminderOffset -> _state.update {
+				val current = it.reminderOffsets
+				val next = (current + action.offsetMinutes).distinct().sorted()
+				it.copy(reminderOffsets = next, reminder = true)
+			}
 			is AddEditAction.UpdateAllDay -> _state.update {
 				it.copy(isAllDay = action.enabled, endTime = if (action.enabled) it.startTime else it.endTime)
 			}
@@ -95,16 +113,20 @@ class AddEditViewModel @Inject constructor(
 
 	private fun saveTask() {
 		viewModelScope.launch {
-			val task = _state.value.toTask()
-			repository.insertTask(task)
+			val s = _state.value
+			val task = s.toTask()
+			val offsets = if (s.reminder) s.reminderOffsets.ifEmpty { listOf(0) } else emptyList()
+			repository.insertTask(task, reminderOffsets = offsets)
 			_events.emit(AddEditEvent.TaskSaved)
 		}
 	}
 
 	private fun updateTask() {
 		viewModelScope.launch {
-			val task = _state.value.toTask()
-			repository.updateTask(task)
+			val s = _state.value
+			val task = s.toTask()
+			val offsets = if (s.reminder) s.reminderOffsets.ifEmpty { listOf(0) } else emptyList()
+			repository.updateTask(task, reminderOffsets = offsets)
 			_events.emit(AddEditEvent.TaskUpdated)
 		}
 	}
