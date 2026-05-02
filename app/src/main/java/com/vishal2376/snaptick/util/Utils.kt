@@ -36,23 +36,42 @@ fun showToast(context: Context, message: String, duration: Int = Toast.LENGTH_LO
 	Toast.makeText(context, message, duration).show()
 }
 
+/**
+ * Free time = (window from now until bedtime) - (sum of pending task durations).
+ *
+ * Bedtime placement heuristic:
+ * - sleepTime > now (same day): user hasn't reached bedtime yet today.
+ *   window = sleepTime - now.
+ * - sleepTime is in the early morning hours (< 12:00) and the user is in
+ *   the afternoon/evening (now >= 12:00): bedtime is tomorrow morning.
+ *   window = (sleepTime + 24h) - now.
+ * - Otherwise (e.g. user is at 2 AM with bedtime 1 AM): past bedtime, free = 0.
+ *
+ * This is purely informational; tasks are never blocked from being created
+ * if free time hits zero. Negative results clamp to "0 min".
+ */
 fun getFreeTime(totalDuration: Long, sleepTime: LocalTime): String {
-	val maxTime = sleepTime.toSecondOfDay()
-	val currentTime = LocalTime.now().toSecondOfDay()
-	val effectiveMax = if (maxTime <= currentTime) maxTime + Constants.SECONDS_IN_DAY else maxTime
+	val now = LocalTime.now()
+	val sleepSec = sleepTime.toSecondOfDay()
+	val nowSec = now.toSecondOfDay()
 
-	val totalFreeDuration = effectiveMax - currentTime - totalDuration
-	if (totalFreeDuration <= 0) return "0 min"
+	val window = when {
+		sleepSec > nowSec -> sleepSec - nowSec
+		sleepTime.hour < 12 && now.hour >= 12 -> sleepSec + Constants.SECONDS_IN_DAY - nowSec
+		else -> 0
+	}.toLong()
 
-	val hours = (totalFreeDuration / 3600).toInt()
-	val minutes = ((totalFreeDuration % 3600) / 60).toInt()
+	val freeSec = (window - totalDuration).coerceAtLeast(0L)
+	if (freeSec <= 0L) return "0 min"
 
+	val hours = (freeSec / 3600).toInt()
+	val minutes = ((freeSec % 3600) / 60).toInt()
 	val hoursString = if (hours == 1) "hour" else "hours"
 
 	return when {
-		hours > 0 && minutes > 0 -> String.format("%dh %02dm", hours, minutes)
-		hours > 0 -> String.format("%d $hoursString", hours)
-		else -> String.format("%d min", minutes)
+		hours > 0 && minutes > 0 -> "%dh %02dm".format(hours, minutes)
+		hours > 0 -> "%d $hoursString".format(hours)
+		else -> "%d min".format(minutes)
 	}
 }
 
