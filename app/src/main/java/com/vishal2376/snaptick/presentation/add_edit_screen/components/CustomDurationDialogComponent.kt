@@ -18,7 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.commandiron.wheel_picker_compose.WheelTimePicker
+import com.vishal2376.snaptick.wheelpicker.WheelTimePicker
 import com.vishal2376.snaptick.R
 import com.vishal2376.snaptick.presentation.common.durationTextStyle
 import com.vishal2376.snaptick.presentation.common.h3TextStyle

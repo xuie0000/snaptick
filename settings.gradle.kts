@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Snaptick"
 include(":app")
+include(":wheel-picker")

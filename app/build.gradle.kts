@@ -164,8 +164,8 @@ dependencies {
 	//lifecycle
 	implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
 
-	//time picker
-	implementation("com.github.commandiron:WheelPickerCompose:1.1.11")
+	//time picker (vendored)
+	implementation(project(":wheel-picker"))
 
 	//material icons extended
 	implementation("androidx.compose.material:material-icons-extended:1.5.4")

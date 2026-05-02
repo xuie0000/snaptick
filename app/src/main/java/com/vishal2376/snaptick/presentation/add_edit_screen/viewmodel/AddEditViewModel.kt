@@ -58,7 +58,6 @@ class AddEditViewModel @Inject constructor(
 					startTime = action.time,
 					endTime = action.time.plusMinutes(gapMin),
 					duration = gapMin,
-					timeUpdateTick = it.timeUpdateTick + 1
 				)
 			}
 			is AddEditAction.UpdateEndTime -> _state.update {
@@ -104,7 +103,6 @@ class AddEditViewModel @Inject constructor(
 				it.copy(
 					duration = action.minutes,
 					endTime = it.startTime.plusMinutes(action.minutes),
-					timeUpdateTick = it.timeUpdateTick + 1,
 					pomodoroTimer = -1
 				)
 			}

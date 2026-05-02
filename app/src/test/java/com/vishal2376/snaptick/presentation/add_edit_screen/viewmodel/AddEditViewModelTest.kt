@@ -65,15 +65,13 @@ class AddEditViewModelTest {
 		assertEquals(s.startTime, s.endTime)
 	}
 
-	@Test fun `UpdateDurationMinutes sets endTime and bumps timeUpdateTick`() = runTest {
+	@Test fun `UpdateDurationMinutes sets endTime`() = runTest {
 		val vm = buildVm()
 		vm.onAction(AddEditAction.UpdateStartTime(LocalTime.of(9, 0)))
-		val tickBefore = vm.state.value.timeUpdateTick
 		vm.onAction(AddEditAction.UpdateDurationMinutes(90))
 		val s = vm.state.value
 		assertEquals(90L, s.duration)
 		assertEquals(LocalTime.of(10, 30), s.endTime)
-		assertEquals(tickBefore + 1, s.timeUpdateTick)
 	}
 
 	@Test fun `UpdateEndTime recomputes duration from gap`() = runTest {
@@ -94,13 +92,11 @@ class AddEditViewModelTest {
 		val vm = buildVm()
 		vm.onAction(AddEditAction.UpdateStartTime(LocalTime.of(9, 0)))
 		vm.onAction(AddEditAction.UpdateDurationMinutes(60))
-		val tickBefore = vm.state.value.timeUpdateTick
 		vm.onAction(AddEditAction.UpdateStartTime(LocalTime.of(11, 0)))
 		val s = vm.state.value
 		assertEquals(LocalTime.of(11, 0), s.startTime)
 		assertEquals(LocalTime.of(12, 0), s.endTime)
 		assertEquals(60L, s.duration)
-		assertEquals(tickBefore + 1, s.timeUpdateTick)
 	}
 
 	@Test fun `default state has reminder off and isLoaded true`() = runTest {

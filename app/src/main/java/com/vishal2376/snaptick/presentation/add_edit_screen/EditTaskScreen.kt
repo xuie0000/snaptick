@@ -271,8 +271,7 @@ fun EditTaskScreen(
 								if (state.isLoaded) {
 									ShowTimePicker(
 										time = state.endTime,
-										is24hourFormat = appState.is24hourTimeFormat,
-										isTimeUpdated = state.timeUpdateTick % 2 == 1
+										is24hourFormat = appState.is24hourTimeFormat
 									) { snappedTime ->
 										onAction(AddEditAction.UpdateEndTime(snappedTime))
 									}
