@@ -4,4 +4,5 @@ sealed interface PomodoroEvent {
 	data object ResumingPreviousSession : PomodoroEvent
 	data object TimerCompleted : PomodoroEvent
 	data object TaskMarkedCompleted : PomodoroEvent
+	data object Cancelled : PomodoroEvent
 }

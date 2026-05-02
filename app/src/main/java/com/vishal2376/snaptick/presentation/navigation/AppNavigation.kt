@@ -125,10 +125,19 @@ fun AppNavigation(
 		)
 	}
 
+	// Parameterized deep-links (e.g. "PomodoroScreen/42") can't be used as
+	// startDestination directly; NavHost requires a registered top-level
+	// route. We start at Home and navigate via LaunchedEffect once mounted.
+	val isParameterizedDeepLink = startDestination != null && startDestination.contains('/')
 	val actualStartDestination = when {
-		startDestination != null -> startDestination
+		startDestination != null && !isParameterizedDeepLink -> startDestination
 		!mainState.onboardingCompleted -> Routes.Onboarding.name
 		else -> Routes.HomeScreen.name
+	}
+	LaunchedEffect(startDestination) {
+		if (isParameterizedDeepLink && startDestination != null) {
+			navController.navigate(startDestination)
+		}
 	}
 
 	NavHost(

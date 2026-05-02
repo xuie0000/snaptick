@@ -51,6 +51,7 @@ import com.vishal2376.snaptick.presentation.common.timerTextStyle
 import com.vishal2376.snaptick.presentation.common.utils.formatDurationTimestamp
 import com.vishal2376.snaptick.presentation.pomodoro_screen.action.PomodoroAction
 import com.vishal2376.snaptick.presentation.pomodoro_screen.components.CustomCircularProgressBar
+import com.vishal2376.snaptick.presentation.pomodoro_screen.components.ReplacePomodoroDialog
 import com.vishal2376.snaptick.presentation.pomodoro_screen.events.PomodoroEvent
 import com.vishal2376.snaptick.presentation.pomodoro_screen.state.PomodoroState
 import com.vishal2376.snaptick.ui.theme.LightGreen
@@ -86,6 +87,7 @@ fun PomodoroScreen(
 				)
 				is PomodoroEvent.TaskMarkedCompleted -> onBack()
 				is PomodoroEvent.TimerCompleted -> {}
+				is PomodoroEvent.Cancelled -> onBack()
 			}
 		}
 	}
@@ -108,6 +110,14 @@ fun PomodoroScreen(
 		} else {
 			alphaValue.snapTo(1f)
 		}
+	}
+
+	state.pendingReplace?.let { (runningTitle, _) ->
+		ReplacePomodoroDialog(
+			runningTaskTitle = runningTitle,
+			onConfirm = { onAction(PomodoroAction.ConfirmReplaceRunning) },
+			onDismiss = { onAction(PomodoroAction.DismissReplacePrompt) },
+		)
 	}
 
 	Scaffold(topBar = {

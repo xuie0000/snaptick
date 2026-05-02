@@ -4,4 +4,6 @@ sealed interface PomodoroAction {
 	data object TogglePause : PomodoroAction
 	data object Reset : PomodoroAction
 	data object MarkCompleted : PomodoroAction
+	data object ConfirmReplaceRunning : PomodoroAction
+	data object DismissReplacePrompt : PomodoroAction
 }

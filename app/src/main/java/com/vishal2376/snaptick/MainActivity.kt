@@ -146,14 +146,18 @@ class MainActivity : ComponentActivity() {
 
 	private fun handleWidgetIntent(intent: Intent?) {
 		val raw = intent?.getStringExtra(EXTRA_NAVIGATE_TO)
-		// Only the routes the widget is supposed to be able to deeplink into.
-		// Anything else (including null) leaves widgetNavigateTo unset so
-		// AppNavigation falls through to its default start destination.
-		// Without this allowlist, any app on the device could craft an
-		// `Intent(MAIN).putExtra("navigate_to", ...)` and either crash NavHost
-		// (unknown route) or open a screen that the widget surface was never
-		// meant to expose.
-		widgetNavigateTo = if (raw != null && raw in WIDGET_ALLOWED_ROUTES) raw else null
+		// Allow widget routes (top-level only) and the Pomodoro deep-link
+		// (parameterized: "PomodoroScreen/<id>") used by the foreground-service
+		// notification. Anything else falls through to the default start
+		// destination. Without this allowlist a third-party app could craft an
+		// Intent(MAIN).putExtra("navigate_to", ...) to open a screen we never
+		// intended to expose externally.
+		widgetNavigateTo = when {
+			raw == null -> null
+			raw in WIDGET_ALLOWED_ROUTES -> raw
+			raw.startsWith(Routes.PomodoroScreen.name + "/") -> raw
+			else -> null
+		}
 	}
 
 	companion object {

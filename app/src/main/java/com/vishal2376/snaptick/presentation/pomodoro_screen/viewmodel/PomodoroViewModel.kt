@@ -54,9 +54,21 @@ class PomodoroViewModel @Inject constructor(
 			val pb = binder as? PomodoroBinder ?: return
 			val svc = pb.service
 			boundService = svc
-			if (taskId > 0 && (svc.state.value.taskId != taskId || svc.state.value.timeLeft <= 0)) {
-				svc.startForTask(taskId)
-				viewModelScope.launch { _events.emit(PomodoroEvent.ResumingPreviousSession) }
+			val running = svc.state.value
+			if (taskId > 0) {
+				when {
+					running.taskId == taskId || running.timeLeft <= 0 || running.taskId <= 0 -> {
+						svc.startForTask(taskId)
+						viewModelScope.launch { _events.emit(PomodoroEvent.ResumingPreviousSession) }
+					}
+					else -> {
+						// Different pomodoro is already running. Stage a confirm
+						// prompt; do not start the new one until user confirms.
+						_state.value = _state.value.copy(
+							pendingReplace = running.taskTitle to taskId
+						)
+					}
+				}
 			}
 			observerJob?.cancel()
 			observerJob = viewModelScope.launch { svc.state.collect { sync(it) } }
@@ -69,7 +81,6 @@ class PomodoroViewModel @Inject constructor(
 
 	init {
 		if (taskId > 0) {
-			PomodoroService.startForTask(context, taskId)
 			val intent = Intent(context, PomodoroService::class.java)
 			context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
 		}
@@ -84,10 +95,20 @@ class PomodoroViewModel @Inject constructor(
 				svc?.markCompleted()
 				viewModelScope.launch { _events.emit(PomodoroEvent.TaskMarkedCompleted) }
 			}
+			is PomodoroAction.ConfirmReplaceRunning -> {
+				val pending = _state.value.pendingReplace ?: return
+				_state.value = _state.value.copy(pendingReplace = null)
+				svc?.startForTask(pending.second)
+			}
+			is PomodoroAction.DismissReplacePrompt -> {
+				_state.value = _state.value.copy(pendingReplace = null)
+				viewModelScope.launch { _events.emit(PomodoroEvent.Cancelled) }
+			}
 		}
 	}
 
 	private fun sync(svcState: ServiceTimerState) {
+		val previous = _state.value
 		_state.value = PomodoroState(
 			taskId = svcState.taskId,
 			taskTitle = svcState.taskTitle,
@@ -99,6 +120,9 @@ class PomodoroViewModel @Inject constructor(
 		)
 		if (svcState.isCompleted && svcState.totalTime > 0) {
 			viewModelScope.launch { _events.emit(PomodoroEvent.TimerCompleted) }
+		}
+		if (previous.taskId > 0 && svcState.taskId <= 0 && !previous.isCompleted) {
+			viewModelScope.launch { _events.emit(PomodoroEvent.Cancelled) }
 		}
 	}
 
