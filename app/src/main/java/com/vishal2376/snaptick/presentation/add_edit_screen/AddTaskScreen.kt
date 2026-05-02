@@ -520,7 +520,6 @@ fun AddTaskScreen(
 							showCustomSnackbar(errorMessage)
 						}
 					},
-					enabled = !isSaving,
 					colors = ButtonDefaults.buttonColors(
 						containerColor = MaterialTheme.colorScheme.primary,
 						contentColor = MaterialTheme.colorScheme.onPrimary
