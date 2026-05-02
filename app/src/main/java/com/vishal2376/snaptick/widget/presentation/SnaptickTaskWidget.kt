@@ -74,7 +74,9 @@ fun SnaptickTaskWidget(
 							fontSize = 20.sp,
 							fontWeight = FontWeight.Bold,
 						),
-						modifier = GlanceModifier.defaultWeight()
+						modifier = GlanceModifier
+							.defaultWeight()
+							.clickable(actionStartActivity(getOpenAppIntent(context)))
 					)
 					CustomIconButton(
 						icon = R.drawable.ic_add,
@@ -112,6 +114,16 @@ private fun getAddTaskIntent(context: Context): Intent {
 	return Intent(context, MainActivity::class.java).apply {
 		flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
 		putExtra(EXTRA_NAVIGATE_TO, Routes.AddTaskScreen.name)
+	}
+}
+
+/**
+ * Creates an intent to open MainActivity with no specific deep-link route.
+ * The launched activity lands on the Home screen (its default).
+ */
+private fun getOpenAppIntent(context: Context): Intent {
+	return Intent(context, MainActivity::class.java).apply {
+		flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
 	}
 }
 

@@ -23,6 +23,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -50,6 +54,15 @@ fun WhatsNewDialogComponent(
 	appState: MainState,
 	onClose: (Boolean) -> Unit
 ) {
+	// Guards against double-fire when both a button click and the dialog's
+	// onDismissRequest land in the same frame as state recomposes.
+	var hasFired by remember { mutableStateOf(false) }
+	val safeClose: (Boolean) -> Unit = { keepShowing ->
+		if (!hasFired) {
+			hasFired = true
+			onClose(keepShowing)
+		}
+	}
 
 	val newFeatures = listOf(
 		NewItem(
@@ -74,7 +87,7 @@ fun WhatsNewDialogComponent(
 		),
 	)
 
-	Dialog(onDismissRequest = { onClose(true) }) {
+	Dialog(onDismissRequest = { safeClose(true) }) {
 		Card(
 			modifier = Modifier
 				.fillMaxWidth(1f),
@@ -121,7 +134,7 @@ fun WhatsNewDialogComponent(
 			) {
 				Text(
 					modifier = Modifier
-						.clickable { onClose(false) }
+						.clickable { safeClose(false) }
 						.padding(8.dp),
 					text = "Don't show again",
 					style = h3TextStyle,
@@ -129,7 +142,7 @@ fun WhatsNewDialogComponent(
 				)
 				Text(
 					modifier = Modifier
-						.clickable { onClose(true) }
+						.clickable { safeClose(true) }
 						.padding(8.dp),
 					text = "Continue",
 					style = h3TextStyle,

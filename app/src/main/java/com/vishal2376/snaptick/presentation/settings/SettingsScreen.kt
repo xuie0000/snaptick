@@ -58,6 +58,7 @@ import com.vishal2376.snaptick.presentation.settings.components.EventImportOptio
 import com.vishal2376.snaptick.presentation.settings.components.LanguageOptionComponent
 import com.vishal2376.snaptick.presentation.settings.components.SettingsCategoryComponent
 import com.vishal2376.snaptick.presentation.settings.components.SleepTimeOptionComponent
+import com.vishal2376.snaptick.presentation.settings.components.SoundOptionComponent
 import com.vishal2376.snaptick.presentation.settings.components.SwipeActionOptionComponent
 import com.vishal2376.snaptick.presentation.settings.components.ThemeOptionComponent
 import com.vishal2376.snaptick.presentation.settings.components.TimePickerOptionComponent
@@ -129,6 +130,11 @@ fun SettingsScreen(
 			title = stringResource(R.string.swipe_action),
 			resId = R.drawable.ic_swipe_left,
 			onClick = { showBottomSheetById = R.string.swipe_action }
+		),
+		SettingCategoryItem(
+			title = stringResource(R.string.sounds),
+			resId = R.drawable.ic_clock,
+			onClick = { showBottomSheetById = R.string.sounds }
 		),
 	)
 
@@ -242,6 +248,13 @@ fun SettingsScreen(
 								})
 						}
 
+						R.string.sounds -> {
+							SoundOptionComponent(
+								enabled = appState.soundEnabled,
+								onToggle = { onAction(MainAction.UpdateSoundEnabled(it)) },
+							)
+						}
+
 						R.string.calendar_sync -> {
 							CalendarSyncOptionComponent(
 								enabled = appState.calendarSyncEnabled,
@@ -297,10 +310,6 @@ fun SettingsScreen(
 					categoryTitle = stringResource(R.string.general_settings),
 					categoryList = settingsGeneral
 				)
-				SoundToggleRow(
-					enabled = appState.soundEnabled,
-					onToggle = { onAction(MainAction.UpdateSoundEnabled(it)) }
-				)
 				SettingsCategoryComponent(
 					categoryTitle = stringResource(R.string.calendar_sync),
 					categoryList = settingsCalendar
@@ -318,45 +327,6 @@ fun SettingsScreen(
 				color = MaterialTheme.colorScheme.onPrimaryContainer
 			)
 		}
-	}
-}
-
-@Composable
-private fun SoundToggleRow(
-	enabled: Boolean,
-	onToggle: (Boolean) -> Unit,
-) {
-	Row(
-		modifier = Modifier
-			.padding(horizontal = 16.dp)
-			.fillMaxWidth()
-			.clip(RoundedCornerShape(8.dp))
-			.background(MaterialTheme.colorScheme.primaryContainer)
-			.clickable { onToggle(!enabled) }
-			.padding(horizontal = 16.dp, vertical = 8.dp),
-		verticalAlignment = Alignment.CenterVertically,
-		horizontalArrangement = Arrangement.spacedBy(8.dp)
-	) {
-		Icon(
-			modifier = Modifier.size(20.dp),
-			painter = painterResource(R.drawable.ic_clock),
-			contentDescription = null,
-			tint = MaterialTheme.colorScheme.onBackground
-		)
-		Text(
-			modifier = Modifier.weight(1f),
-			text = stringResource(R.string.enable_sounds),
-			style = settingItemTextStyle,
-			color = MaterialTheme.colorScheme.onBackground
-		)
-		Switch(
-			checked = enabled,
-			onCheckedChange = onToggle,
-			colors = SwitchDefaults.colors(
-				checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
-				checkedTrackColor = MaterialTheme.colorScheme.primary
-			)
-		)
 	}
 }
 
