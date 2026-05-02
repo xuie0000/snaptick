@@ -115,6 +115,10 @@ class MainViewModel @Inject constructor(
 				}
 				_state.update { s -> s.copy(calendarSyncEnabled = action.enabled) }
 				settingsStore.setCalendarSyncEnabled(action.enabled)
+				if (action.enabled) {
+					val list = calendarRepository.getWritableCalendars()
+					_state.update { it.copy(writableCalendars = list) }
+				}
 				// On disable, walk every previously-pushed task and remove its
 				// device calendar event so we don't leave orphaned entries in
 				// the user's Google Calendar.
@@ -149,6 +153,10 @@ class MainViewModel @Inject constructor(
 				checkForUpdates(ignoreThrottle = action.ignoreThrottle)
 			}
 			is MainAction.DismissUpdateBanner -> _state.update { it.copy(updateAvailable = null) }
+			is MainAction.RefreshWritableCalendars -> viewModelScope.launch {
+				val list = calendarRepository.getWritableCalendars()
+				_state.update { it.copy(writableCalendars = list) }
+			}
 		}
 	}
 

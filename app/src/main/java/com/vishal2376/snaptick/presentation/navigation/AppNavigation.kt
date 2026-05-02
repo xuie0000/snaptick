@@ -320,11 +320,10 @@ fun AppNavigation(
 		}
 
 		composable(route = Routes.Onboarding.name) {
-			var onboardingCalendars by remember { mutableStateOf(emptyList<com.vishal2376.snaptick.data.calendar.CalendarInfo>()) }
+			// Always refresh on entering onboarding so the dialog list reflects
+			// current calendar permission state.
 			LaunchedEffect(mainState.calendarSyncEnabled) {
-				if (mainState.calendarSyncEnabled && onboardingCalendars.isEmpty()) {
-					onboardingCalendars = mainViewModel.loadWritableCalendars()
-				}
+				mainViewModel.onAction(MainAction.RefreshWritableCalendars)
 			}
 			OnboardingScreen(
 				state = mainState,
@@ -348,7 +347,7 @@ fun AppNavigation(
 				onToggleCalendarSync = { enabled ->
 					mainViewModel.onAction(MainAction.SetCalendarSyncEnabled(enabled))
 				},
-				writableCalendars = onboardingCalendars,
+				writableCalendars = mainState.writableCalendars,
 				onSelectCalendar = { id ->
 					mainViewModel.onAction(MainAction.SetCalendarSyncTarget(id))
 				},

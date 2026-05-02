@@ -79,11 +79,14 @@ fun SettingsScreen(
 	val context = LocalContext.current
 	val sheetState = rememberModalBottomSheetState()
 	var showBottomSheetById by remember { mutableIntStateOf(0) }
-	var writableCalendars by remember { mutableStateOf<List<CalendarInfo>>(emptyList()) }
+	val writableCalendars = appState.writableCalendars
 
-	LaunchedEffect(showBottomSheetById) {
-		if (showBottomSheetById == R.string.calendar_sync && mainViewModel != null) {
-			writableCalendars = mainViewModel.loadWritableCalendars()
+	// Refresh writable calendars whenever the device-calendar sheet opens or
+	// the user just toggled sync on (which itself triggers a permission grant
+	// flow that lands back here with permission newly available).
+	LaunchedEffect(showBottomSheetById, appState.calendarSyncEnabled) {
+		if (showBottomSheetById == R.string.calendar_sync) {
+			onAction(MainAction.RefreshWritableCalendars)
 		}
 	}
 

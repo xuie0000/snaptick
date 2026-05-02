@@ -93,6 +93,7 @@ class MainActivity : ComponentActivity() {
 			registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { grants ->
 				val granted = grants.values.all { it }
 				if (granted) {
+					mainViewModel.onAction(MainAction.RefreshWritableCalendars)
 					mainViewModel.onAction(MainAction.SetCalendarSyncEnabled(true))
 				}
 			}

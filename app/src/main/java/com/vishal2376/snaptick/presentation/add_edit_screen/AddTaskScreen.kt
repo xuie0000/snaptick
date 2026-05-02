@@ -114,6 +114,9 @@ fun AddTaskScreen(
 	var showDialogDatePicker by remember { mutableStateOf(false) }
 	var showDialogStartTimePicker by remember { mutableStateOf(false) }
 	var showDialogEndTimePicker by remember { mutableStateOf(false) }
+	// Guards against rapid double-taps creating duplicate tasks before the
+	// TaskSaved event fires and pops the back stack.
+	var isSaving by remember { mutableStateOf(false) }
 
 	LaunchedEffect(Unit) {
 		appState.calenderDate?.let {
@@ -502,6 +505,7 @@ fun AddTaskScreen(
 			) {
 				Button(
 					onClick = {
+						if (isSaving) return@Button
 						val task = state.toTask()
 						val (isValid, errorMessage) = checkValidTask(
 							task = task,
@@ -509,12 +513,14 @@ fun AddTaskScreen(
 						)
 
 						if (isValid) {
+							isSaving = true
 							playSound(context, SoundEvent.TASK_ADDED, appState.soundEnabled)
 							onAction(AddEditAction.SaveTask)
 						} else {
 							showCustomSnackbar(errorMessage)
 						}
 					},
+					enabled = !isSaving,
 					colors = ButtonDefaults.buttonColors(
 						containerColor = MaterialTheme.colorScheme.primary,
 						contentColor = MaterialTheme.colorScheme.onPrimary

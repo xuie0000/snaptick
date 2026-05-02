@@ -1,5 +1,6 @@
 package com.vishal2376.snaptick.presentation.main.state
 
+import com.vishal2376.snaptick.data.calendar.CalendarInfo
 import com.vishal2376.snaptick.domain.model.BackupData
 import com.vishal2376.snaptick.domain.model.GitHubRelease
 import com.vishal2376.snaptick.domain.model.Task
@@ -30,6 +31,7 @@ data class MainState(
 	val swipeBehaviour: SwipeBehavior = SwipeBehavior.DELETE,
 	val calendarSyncEnabled: Boolean = false,
 	val calendarSyncCalendarId: Long? = null,
+	val writableCalendars: List<CalendarInfo> = emptyList(),
 	val importPreview: List<Task> = emptyList(),
 	val onboardingCompleted: Boolean = true,
 	val bootResolved: Boolean = false,
