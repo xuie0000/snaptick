@@ -31,7 +31,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -65,6 +68,11 @@ fun TaskComponent(
 	is24HourTimeFormat: Boolean = false,
 	today: LocalDate = LocalDate.now()
 ) {
+
+	// Optimistic completion state. Flip locally on tap so the checkmark
+	// renders before the DB roundtrip + Flow re-emit lands. Reset whenever
+	// the upstream task identity or canonical completed flag changes.
+	var localCompleted by remember(task.id, task.isCompleted) { mutableStateOf(task.isCompleted) }
 
 	val alphaAnimation = remember { Animatable(initialValue = 0f) }
 
@@ -118,12 +126,15 @@ fun TaskComponent(
 				horizontalArrangement = Arrangement.spacedBy(8.dp)
 			) {
 				IconButton(
-					onClick = { onComplete(task.id) },
+					onClick = {
+						localCompleted = !localCompleted
+						onComplete(task.id)
+					},
 					modifier = Modifier
 						.size(32.dp)
 						.weight(0.1f)
 				) {
-					if (task.isCompleted) {
+					if (localCompleted) {
 						Icon(
 							painter = painterResource(id = R.drawable.ic_check_circle),
 							contentDescription = null,

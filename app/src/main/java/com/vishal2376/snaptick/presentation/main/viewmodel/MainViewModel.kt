@@ -28,7 +28,6 @@ import com.vishal2376.snaptick.presentation.main.state.PendingRestore
 import com.vishal2376.snaptick.util.BackupManager
 import com.vishal2376.snaptick.util.SettingsStore
 import com.vishal2376.snaptick.util.SplashThemeMirror
-import com.vishal2376.snaptick.util.updateLocale
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -92,8 +91,12 @@ class MainViewModel @Inject constructor(
 			is MainAction.UpdateSleepTime -> persist { _state.update { s -> s.copy(sleepTime = action.sleepTime) }; settingsStore.setSleepTime(action.sleepTime.toString()) }
 			is MainAction.UpdateLanguage -> persist {
 				_state.update { s -> s.copy(language = action.language) }
-				updateLocale(context, action.language)
 				settingsStore.setLanguage(action.language)
+				// Resources are bound at activity creation; the only reliable way
+				// to apply a new locale to an already-inflated Compose tree is to
+				// recreate the activity. attachBaseContext picks up the persisted
+				// value on the next inflation.
+				_events.emit(MainEvent.LanguageChanged)
 			}
 			is MainAction.UpdateSortByTask -> persist { _state.update { s -> s.copy(sortBy = action.sortTask) }; settingsStore.setSortTask(action.sortTask.ordinal) }
 			is MainAction.UpdateCalenderView -> persist { _state.update { s -> s.copy(calenderView = action.calenderView) }; settingsStore.setCalenderView(action.calenderView.ordinal) }
@@ -367,7 +370,6 @@ class MainViewModel @Inject constructor(
 		viewModelScope.launch {
 			settingsStore.languageKey.collect { v ->
 				_state.update { it.copy(language = v) }
-				updateLocale(context, v)
 			}
 		}
 		viewModelScope.launch { settingsStore.calenderViewKey.collect { v -> _state.update { it.copy(calenderView = CalenderView.entries[v]) } } }

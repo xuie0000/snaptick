@@ -1,6 +1,7 @@
 package com.vishal2376.snaptick
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -23,10 +24,14 @@ import com.vishal2376.snaptick.presentation.navigation.AppNavigation
 import com.vishal2376.snaptick.presentation.navigation.Routes
 import com.vishal2376.snaptick.ui.theme.SnaptickTheme
 import com.vishal2376.snaptick.util.BackupManager
+import com.vishal2376.snaptick.util.LocaleHelper
 import com.vishal2376.snaptick.util.NotificationHelper
+import com.vishal2376.snaptick.util.SettingsStore
 import com.vishal2376.snaptick.util.SplashThemeMirror
 import com.vishal2376.snaptick.widget.presentation.EXTRA_NAVIGATE_TO
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -56,6 +61,17 @@ class MainActivity : ComponentActivity() {
 
 	/** Compose-observable notification-permission state. */
 	val notificationGrantedState = mutableStateOf(false)
+
+	override fun attachBaseContext(newBase: Context) {
+		// Resources (and therefore Compose stringResource) are bound at activity
+		// inflation time. The persisted language must be applied here so the
+		// initial composition uses the right locale; later changes call
+		// recreate() so this runs again with the new value.
+		val lang = runCatching {
+			runBlocking { SettingsStore(newBase).languageKey.first() }
+		}.getOrDefault("en")
+		super.attachBaseContext(LocaleHelper.setLocale(newBase, lang))
+	}
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		setTheme(SplashThemeMirror.startingThemeRes(this))

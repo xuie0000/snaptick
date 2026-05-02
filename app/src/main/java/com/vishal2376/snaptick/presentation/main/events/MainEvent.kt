@@ -10,4 +10,5 @@ sealed interface MainEvent {
 	data class BackupPreviewReady(val taskCount: Int, val droppedCount: Int) : MainEvent
 	data object CalendarPermissionRequired : MainEvent
 	data object UpToDate : MainEvent
+	data object LanguageChanged : MainEvent
 }
