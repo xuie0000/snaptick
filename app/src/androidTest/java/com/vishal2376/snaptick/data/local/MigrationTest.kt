@@ -42,7 +42,7 @@ class MigrationTest {
 			)
 		}
 
-		helper.runMigrationsAndValidate(dbName, 4, true, MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).use { db ->
+		helper.runMigrationsAndValidate(dbName, 5, true, MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5).use { db ->
 			val cursor = db.query(
 				"SELECT id, uuid, title, isCompleted, isRepeated, repeatWeekdays, pomodoroTimer, priority, calendarEventId FROM task_table ORDER BY id"
 			)
@@ -85,11 +85,11 @@ class MigrationTest {
 				""".trimIndent()
 			)
 		}
-		helper.runMigrationsAndValidate(dbName, 4, true, MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).close()
+		helper.runMigrationsAndValidate(dbName, 5, true, MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5).close()
 
 		val ctx = ApplicationProvider.getApplicationContext<android.content.Context>()
 		val room = Room.databaseBuilder(ctx, TaskDatabase::class.java, dbName)
-			.addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+			.addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
 			.build()
 		try {
 			val row = room.taskDao().getAllTasks().first().single()
@@ -104,11 +104,11 @@ class MigrationTest {
 		// Migrate a v3 db forward, then re-open via Room and exercise the DAO
 		// just like production does: insert, read back, delete.
 		helper.createDatabase(dbName, 3).close()
-		helper.runMigrationsAndValidate(dbName, 4, true, MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).close()
+		helper.runMigrationsAndValidate(dbName, 5, true, MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5).close()
 
 		val ctx = ApplicationProvider.getApplicationContext<android.content.Context>()
 		val room = Room.databaseBuilder(ctx, TaskDatabase::class.java, dbName)
-			.addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+			.addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
 			.build()
 		try {
 			val dao = room.taskCompletionDao()
@@ -146,7 +146,7 @@ class MigrationTest {
 			)
 		}
 
-		helper.runMigrationsAndValidate(dbName, 4, true, MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).use { db ->
+		helper.runMigrationsAndValidate(dbName, 5, true, MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5).use { db ->
 			// Existing task row preserved.
 			db.query("SELECT id, title FROM task_table").use {
 				assertTrue(it.moveToNext())

@@ -224,6 +224,11 @@ class TaskRepository(
 	/** Used by the boot-recovery worker to re-arm every active reminder. */
 	suspend fun rescheduleAllReminders() {
 		val all = dao.getAllTasksSnapshot().filter { it.reminder && !it.isCompleted }
-		reminderScheduler.rescheduleAll(all.map { it to reminderDao.offsetsForTask(it.uuid) })
+		reminderScheduler.rescheduleAll(
+			all.map { task ->
+				val stored = reminderDao.offsetsForTask(task.uuid)
+				task to stored.ifEmpty { defaultOffsets(task) }
+			}
+		)
 	}
 }

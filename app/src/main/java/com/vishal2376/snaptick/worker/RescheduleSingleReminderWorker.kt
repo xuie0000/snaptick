@@ -30,7 +30,8 @@ class RescheduleSingleReminderWorker @AssistedInject constructor(
 		val taskId = inputData.getInt(Constants.TASK_ID, -1)
 		if (taskId <= 0) return Result.failure()
 		val task = repository.getTaskById(taskId) ?: return Result.success()
-		val offsets = repository.getReminderOffsets(task.uuid)
+		val stored = repository.getReminderOffsets(task.uuid)
+		val offsets = if (stored.isEmpty() && task.reminder) listOf(0) else stored
 		reminderScheduler.schedule(task, offsets = offsets)
 		return Result.success()
 	}
