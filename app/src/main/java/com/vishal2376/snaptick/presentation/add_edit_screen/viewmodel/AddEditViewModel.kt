@@ -74,22 +74,25 @@ class AddEditViewModel @Inject constructor(
 			}
 			is AddEditAction.UpdateDate -> _state.update { it.copy(date = action.date) }
 			is AddEditAction.UpdateReminder -> _state.update {
-				val nextOffsets = if (action.enabled && it.reminderOffsets.isEmpty()) listOf(0) else it.reminderOffsets
+				val nextOffsets = if (action.enabled && it.reminderOffsets.isEmpty())
+					listOf(0, 5)
+				else it.reminderOffsets
 				it.copy(
 					reminder = action.enabled,
 					reminderOffsets = if (action.enabled) nextOffsets else emptyList(),
 				)
 			}
-			is AddEditAction.ToggleReminderOffset -> _state.update {
-				val current = it.reminderOffsets
-				val next = if (action.offsetMinutes in current) current - action.offsetMinutes
-				else (current + action.offsetMinutes).sorted()
+			is AddEditAction.RemoveReminderOffset -> _state.update {
+				val next = it.reminderOffsets - action.offsetMinutes
 				it.copy(reminderOffsets = next, reminder = next.isNotEmpty())
 			}
-			is AddEditAction.SetCustomReminderOffset -> _state.update {
+			is AddEditAction.AddReminderOffset -> _state.update {
 				val current = it.reminderOffsets
-				val next = (current + action.offsetMinutes).distinct().sorted()
-				it.copy(reminderOffsets = next, reminder = true)
+				if (action.offsetMinutes in current || current.size >= 4) return@update it
+				it.copy(
+					reminderOffsets = (current + action.offsetMinutes).sorted(),
+					reminder = true,
+				)
 			}
 			is AddEditAction.UpdateAllDay -> _state.update {
 				it.copy(isAllDay = action.enabled, endTime = if (action.enabled) it.startTime else it.endTime)

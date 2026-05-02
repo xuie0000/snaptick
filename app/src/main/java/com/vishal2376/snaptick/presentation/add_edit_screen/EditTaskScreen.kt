@@ -386,13 +386,13 @@ fun EditTaskScreen(
 					if (showDialogCustomReminder) {
 						CustomReminderDialog(
 							onClose = { showDialogCustomReminder = false },
-							onSelect = { onAction(AddEditAction.SetCustomReminderOffset(it)) }
+							onSelect = { onAction(AddEditAction.AddReminderOffset(it)) }
 						)
 					}
 					ReminderChipsComponent(
 						visible = state.reminder,
 						selectedOffsets = state.reminderOffsets,
-						onToggleOffset = { onAction(AddEditAction.ToggleReminderOffset(it)) },
+						onRemoveOffset = { onAction(AddEditAction.RemoveReminderOffset(it)) },
 						onCustomClick = { showDialogCustomReminder = true },
 					)
 					Row(

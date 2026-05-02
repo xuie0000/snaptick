@@ -4,12 +4,20 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,43 +26,33 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.vishal2376.snaptick.presentation.common.taskTextStyle
 
-private val PRESET_OFFSETS = listOf(0, 5, 10, 15, 30)
+private const val MAX_REMINDERS = 4
 
 @Composable
 fun ReminderChipsComponent(
 	visible: Boolean,
 	selectedOffsets: List<Int>,
-	onToggleOffset: (Int) -> Unit,
+	onRemoveOffset: (Int) -> Unit,
 	onCustomClick: () -> Unit,
 ) {
 	AnimatedVisibility(visible = visible) {
-		Column(
+		Row(
 			modifier = Modifier
 				.fillMaxWidth()
-				.padding(horizontal = 24.dp, vertical = 8.dp),
-			verticalArrangement = Arrangement.spacedBy(8.dp)
+				.padding(horizontal = 24.dp, vertical = 8.dp)
+				.horizontalScroll(rememberScrollState()),
+			horizontalArrangement = Arrangement.spacedBy(8.dp),
+			verticalAlignment = Alignment.CenterVertically
 		) {
-			Row(
-				modifier = Modifier.fillMaxWidth(),
-				horizontalArrangement = Arrangement.spacedBy(8.dp)
-			) {
-				PRESET_OFFSETS.forEach { offset ->
-					ReminderChip(
-						label = labelFor(offset),
-						selected = offset in selectedOffsets,
-						onClick = { onToggleOffset(offset) },
-						modifier = Modifier.weight(1f)
-					)
-				}
+			selectedOffsets.forEach { offset ->
+				ReminderChip(
+					label = labelFor(offset),
+					onDismiss = { onRemoveOffset(offset) }
+				)
 			}
-			val hasCustom = selectedOffsets.any { it !in PRESET_OFFSETS }
-			ReminderChip(
-				label = if (hasCustom) "Custom: ${selectedOffsets.firstOrNull { it !in PRESET_OFFSETS }} min before"
-				else "Custom",
-				selected = hasCustom,
-				onClick = onCustomClick,
-				modifier = Modifier.fillMaxWidth(),
-			)
+			if (selectedOffsets.size < MAX_REMINDERS) {
+				AddChip(onClick = onCustomClick)
+			}
 		}
 	}
 }
@@ -67,32 +65,49 @@ private fun labelFor(offsetMinutes: Int): String = when (offsetMinutes) {
 @Composable
 private fun ReminderChip(
 	label: String,
-	selected: Boolean,
-	onClick: () -> Unit,
-	modifier: Modifier = Modifier,
+	onDismiss: () -> Unit,
 ) {
-	val shape = RoundedCornerShape(8.dp)
-	val mod = if (selected) {
-		modifier
-			.clickable { onClick() }
-			.background(MaterialTheme.colorScheme.primaryContainer, shape)
-			.border(2.dp, MaterialTheme.colorScheme.primary, shape)
-			.padding(vertical = 10.dp, horizontal = 8.dp)
-	} else {
-		modifier
-			.clickable { onClick() }
-			.border(2.dp, MaterialTheme.colorScheme.primaryContainer, shape)
-			.padding(vertical = 10.dp, horizontal = 8.dp)
-	}
+	val shape = RoundedCornerShape(20.dp)
 	Row(
-		modifier = mod,
-		horizontalArrangement = Arrangement.Center,
+		modifier = Modifier
+			.background(MaterialTheme.colorScheme.primaryContainer, shape)
+			.border(1.dp, MaterialTheme.colorScheme.primary, shape)
+			.padding(start = 12.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
 		verticalAlignment = Alignment.CenterVertically,
 	) {
 		Text(
 			text = label,
 			style = taskTextStyle,
 			color = MaterialTheme.colorScheme.onBackground,
+		)
+		Spacer(modifier = Modifier.width(6.dp))
+		Icon(
+			imageVector = Icons.Default.Close,
+			contentDescription = "Remove $label",
+			tint = MaterialTheme.colorScheme.onPrimaryContainer,
+			modifier = Modifier
+				.size(18.dp)
+				.clickable { onDismiss() }
+		)
+	}
+}
+
+@Composable
+private fun AddChip(onClick: () -> Unit) {
+	val shape = RoundedCornerShape(20.dp)
+	Row(
+		modifier = Modifier
+			.background(MaterialTheme.colorScheme.primaryContainer, shape)
+			.border(1.dp, MaterialTheme.colorScheme.primary, shape)
+			.clickable { onClick() }
+			.padding(horizontal = 10.dp, vertical = 6.dp),
+		verticalAlignment = Alignment.CenterVertically,
+	) {
+		Icon(
+			imageVector = Icons.Default.Add,
+			contentDescription = "Add reminder",
+			tint = MaterialTheme.colorScheme.primary,
+			modifier = Modifier.size(20.dp)
 		)
 	}
 }
