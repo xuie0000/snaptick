@@ -74,7 +74,7 @@ class AddEditViewModel @Inject constructor(
 			is AddEditAction.UpdateDate -> _state.update { it.copy(date = action.date) }
 			is AddEditAction.UpdateReminder -> _state.update {
 				val nextOffsets = if (action.enabled && it.reminderOffsets.isEmpty())
-					listOf(0, 5)
+					listOf(0)
 				else it.reminderOffsets
 				it.copy(
 					reminder = action.enabled,

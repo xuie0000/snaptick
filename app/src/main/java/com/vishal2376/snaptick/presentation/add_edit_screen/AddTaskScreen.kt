@@ -439,12 +439,13 @@ fun AddTaskScreen(
 							onSelect = { onAction(AddEditAction.AddReminderOffset(it)) }
 						)
 					}
-					ReminderChipsComponent(
-						visible = state.reminder,
-						selectedOffsets = state.reminderOffsets,
-						onRemoveOffset = { onAction(AddEditAction.RemoveReminderOffset(it)) },
-						onCustomClick = { showDialogCustomReminder = true },
-					)
+					AnimatedVisibility(visible = state.reminder) {
+						ReminderChipsComponent(
+							selectedOffsets = state.reminderOffsets,
+							onRemoveOffset = { onAction(AddEditAction.RemoveReminderOffset(it)) },
+							onCustomClick = { showDialogCustomReminder = true },
+						)
+					}
 					Row(
 						modifier = Modifier
 							.fillMaxWidth()

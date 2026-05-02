@@ -25,8 +25,8 @@ import java.time.LocalTime
 
 /**
  * Wheel-time picker that returns a "minutes before task starts" offset.
- * Default seed is 00:00 (on time). Mirrors CustomDurationDialogComponent's
- * UX so reminder + duration custom dialogs feel identical.
+ * Default seed is 00:05 (5 min before) so the most common custom value is one
+ * tap away. Mirrors CustomDurationDialogComponent's UX.
  */
 @Composable
 fun CustomReminderDialog(
@@ -34,7 +34,7 @@ fun CustomReminderDialog(
 	onSelect: (Int) -> Unit,
 ) {
 	Dialog(onDismissRequest = onClose) {
-		var picked = LocalTime.of(0, 0)
+		var picked = LocalTime.of(0, 5)
 
 		Card(
 			modifier = Modifier
@@ -60,7 +60,7 @@ fun CustomReminderDialog(
 					style = durationTextStyle
 				)
 				WheelTimePicker(
-					startTime = LocalTime.of(0, 0),
+					startTime = LocalTime.of(0, 5),
 					textColor = MaterialTheme.colorScheme.onBackground,
 					onSnappedTime = { picked = it }
 				)

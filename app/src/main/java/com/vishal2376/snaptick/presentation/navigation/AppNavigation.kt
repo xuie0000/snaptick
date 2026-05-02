@@ -2,8 +2,10 @@ package com.vishal2376.snaptick.presentation.navigation
 
 import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.tween
@@ -359,6 +361,20 @@ fun AppNavigation(
 				writableCalendars = mainState.writableCalendars,
 				onSelectCalendar = { id ->
 					mainViewModel.onAction(MainAction.SetCalendarSyncTarget(id))
+				},
+				calendarPermissionGranted = ContextCompat.checkSelfPermission(
+					activity, Manifest.permission.READ_CALENDAR
+				) == PackageManager.PERMISSION_GRANTED,
+				onRequestCalendarPermission = {
+					activity.calendarPermissionLauncher.launch(
+						arrayOf(
+							Manifest.permission.READ_CALENDAR,
+							Manifest.permission.WRITE_CALENDAR
+						)
+					)
+				},
+				onRefreshCalendars = {
+					mainViewModel.onAction(MainAction.RefreshWritableCalendars)
 				},
 				notificationsEnabled = activity.notificationGrantedState.value,
 				onEnableNotifications = {

@@ -40,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.window.Dialog
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -73,14 +74,27 @@ fun RestoreAndSyncPage(
 	notificationsEnabled: Boolean,
 	writableCalendars: List<CalendarInfo>,
 	selectedCalendarId: Long?,
+	calendarPermissionGranted: Boolean,
 	onRestoreClick: () -> Unit,
 	onPickIcsClick: () -> Unit,
 	onCalendarSyncToggle: (Boolean) -> Unit,
 	onSelectCalendar: (Long) -> Unit,
+	onRequestCalendarPermission: () -> Unit,
+	onRefreshCalendars: () -> Unit,
 	onEnableNotifications: () -> Unit,
 ) {
 	val haptic = LocalHapticFeedback.current
 	var showCalendarDialog by remember { mutableStateOf(false) }
+	var pendingPickerAfterGrant by remember { mutableStateOf(false) }
+
+	// After requesting permission, the launcher refreshes writableCalendars.
+	// Once that lands (or is already populated), open the picker we deferred.
+	LaunchedEffect(writableCalendars, calendarPermissionGranted, pendingPickerAfterGrant) {
+		if (pendingPickerAfterGrant && calendarPermissionGranted) {
+			pendingPickerAfterGrant = false
+			showCalendarDialog = true
+		}
+	}
 
 	if (showCalendarDialog) {
 		CalendarPickerDialog(
@@ -152,9 +166,15 @@ fun RestoreAndSyncPage(
 		val onCalendarToggle: (Boolean) -> Unit = { enabled ->
 			haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
 			if (enabled) {
-				// Don't flip the toggle on yet; only flip it on after the user
-				// picks a calendar. If they cancel, the toggle stays off.
-				showCalendarDialog = true
+				// Permission first; open picker only once calendars are queryable.
+				// Otherwise the dialog opens with an empty list and looks broken.
+				if (calendarPermissionGranted) {
+					onRefreshCalendars()
+					showCalendarDialog = true
+				} else {
+					pendingPickerAfterGrant = true
+					onRequestCalendarPermission()
+				}
 			} else {
 				onCalendarSyncToggle(false)
 			}

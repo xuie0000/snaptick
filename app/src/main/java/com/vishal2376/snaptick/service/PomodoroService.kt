@@ -210,7 +210,7 @@ class PomodoroService : Service() {
 			PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
 		)
 		val builder = NotificationCompat.Builder(this, POMODORO_CHANNEL_ID)
-			.setSmallIcon(R.drawable.monochrome_icon)
+			.setSmallIcon(R.drawable.ic_timer)
 			.setOngoing(true)
 			.setOnlyAlertOnce(true)
 			.setContentIntent(openIntent)

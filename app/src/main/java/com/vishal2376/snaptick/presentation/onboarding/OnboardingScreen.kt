@@ -60,6 +60,9 @@ fun OnboardingScreen(
 	onToggleCalendarSync: (Boolean) -> Unit,
 	writableCalendars: List<CalendarInfo>,
 	onSelectCalendar: (Long) -> Unit,
+	calendarPermissionGranted: Boolean,
+	onRequestCalendarPermission: () -> Unit,
+	onRefreshCalendars: () -> Unit,
 	notificationsEnabled: Boolean,
 	onEnableNotifications: () -> Unit,
 	onFinish: () -> Unit,
@@ -112,10 +115,13 @@ fun OnboardingScreen(
 					notificationsEnabled = notificationsEnabled,
 					writableCalendars = writableCalendars,
 					selectedCalendarId = state.calendarSyncCalendarId,
+					calendarPermissionGranted = calendarPermissionGranted,
 					onRestoreClick = onRestoreBackup,
 					onPickIcsClick = onPickIcsFile,
 					onCalendarSyncToggle = onToggleCalendarSync,
 					onSelectCalendar = onSelectCalendar,
+					onRequestCalendarPermission = onRequestCalendarPermission,
+					onRefreshCalendars = onRefreshCalendars,
 					onEnableNotifications = onEnableNotifications,
 				)
 			}

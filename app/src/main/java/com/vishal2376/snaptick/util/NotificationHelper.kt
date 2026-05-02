@@ -44,7 +44,7 @@ class NotificationHelper(private val context: Context) {
 		val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
 			.setContentTitle(taskTitle)
 			.setContentText(taskTime)
-			.setSmallIcon(R.drawable.monochrome_icon)
+			.setSmallIcon(R.drawable.ic_timer)
 			.setStyle(NotificationCompat.BigTextStyle().bigText(taskTime))
 			.setDefaults(NotificationCompat.DEFAULT_ALL)
 			.setContentIntent(pendingIntent)

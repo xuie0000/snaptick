@@ -8,6 +8,7 @@ import android.os.IBinder
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.vishal2376.snaptick.data.repositories.TaskRepository
 import com.vishal2376.snaptick.presentation.pomodoro_screen.action.PomodoroAction
 import com.vishal2376.snaptick.presentation.pomodoro_screen.events.PomodoroEvent
 import com.vishal2376.snaptick.presentation.pomodoro_screen.state.PomodoroState
@@ -36,6 +37,7 @@ import javax.inject.Inject
 @HiltViewModel
 class PomodoroViewModel @Inject constructor(
 	@ApplicationContext private val context: Context,
+	private val repository: TaskRepository,
 	savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -59,7 +61,15 @@ class PomodoroViewModel @Inject constructor(
 				when {
 					running.taskId == taskId || running.timeLeft <= 0 || running.taskId <= 0 -> {
 						svc.startForTask(taskId)
-						viewModelScope.launch { _events.emit(PomodoroEvent.ResumingPreviousSession) }
+						// Toast only when there is a non-trivial saved session to
+						// resume from; a fresh start (pomodoroTimer == -1) or one
+						// with under a minute left should not surface "resuming".
+						viewModelScope.launch {
+							val savedSec = repository.getTaskById(taskId)?.pomodoroTimer ?: -1
+							if (savedSec > 60) {
+								_events.emit(PomodoroEvent.ResumingPreviousSession)
+							}
+						}
 					}
 					else -> {
 						// Different pomodoro is already running. Stage a confirm
