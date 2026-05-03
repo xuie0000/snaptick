@@ -81,6 +81,7 @@ internal fun DefaultWheelDatePicker(
 					enabled = false
 				),
 				startIndex = dayOfMonths.find { it.value == startDate.dayOfMonth }?.index ?: 0,
+				wrapAround = true,
 				onScrollFinished = { snappedIndex ->
 					val newDayOfMonth = dayOfMonths.find { it.index == snappedIndex }?.value
 					newDayOfMonth?.let {
@@ -115,6 +116,7 @@ internal fun DefaultWheelDatePicker(
 					enabled = false
 				),
 				startIndex = months.find { it.value == startDate.monthValue }?.index ?: 0,
+				wrapAround = true,
 				onScrollFinished = { snappedIndex ->
 					val newMonth = months.find { it.index == snappedIndex }?.value
 					newMonth?.let {

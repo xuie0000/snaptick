@@ -129,6 +129,7 @@ internal fun DefaultWheelTimePicker(
 				} else amPmHours.find { it.value == localTimeToAmPmHour(startTime) }?.index ?: 0,
 				scrollToIndex = hourScrollIndex,
 				scrollGeneration = scrollGeneration,
+				wrapAround = true,
 				selectorProperties = WheelPickerDefaults.selectorProperties(
 					enabled = false
 				),
@@ -189,6 +190,7 @@ internal fun DefaultWheelTimePicker(
 				startIndex = minutes.find { it.value == startTime.minute }?.index ?: 0,
 				scrollToIndex = minuteScrollIndex,
 				scrollGeneration = scrollGeneration,
+				wrapAround = true,
 				selectorProperties = WheelPickerDefaults.selectorProperties(
 					enabled = false
 				),

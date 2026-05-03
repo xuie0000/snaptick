@@ -37,6 +37,11 @@ import dev.chrisbanes.snapper.rememberLazyListSnapperLayoutInfo
 import dev.chrisbanes.snapper.rememberSnapperFlingBehavior
 import kotlin.math.absoluteValue
 
+// Number of virtual repetitions of the item set when wrapping is on.
+// 1000 cycles is enough that a user would have to flick continuously for
+// minutes to hit either edge; small enough to keep LazyColumn sizing sane.
+private const val WRAP_REPEAT = 1000
+
 @Composable
 internal fun WheelPicker(
 	modifier: Modifier = Modifier,
@@ -45,22 +50,43 @@ internal fun WheelPicker(
 	scrollGeneration: Int = 0,
 	count: Int,
 	rowCount: Int,
+	wrapAround: Boolean = false,
 	size: DpSize = DpSize(128.dp, 128.dp),
 	selectorProperties: SelectorProperties = WheelPickerDefaults.selectorProperties(),
 	onScrollFinished: (snappedIndex: Int) -> Int? = { null },
 	content: @Composable LazyItemScope.(index: Int) -> Unit,
 ) {
-	val lazyListState = rememberLazyListState(startIndex)
+	// Wrapping works by rendering count*WRAP_REPEAT identical slots and
+	// folding the index back to [0, count) for content + callbacks. Initial
+	// scroll lands in the middle of the virtual range so the user can swipe
+	// either direction without hitting an edge.
+	val virtualCount = if (wrapAround) count * WRAP_REPEAT else count
+	val initialVirtualIndex = if (wrapAround) {
+		(WRAP_REPEAT / 2) * count + startIndex.coerceIn(0, count - 1)
+	} else startIndex
+
+	val lazyListState = rememberLazyListState(initialVirtualIndex)
 	val snapperLayoutInfo = rememberLazyListSnapperLayoutInfo(lazyListState = lazyListState)
 	val isScrollInProgress = lazyListState.isScrollInProgress
 	var suppressNextSnapCallback by remember { mutableStateOf(false) }
 
 	LaunchedEffect(scrollGeneration) {
 		if (scrollGeneration > 0 && scrollToIndex != null) {
-			val current = lazyListState.firstVisibleItemIndex
-			if (current != scrollToIndex) {
+			val target = scrollToIndex.coerceIn(0, count - 1)
+			val currentVirtual = lazyListState.firstVisibleItemIndex
+			val virtualTarget = if (wrapAround) {
+				// Pick the closest virtual occurrence of `target`. Stops the
+				// wheel from spinning across the entire range when the user is
+				// near a wrap (e.g. shifting from hour 23 to hour 0).
+				val currentReal = ((currentVirtual % count) + count) % count
+				val forwardDelta = ((target - currentReal) % count + count) % count
+				val backwardDelta = forwardDelta - count
+				val delta = if (forwardDelta <= -backwardDelta) forwardDelta else backwardDelta
+				currentVirtual + delta
+			} else target
+			if (virtualTarget != currentVirtual) {
 				suppressNextSnapCallback = true
-				lazyListState.animateScrollToItem(scrollToIndex)
+				lazyListState.animateScrollToItem(virtualTarget)
 			}
 		}
 	}
@@ -71,8 +97,17 @@ internal fun WheelPicker(
 				suppressNextSnapCallback = false
 				return@LaunchedEffect
 			}
-			onScrollFinished(calculateSnappedItemIndex(snapperLayoutInfo) ?: startIndex)?.let {
-				lazyListState.scrollToItem(it)
+			val snappedVirtual = calculateSnappedItemIndex(snapperLayoutInfo) ?: initialVirtualIndex
+			val snappedReal = if (wrapAround) ((snappedVirtual % count) + count) % count
+				else snappedVirtual
+			onScrollFinished(snappedReal)?.let { reqReal ->
+				// Stay on the current virtual page when correcting position so
+				// we don't teleport across the wrap range.
+				val virtualLand = if (wrapAround) {
+					val page = snappedVirtual / count
+					page * count + reqReal.coerceIn(0, count - 1)
+				} else reqReal
+				lazyListState.scrollToItem(virtualLand)
 			}
 		}
 	}
@@ -100,11 +135,12 @@ internal fun WheelPicker(
 				lazyListState = lazyListState
 			)
 		) {
-			items(count) { index ->
+			items(virtualCount) { virtualIndex ->
+				val realIndex = if (wrapAround) virtualIndex % count else virtualIndex
 				val rotationX = calculateAnimatedRotationX(
 					lazyListState = lazyListState,
 					snapperLayoutInfo = snapperLayoutInfo,
-					index = index,
+					index = virtualIndex,
 					rowCount = rowCount
 				)
 				Box(
@@ -115,7 +151,7 @@ internal fun WheelPicker(
 							calculateAnimatedAlpha(
 								lazyListState = lazyListState,
 								snapperLayoutInfo = snapperLayoutInfo,
-								index = index,
+								index = virtualIndex,
 								rowCount = rowCount
 							)
 						)
@@ -124,7 +160,7 @@ internal fun WheelPicker(
 						},
 					contentAlignment = Alignment.Center
 				) {
-					content(index)
+					content(realIndex)
 				}
 			}
 		}
