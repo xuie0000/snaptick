@@ -44,19 +44,22 @@ their daily plans
 
 ## 🚀 Features
 
-- 📝 **Create and Edit Tasks** with priority, repeats, and midnight-crossing times
-- ⏲️ **Pomodoro Timer** as a foreground service that survives app close, with a single-instance guard
-- 🔔 **Multiple Reminders** per task (up to 4 custom offsets) with a Start Pomodoro action
-- 🧩 **Home-screen Widget** with one-tap complete and themed colors
-- 🗓️ **Calendar Sync & ICS Import** to mirror tasks to your device calendar
-- 💾 **Two-stage Backup & Restore** with a confirm preview and transactional rollback
-- 🔄 **Sort Tasks** with swipe-action customization (delete or complete)
-- ⏰ **Analyze Free Time** against a flexible sleep time (any hour, including early-morning)
-- 🗓️ **Calendar View** with weekly and monthly modes
-- 🎨 **Modern UI** with Light, Dark, Amoled, and Material You dynamic theme
-- 🔁 **Repeatable Tasks** with per-day completion and reliable boot-recovery
-- 🌐 **Available in 15+ Languages** with instant in-app switching
-- 🆙 **In-app Update Checker** backed by GitHub Releases
+- 📝 **Create and Edit Tasks**
+- ⏲️ **Pomodoro Timer**
+- 🔔 **Multiple Reminders**
+- 🧩 **Home-screen Widget**
+- 🗓️ **Calendar Sync & ICS Import**
+- 💾 **Backup & Restore**
+- 🔄 **Customizable Swipe Actions**
+- ⏰ **Analyze Free Time**
+- 😴 **Set Sleep Time**
+- 🗓️ **Manage tasks in Calendar View**
+- 🎨 **Material Dynamic Theme Support**
+- 🔁 **Repeatable Tasks with Notification**
+- 🎬 **Smooth Animations**
+- 🎨 **Modern UI with Cool Themes**
+- 🌐 **Available in 15+ Languages**
+- 🆙 **In-app Update Checker**
 
 ## Screenshots ([All Designs(Figma)](https://www.figma.com/file/fO6pafK7iAJMZDAtjOy1Mt/Snaptick-App-UI?type=design&node-id=0%3A1&mode=design&t=071Ijr8Yg44PVvmz-1))
 
