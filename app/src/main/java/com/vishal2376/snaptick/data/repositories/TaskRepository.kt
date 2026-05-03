@@ -13,6 +13,7 @@ import com.vishal2376.snaptick.domain.model.BackupCompletion
 import com.vishal2376.snaptick.domain.model.BackupData
 import com.vishal2376.snaptick.domain.model.BackupReminder
 import com.vishal2376.snaptick.domain.model.Task
+import com.vishal2376.snaptick.service.PomodoroService
 import com.vishal2376.snaptick.util.ReminderScheduler
 import com.vishal2376.snaptick.widget.worker.WidgetUpdateWorker
 import kotlinx.coroutines.flow.Flow
@@ -40,6 +41,7 @@ class TaskRepository(
 
 	suspend fun deleteTask(task: Task) {
 		reminderScheduler.cancel(task.id)
+		PomodoroService.stopIfRunningFor(context, task.id)
 		completionDao.deleteAllForTask(task.uuid)
 		reminderDao.deleteAllForTask(task.uuid)
 		dao.deleteTask(task)
@@ -49,6 +51,10 @@ class TaskRepository(
 
 	suspend fun updateTask(task: Task, reminderOffsets: List<Int>? = null) {
 		reminderScheduler.cancel(task.id)
+		// Completing a task should kill its timer + clear the FG notification.
+		// Skip when the caller is the pomodoro service itself wiping
+		// pomodoroTimer back to -1 (still incomplete) so we don't recurse.
+		if (task.isCompleted) PomodoroService.stopIfRunningFor(context, task.id)
 		dao.updateTask(task)
 		val effective = reminderOffsets ?: reminderDao.offsetsForTask(task.uuid).ifEmpty { defaultOffsets(task) }
 		if (reminderOffsets != null) writeReminderOffsets(task.uuid, reminderOffsets)
@@ -74,6 +80,9 @@ class TaskRepository(
 	}
 
 	suspend fun deleteAllTasks() {
+		// Wipe takes the running timer with it.
+		val active = PomodoroService.runningTaskId
+		if (active > 0) PomodoroService.stopIfRunningFor(context, active)
 		dao.deleteAllTasks()
 		WidgetUpdateWorker.enqueueWorker(context)
 	}
@@ -182,6 +191,11 @@ class TaskRepository(
 	suspend fun markCompletedForDate(uuid: String, date: LocalDate) {
 		completionDao.insert(TaskCompletion(uuid = uuid, date = date.toString()))
 		dao.getTaskByUuid(uuid)?.let { task ->
+			// Repeat template was completed for today: any pomodoro for this
+			// task is considered done too.
+			if (date == LocalDate.now()) {
+				PomodoroService.stopIfRunningFor(context, task.id)
+			}
 			val offsets = reminderDao.offsetsForTask(uuid)
 			reminderScheduler.cancel(task.id)
 			reminderScheduler.schedule(task, offsets = offsets, skipToday = date == LocalDate.now())
