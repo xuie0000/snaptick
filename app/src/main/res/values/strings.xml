@@ -99,6 +99,7 @@
     <string name="pause">Pause</string>
     <string name="mark_done">Mark done</string>
     <string name="start_timer_action">Start %1$s timer</string>
+    <string name="start_pomodoro">Start Pomodoro</string>
     <string name="update_available">Update available</string>
     <string name="up_to_date">You are on the latest version</string>
     <string name="checking_for_updates">Checking for updates…</string>

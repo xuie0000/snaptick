@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
@@ -71,7 +72,19 @@ class PomodoroService : Service() {
 
 	override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 		ensureChannel()
-		startForeground(POMODORO_NOTIFICATION_ID, buildNotification(_state.value))
+		// API 34+ rejects startForeground() without the explicit type, even
+		// though the service is declared with foregroundServiceType="dataSync"
+		// in the manifest. Without the third arg, the notification silently
+		// never appears and the system kills the service shortly after.
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+			startForeground(
+				POMODORO_NOTIFICATION_ID,
+				buildNotification(_state.value),
+				ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC,
+			)
+		} else {
+			startForeground(POMODORO_NOTIFICATION_ID, buildNotification(_state.value))
+		}
 		when (intent?.action) {
 			ACTION_TOGGLE_PAUSE -> togglePause()
 			ACTION_CANCEL -> cancelTimer()
