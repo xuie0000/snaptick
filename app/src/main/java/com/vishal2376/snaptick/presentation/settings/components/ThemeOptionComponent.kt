@@ -40,6 +40,7 @@ fun ThemeOptionComponent(
 		modifier = Modifier.fillMaxWidth(),
 		verticalArrangement = Arrangement.spacedBy(12.dp)
 	) {
+		SheetTitle(text = stringResource(R.string.theme))
 		ThemeSelector(
 			selected = defaultTheme,
 			onSelect = onSelect,

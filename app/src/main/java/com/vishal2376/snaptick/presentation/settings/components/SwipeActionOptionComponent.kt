@@ -37,7 +37,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.vishal2376.snaptick.R
 import com.vishal2376.snaptick.presentation.common.SwipeBehavior
-import com.vishal2376.snaptick.presentation.common.h2TextStyle
 import com.vishal2376.snaptick.presentation.common.h3TextStyle
 import com.vishal2376.snaptick.presentation.common.taskTextStyle
 import com.vishal2376.snaptick.ui.theme.LightGreen
@@ -61,11 +60,7 @@ fun SwipeActionOptionComponent(
 		horizontalAlignment = Alignment.CenterHorizontally,
 		verticalArrangement = Arrangement.spacedBy(16.dp)
 	) {
-		Text(
-			text = stringResource(R.string.choose_swipe_action),
-			style = h2TextStyle,
-			color = MaterialTheme.colorScheme.onBackground
-		)
+		SheetTitle(text = stringResource(R.string.choose_swipe_action))
 
 		Row(
 			modifier = Modifier

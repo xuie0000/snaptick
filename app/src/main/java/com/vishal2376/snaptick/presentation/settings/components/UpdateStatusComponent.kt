@@ -1,8 +1,11 @@
 package com.vishal2376.snaptick.presentation.settings.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +19,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.NewReleases
 import androidx.compose.material3.CircularProgressIndicator
@@ -23,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,11 +39,21 @@ import com.vishal2376.snaptick.presentation.common.h3TextStyle
 import com.vishal2376.snaptick.presentation.common.infoDescTextStyle
 import com.vishal2376.snaptick.ui.theme.LightGreen
 import com.vishal2376.snaptick.ui.theme.Red
+import kotlinx.coroutines.delay
+
+private const val AUTO_DISMISS_DELAY_MS = 5000L
 
 /**
- * Inline status the user sees right under the Updates row. Replaces the
- * earlier toast-only feedback so the result of a check sticks long enough
- * to read and act on.
+ * Inline update result rendered as a settings-style card. Visual rules:
+ *
+ *  - Mirrors `SettingCategoryItem` (primaryContainer surface, rounded
+ *    corners, same horizontal padding) so it doesn't read as a separate
+ *    surface stuck onto the settings list.
+ *  - Always offers a manual close (×) so the user can dismiss anytime.
+ *  - Auto-hides after 5 s for the transient outcomes (up-to-date, failed).
+ *    "Update available" stays put — it carries an action the user needs.
+ *  - "Checking…" never auto-hides; it goes away on its own when the
+ *    request resolves.
  */
 @Composable
 fun UpdateStatusComponent(
@@ -48,11 +63,29 @@ fun UpdateStatusComponent(
 	lastCheckedAt: Long,
 	onOpenUpdate: () -> Unit,
 	onRetry: () -> Unit,
+	onDismiss: () -> Unit,
 ) {
 	val visible = checking || failed || updateAvailable != null || lastCheckedAt > 0
-	AnimatedVisibility(visible = visible) {
+
+	// Auto-dismiss for transient states only.
+	val autoHideKey = if (!checking && updateAvailable == null && (failed || lastCheckedAt > 0)) {
+		// Re-key on the timestamp so a new check resets the countdown.
+		lastCheckedAt to failed
+	} else null
+	if (autoHideKey != null) {
+		LaunchedEffect(autoHideKey) {
+			delay(AUTO_DISMISS_DELAY_MS)
+			onDismiss()
+		}
+	}
+
+	AnimatedVisibility(
+		visible = visible,
+		enter = expandVertically() + fadeIn(),
+		exit = shrinkVertically() + fadeOut(),
+	) {
 		when {
-			checking -> StatusRow(
+			checking -> StatusCard(
 				accent = MaterialTheme.colorScheme.primary,
 				title = stringResource(R.string.checking_for_updates),
 				leading = {
@@ -61,9 +94,10 @@ fun UpdateStatusComponent(
 						strokeWidth = 2.dp,
 						color = MaterialTheme.colorScheme.primary,
 					)
-				}
+				},
+				onDismiss = null,
 			)
-			updateAvailable != null -> StatusRow(
+			updateAvailable != null -> StatusCard(
 				accent = MaterialTheme.colorScheme.primary,
 				title = stringResource(
 					R.string.update_available_with_version,
@@ -75,44 +109,47 @@ fun UpdateStatusComponent(
 						tint = MaterialTheme.colorScheme.primary
 					)
 				},
-				trailingAction = stringResource(R.string.update_check_open),
-				onTrailingClick = onOpenUpdate,
+				ctaLabel = stringResource(R.string.update_check_open),
+				onCta = onOpenUpdate,
+				onDismiss = onDismiss,
 			)
-			failed -> StatusRow(
+			failed -> StatusCard(
 				accent = Red,
 				title = stringResource(R.string.update_check_failed),
 				leading = {
 					StatusIcon(icon = Icons.Filled.Error, tint = Red)
 				},
-				trailingAction = stringResource(R.string.update_check_retry),
-				onTrailingClick = onRetry,
+				ctaLabel = stringResource(R.string.update_check_retry),
+				onCta = onRetry,
+				onDismiss = onDismiss,
 			)
-			else -> StatusRow(
+			else -> StatusCard(
 				accent = LightGreen,
 				title = stringResource(R.string.up_to_date),
 				leading = {
 					StatusIcon(icon = Icons.Filled.CheckCircle, tint = LightGreen)
-				}
+				},
+				onDismiss = onDismiss,
 			)
 		}
 	}
 }
 
 @Composable
-private fun StatusRow(
+private fun StatusCard(
 	accent: Color,
 	title: String,
 	leading: @Composable () -> Unit,
-	trailingAction: String? = null,
-	onTrailingClick: (() -> Unit)? = null,
+	ctaLabel: String? = null,
+	onCta: (() -> Unit)? = null,
+	onDismiss: (() -> Unit)?,
 ) {
 	Row(
 		modifier = Modifier
 			.fillMaxWidth()
 			.padding(horizontal = 24.dp, vertical = 4.dp)
-			.background(MaterialTheme.colorScheme.background, RoundedCornerShape(12.dp))
-			.border(1.dp, accent.copy(alpha = 0.35f), RoundedCornerShape(12.dp))
-			.padding(horizontal = 12.dp, vertical = 10.dp),
+			.background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(14.dp))
+			.padding(horizontal = 14.dp, vertical = 12.dp),
 		verticalAlignment = Alignment.CenterVertically,
 		horizontalArrangement = Arrangement.spacedBy(10.dp)
 	) {
@@ -123,18 +160,28 @@ private fun StatusRow(
 			modifier = Modifier.weight(1f),
 			text = title,
 			style = infoDescTextStyle,
-			color = MaterialTheme.colorScheme.onBackground
+			color = MaterialTheme.colorScheme.onPrimaryContainer
 		)
-		if (trailingAction != null && onTrailingClick != null) {
-			Spacer(modifier = Modifier.width(8.dp))
+		if (ctaLabel != null && onCta != null) {
+			Spacer(modifier = Modifier.width(4.dp))
 			Text(
 				modifier = Modifier
-					.background(accent.copy(alpha = 0.15f), CircleShape)
-					.clickable { onTrailingClick() }
-					.padding(horizontal = 12.dp, vertical = 6.dp),
-				text = trailingAction,
+					.background(accent, CircleShape)
+					.clickable { onCta() }
+					.padding(horizontal = 14.dp, vertical = 6.dp),
+				text = ctaLabel,
 				style = h3TextStyle,
-				color = accent,
+				color = MaterialTheme.colorScheme.onPrimary,
+			)
+		}
+		if (onDismiss != null) {
+			Icon(
+				imageVector = Icons.Default.Close,
+				contentDescription = "Dismiss",
+				tint = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
+				modifier = Modifier
+					.size(20.dp)
+					.clickable { onDismiss() }
 			)
 		}
 	}

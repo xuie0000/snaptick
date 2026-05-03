@@ -35,7 +35,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.vishal2376.snaptick.R
 import com.vishal2376.snaptick.domain.model.Task
-import com.vishal2376.snaptick.presentation.common.h1TextStyle
 import com.vishal2376.snaptick.presentation.common.h3TextStyle
 import com.vishal2376.snaptick.presentation.common.infoDescTextStyle
 import com.vishal2376.snaptick.presentation.common.taskTextStyle
@@ -56,11 +55,7 @@ fun EventImportOptionComponent(
 			.padding(horizontal = 8.dp, vertical = 4.dp),
 		verticalArrangement = Arrangement.spacedBy(12.dp)
 	) {
-		Text(
-			text = stringResource(R.string.import_events),
-			style = h1TextStyle,
-			color = MaterialTheme.colorScheme.onBackground
-		)
+		SheetTitle(text = stringResource(R.string.import_events))
 
 		if (previewTasks.isEmpty()) {
 			EmptyImportState(onPickIcsFile = onPickIcsFile)

@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.vishal2376.snaptick.R
-import com.vishal2376.snaptick.presentation.common.h1TextStyle
 import com.vishal2376.snaptick.presentation.common.h3TextStyle
 
 @Composable
@@ -31,13 +30,7 @@ fun SoundOptionComponent(
 			.padding(horizontal = 4.dp, vertical = 8.dp),
 		verticalArrangement = Arrangement.spacedBy(8.dp)
 	) {
-		Text(
-			text = stringResource(R.string.sounds),
-			style = h1TextStyle,
-			color = MaterialTheme.colorScheme.onBackground,
-			modifier = Modifier.padding(horizontal = 8.dp)
-		)
-		Spacer(Modifier.height(4.dp))
+		SheetTitle(text = stringResource(R.string.sounds))
 		Row(
 			modifier = Modifier
 				.fillMaxWidth()

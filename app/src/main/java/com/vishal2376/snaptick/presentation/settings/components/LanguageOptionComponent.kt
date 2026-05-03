@@ -19,7 +19,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.vishal2376.snaptick.R
-import com.vishal2376.snaptick.presentation.common.h2TextStyle
 import com.vishal2376.snaptick.presentation.common.taskTextStyle
 import com.vishal2376.snaptick.presentation.settings.common.TopLanguage
 import com.vishal2376.snaptick.ui.theme.Blue
@@ -38,12 +37,8 @@ fun LanguageOptionComponent(
 		?: TopLanguage.ENGLISH
 
 	Column(horizontalAlignment = Alignment.CenterHorizontally) {
-		Text(
-			text = stringResource(R.string.select_language),
-			style = h2TextStyle,
-			color = MaterialTheme.colorScheme.onBackground,
-		)
-		Spacer(modifier = Modifier.height(8.dp))
+		SheetTitle(text = stringResource(R.string.select_language))
+		Spacer(modifier = Modifier.height(4.dp))
 		Column(
 			modifier = Modifier
 				.fillMaxWidth()

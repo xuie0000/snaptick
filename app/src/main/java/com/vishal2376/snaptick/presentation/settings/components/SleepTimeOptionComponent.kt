@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.dp
 import com.vishal2376.snaptick.wheelpicker.WheelTimePicker
 import com.vishal2376.snaptick.wheelpicker.core.TimeFormat
 import com.vishal2376.snaptick.R
-import com.vishal2376.snaptick.presentation.common.h1TextStyle
 import java.time.LocalTime
 
 @Composable
@@ -26,12 +25,8 @@ fun SleepTimeOptionComponent(defaultSleepTime: LocalTime, onSelect: (LocalTime) 
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
-            text = stringResource(R.string.set_sleep_time),
-            style = h1TextStyle,
-            color = MaterialTheme.colorScheme.onBackground,
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+        SheetTitle(text = stringResource(R.string.set_sleep_time))
+        Spacer(modifier = Modifier.height(8.dp))
         WheelTimePicker(
             timeFormat = TimeFormat.AM_PM,
             startTime = defaultSleepTime,

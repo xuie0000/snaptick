@@ -329,9 +329,10 @@ fun SettingsScreen(
 					lastCheckedAt = appState.lastUpdateCheckAt,
 					onOpenUpdate = {
 						appState.updateAvailable?.htmlUrl?.let { openUrl(context, it) }
-						onAction(MainAction.DismissUpdateBanner)
+						onAction(MainAction.DismissUpdateStatus)
 					},
 					onRetry = { onAction(MainAction.CheckForUpdates(ignoreThrottle = true)) },
+					onDismiss = { onAction(MainAction.DismissUpdateStatus) },
 				)
 				SettingsCategoryComponent(
 					categoryTitle = stringResource(R.string.general_settings),

@@ -156,6 +156,13 @@ class MainViewModel @Inject constructor(
 				checkForUpdates(ignoreThrottle = action.ignoreThrottle)
 			}
 			is MainAction.DismissUpdateBanner -> _state.update { it.copy(updateAvailable = null) }
+			is MainAction.DismissUpdateStatus -> _state.update {
+				it.copy(
+					updateCheckFailed = false,
+					updateAvailable = null,
+					lastUpdateCheckAt = 0L,
+				)
+			}
 			is MainAction.RefreshWritableCalendars -> viewModelScope.launch {
 				val list = calendarRepository.getWritableCalendars()
 				_state.update { it.copy(writableCalendars = list) }
