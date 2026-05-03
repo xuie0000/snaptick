@@ -98,12 +98,8 @@ fun NavigationDrawerComponent(
 
 			Spacer(modifier = Modifier.height(8.dp))
 
-			NavDrawerItemUI(
-				icon = Icons.Default.BarChart,
-				label = stringResource(R.string.analytics)
-			) { onClickAnalytics() }
-
-			Spacer(modifier = Modifier.height(8.dp))
+			// Analytics intentionally hidden for 4.0 — UI rework planned post-release.
+			// Keep onClickAnalytics in the API so wiring stays intact when restored.
 
 			NavDrawerItemUI(
 				icon = Icons.Default.Settings,

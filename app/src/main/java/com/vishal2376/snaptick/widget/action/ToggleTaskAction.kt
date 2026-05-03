@@ -3,39 +3,41 @@ package com.vishal2376.snaptick.widget.action
 import android.content.Context
 import androidx.glance.GlanceId
 import androidx.glance.action.ActionParameters
+import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.action.ActionCallback
-import androidx.glance.appwidget.updateAll
 import com.vishal2376.snaptick.widget.TaskAppWidget
 import com.vishal2376.snaptick.widget.di.WidgetEntryPoint
 import com.vishal2376.snaptick.widget.state.WidgetStateDefinition
-import com.vishal2376.snaptick.widget.worker.WidgetUpdateWorker
 import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 /**
- * Toggles task completion from the widget. Two-phase for instant feedback:
+ * Toggles task completion from the widget. Two phases:
  *
- * 1. Optimistic: read current widget state, drop the toggled task from the
- *    visible incomplete list, push that synthetic state immediately so the
- *    user sees the row disappear with no perceived lag.
- * 2. Authoritative: do the actual repository write (which cancels and
- *    reschedules reminders, pushes to calendar, etc.) and then refresh the
- *    widget state from the DB so any divergence (e.g., new repeat
- *    occurrence) reconciles.
- *
- * Routes the actual write through `TaskRepository` so the same per-date
- * completion semantics apply as in the home screen:
- *  - One-off task: flips `Task.isCompleted`.
- *  - Repeat template: writes (or removes) a row in `task_completions` for
- *    today, leaving the template untouched.
+ *  1. Foreground (this coroutine): drop the row from the widget's visible
+ *     list and push the new state to *this widget instance only*. Returning
+ *     fast lets Glance hand the click back to the launcher with no perceived
+ *     lag. Single-instance update beats `updateAll` because Glance can skip
+ *     re-rendering every other host.
+ *  2. Background (process-lifetime scope): do the repository write. The
+ *     repo's own side-effects already enqueue a [WidgetUpdateWorker] run
+ *     for full reconciliation, so we don't kick a refresh from here — that
+ *     would just do the same work twice and risk a brief re-render flicker.
  */
 class ToggleTaskAction : ActionCallback {
 
 	companion object {
 		val TaskIdKey = ActionParameters.Key<Int>("task_id")
+
+		// Process-lifetime scope so DB writes survive after this suspending
+		// callback returns. Using a viewmodel/worker-bound scope would tie
+		// the lifetime to a host that's already gone.
+		private val backgroundScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 	}
 
 	override suspend fun onAction(
@@ -45,27 +47,22 @@ class ToggleTaskAction : ActionCallback {
 	) {
 		val taskId = parameters[TaskIdKey] ?: return
 
-		withContext(Dispatchers.IO) {
+		// Phase 1: optimistic visual update on this instance.
+		val current = WidgetStateDefinition.getDataStore(context, "snaptick_widget_state")
+			.data.first()
+		val nextTasks = current.tasks.filterNot { it.id == taskId }
+		if (nextTasks.size != current.tasks.size) {
+			WidgetStateDefinition.updateState(context, current.copy(tasks = nextTasks))
+			TaskAppWidget().update(context, glanceId)
+		}
+
+		// Phase 2: defer DB write so we don't keep the action coroutine alive
+		// across reminder rescheduling, calendar push, and worker enqueueing.
+		backgroundScope.launch {
 			val entry = EntryPointAccessors
 				.fromApplication(context.applicationContext, WidgetEntryPoint::class.java)
 			val repo = entry.taskRepository()
-			val settings = entry.settingsStore()
-
-			// Optimistic: drop the row from the widget's visible list immediately.
-			val current = runCatching {
-				WidgetStateDefinition.getDataStore(context, "snaptick_widget_state").data.first()
-			}.getOrNull()
-			if (current != null) {
-				val nextTasks = current.tasks.filterNot { it.id == taskId }
-				if (nextTasks.size != current.tasks.size) {
-					WidgetStateDefinition.updateState(context, current.copy(tasks = nextTasks))
-					TaskAppWidget().updateAll(context)
-				}
-			}
-
-			// Authoritative: now do the real write + refresh.
-			val task = repo.getTaskById(taskId) ?: return@withContext
-
+			val task = repo.getTaskById(taskId) ?: return@launch
 			if (task.isRepeated) {
 				val today = LocalDate.now()
 				if (repo.isCompletedOn(task.uuid, today)) {
@@ -76,8 +73,6 @@ class ToggleTaskAction : ActionCallback {
 			} else {
 				repo.updateTask(task.copy(isCompleted = !task.isCompleted))
 			}
-
-			WidgetUpdateWorker.refreshNow(context, repo, settings)
 		}
 	}
 }

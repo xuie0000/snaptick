@@ -62,10 +62,17 @@ import com.vishal2376.snaptick.presentation.settings.components.SoundOptionCompo
 import com.vishal2376.snaptick.presentation.settings.components.SwipeActionOptionComponent
 import com.vishal2376.snaptick.presentation.settings.components.ThemeOptionComponent
 import com.vishal2376.snaptick.presentation.settings.components.TimePickerOptionComponent
+import android.app.PendingIntent
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Intent
+import android.os.Build
+import android.widget.Toast
 import com.vishal2376.snaptick.ui.theme.SnaptickTheme
 import com.vishal2376.snaptick.util.Constants
 import com.vishal2376.snaptick.util.openUrl
+import com.vishal2376.snaptick.util.showToast
+import com.vishal2376.snaptick.widget.receiver.WidgetReceiver
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -91,10 +98,6 @@ fun SettingsScreen(
 	}
 
 	val settingsAbout = listOf(
-		SettingCategoryItem(title = stringResource(R.string.check_for_updates),
-			resId = R.drawable.ic_info,
-			onClick = { onAction(MainAction.CheckForUpdates(ignoreThrottle = true)) }
-		),
 		SettingCategoryItem(title = stringResource(R.string.about),
 			resId = R.drawable.ic_info,
 			onClick = { onClickAbout() }
@@ -105,6 +108,10 @@ fun SettingsScreen(
 				val repoUrl = Constants.GITHUB + "/snaptick#snaptick"
 				openUrl(context, repoUrl)
 			}
+		),
+		SettingCategoryItem(title = stringResource(R.string.check_for_updates),
+			resId = R.drawable.ic_refresh,
+			onClick = { onAction(MainAction.CheckForUpdates(ignoreThrottle = true)) }
 		),
 	)
 
@@ -138,6 +145,11 @@ fun SettingsScreen(
 			title = stringResource(R.string.sounds),
 			resId = R.drawable.ic_clock,
 			onClick = { showBottomSheetById = R.string.sounds }
+		),
+		SettingCategoryItem(
+			title = stringResource(R.string.add_widget),
+			resId = R.drawable.ic_task_list,
+			onClick = { requestPinWidget(context) }
 		),
 	)
 
@@ -339,4 +351,26 @@ fun SettingsScreenPreview() {
 	SnaptickTheme(theme = AppTheme.Amoled) {
 		SettingsScreen(MainState(), {}, {}, {})
 	}
+}
+
+private fun requestPinWidget(context: android.content.Context) {
+	// requestPinAppWidget needs API 26+, which matches our minSdk.
+	val appWidgetManager = AppWidgetManager.getInstance(context)
+	if (!appWidgetManager.isRequestPinAppWidgetSupported) {
+		showToast(context, context.getString(R.string.add_widget_unsupported), Toast.LENGTH_LONG)
+		return
+	}
+	val provider = ComponentName(context, WidgetReceiver::class.java)
+	val callbackFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+		PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+	} else {
+		PendingIntent.FLAG_UPDATE_CURRENT
+	}
+	val callback = PendingIntent.getBroadcast(
+		context,
+		0,
+		Intent(),
+		callbackFlags,
+	)
+	appWidgetManager.requestPinAppWidget(provider, null, callback)
 }

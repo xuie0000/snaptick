@@ -1,13 +1,17 @@
 package com.vishal2376.snaptick.presentation.settings.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
@@ -24,13 +28,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.vishal2376.snaptick.R
 import com.vishal2376.snaptick.presentation.common.h2TextStyle
+import com.vishal2376.snaptick.presentation.common.h3TextStyle
 import com.vishal2376.snaptick.presentation.common.taskTextStyle
 import com.vishal2376.snaptick.presentation.settings.common.TopLanguage
 import com.vishal2376.snaptick.ui.theme.Blue
 
+/**
+ * Stages the language pick locally. The committed value only fires on Done,
+ * so a casual scroll through options doesn't trigger an activity recreate
+ * for each tap (v3.3 behavior).
+ */
 @Composable
-fun LanguageOptionComponent(defaultLanguage: String, onSelect: (String) -> Unit) {
-	var selectedLanguage by remember(defaultLanguage) {
+fun LanguageOptionComponent(
+	defaultLanguage: String,
+	onSelect: (String) -> Unit,
+) {
+	var staged by remember(defaultLanguage) {
 		mutableStateOf(
 			TopLanguage.entries.firstOrNull { it.languageCode == defaultLanguage } ?: TopLanguage.ENGLISH
 		)
@@ -43,18 +56,19 @@ fun LanguageOptionComponent(defaultLanguage: String, onSelect: (String) -> Unit)
 			color = MaterialTheme.colorScheme.onBackground,
 		)
 		Spacer(modifier = Modifier.height(8.dp))
-		Column(Modifier.verticalScroll(rememberScrollState())) {
+		Column(
+			modifier = Modifier
+				.fillMaxWidth()
+				.verticalScroll(rememberScrollState())
+		) {
 			TopLanguage.entries.forEach { language ->
 				Row(
 					modifier = Modifier.fillMaxWidth(),
 					verticalAlignment = Alignment.CenterVertically
 				) {
 					RadioButton(
-						selected = selectedLanguage == language,
-						onClick = {
-							selectedLanguage = language
-							onSelect(selectedLanguage.languageCode)
-						},
+						selected = staged == language,
+						onClick = { staged = language },
 						colors = RadioButtonDefaults.colors(selectedColor = Blue)
 					)
 					Text(
@@ -70,6 +84,20 @@ fun LanguageOptionComponent(defaultLanguage: String, onSelect: (String) -> Unit)
 					)
 				}
 			}
+		}
+		Spacer(modifier = Modifier.height(8.dp))
+		Button(
+			onClick = { onSelect(staged.languageCode) },
+			enabled = staged.languageCode != defaultLanguage,
+			modifier = Modifier
+				.fillMaxWidth()
+				.padding(horizontal = 8.dp),
+			colors = ButtonDefaults.buttonColors(
+				containerColor = MaterialTheme.colorScheme.primary,
+				contentColor = MaterialTheme.colorScheme.onPrimary,
+			)
+		) {
+			Text(text = stringResource(R.string.done), style = h3TextStyle)
 		}
 	}
 }

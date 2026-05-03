@@ -89,7 +89,9 @@
     <string name="enable_24_hour_format">Enable 24-Hour Format</string>
     <string name="enable_sounds">Enable In-App Sounds</string>
     <string name="sounds">Sounds</string>
-    <string name="check_for_updates">Check for Updates</string>
+    <string name="check_for_updates">Updates</string>
+    <string name="add_widget">Add Widget</string>
+    <string name="add_widget_unsupported">Your launcher doesn\'t support pinning widgets. Long-press your home screen to add it.</string>
     <string name="analytics">Analytics</string>
     <string name="pomodoro_channel_name">Pomodoro Timer</string>
     <string name="pomodoro_complete">Pomodoro complete</string>
