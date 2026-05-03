@@ -62,6 +62,17 @@
 # ───────── Compose ─────────
 # Compose ships its own consumer rules in the BOM, but pin the safety nets.
 -keepclassmembers class androidx.compose.** { *; }
+# SnapLayoutInfoProvider impls inherit abstract methods from Compose Foundation.
+# R8 happily strips overrides it can't see called, which surfaces as
+# AbstractMethodError on swipe. Pin everything that implements the interface.
+-keep class * implements androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider { *; }
+
+# ───────── kizitonwose calendar ─────────
+# Calendar swipe internals plug into Compose Foundation's snap APIs via a
+# generated SnapLayoutInfoProvider. Keep the whole module so R8 leaves the
+# overrides intact.
+-keep class com.kizitonwose.calendar.** { *; }
+-dontwarn com.kizitonwose.calendar.**
 
 # ───────── Kotlin coroutines ─────────
 # Coroutine internals use reflection on volatile fields under debug agents.
