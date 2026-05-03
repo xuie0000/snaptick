@@ -13,7 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,6 +32,7 @@ import com.vishal2376.snaptick.presentation.common.components.ThemeSelector
 import com.vishal2376.snaptick.presentation.common.h1TextStyle
 import com.vishal2376.snaptick.presentation.common.infoDescTextStyle
 import com.vishal2376.snaptick.presentation.home_screen.components.TaskComponent
+import com.vishal2376.snaptick.util.Constants
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -86,7 +87,7 @@ fun ThemePreviewPage(
 				contentPadding = PaddingValues(vertical = 16.dp),
 				verticalArrangement = Arrangement.spacedBy(8.dp)
 			) {
-				items(demoOrder, key = { it.uuid }) { task ->
+				itemsIndexed(demoOrder, key = { _, task -> task.uuid }) { index, task ->
 					Box(
 						modifier = Modifier.animateItemPlacement(
 							tween(durationMillis = 500, easing = FastOutSlowInEasing)
@@ -98,7 +99,8 @@ fun ThemePreviewPage(
 							onComplete = {},
 							onPomodoro = {},
 							onDelete = {},
-							is24HourTimeFormat = false
+							is24HourTimeFormat = false,
+							animDelay = index * Constants.LIST_ANIMATION_DELAY
 						)
 					}
 				}
