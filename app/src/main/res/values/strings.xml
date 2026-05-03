@@ -101,6 +101,11 @@
     <string name="start_timer_action">Start %1$s timer</string>
     <string name="update_available">Update available</string>
     <string name="up_to_date">You are on the latest version</string>
+    <string name="checking_for_updates">Checking for updates…</string>
+    <string name="update_check_failed">Couldn\'t reach the update server</string>
+    <string name="update_check_retry">Tap to retry</string>
+    <string name="update_check_open">Open</string>
+    <string name="update_available_with_version">v%1$s is available</string>
     <string name="open_in_browser">Open in browser</string>
     <string name="later">Later</string>
     <string name="backup_restore_data">Backup/Restore Data</string>

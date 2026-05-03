@@ -62,6 +62,7 @@ import com.vishal2376.snaptick.presentation.settings.components.SoundOptionCompo
 import com.vishal2376.snaptick.presentation.settings.components.SwipeActionOptionComponent
 import com.vishal2376.snaptick.presentation.settings.components.ThemeOptionComponent
 import com.vishal2376.snaptick.presentation.settings.components.TimePickerOptionComponent
+import com.vishal2376.snaptick.presentation.settings.components.UpdateStatusComponent
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
@@ -320,6 +321,17 @@ fun SettingsScreen(
 				SettingsCategoryComponent(
 					categoryTitle = "",
 					categoryList = settingsAbout
+				)
+				UpdateStatusComponent(
+					checking = appState.updateCheckInFlight,
+					failed = appState.updateCheckFailed,
+					updateAvailable = appState.updateAvailable,
+					lastCheckedAt = appState.lastUpdateCheckAt,
+					onOpenUpdate = {
+						appState.updateAvailable?.htmlUrl?.let { openUrl(context, it) }
+						onAction(MainAction.DismissUpdateBanner)
+					},
+					onRetry = { onAction(MainAction.CheckForUpdates(ignoreThrottle = true)) },
 				)
 				SettingsCategoryComponent(
 					categoryTitle = stringResource(R.string.general_settings),

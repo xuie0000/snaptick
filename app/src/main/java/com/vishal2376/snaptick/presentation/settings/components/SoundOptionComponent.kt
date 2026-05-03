@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.dp
 import com.vishal2376.snaptick.R
 import com.vishal2376.snaptick.presentation.common.h1TextStyle
 import com.vishal2376.snaptick.presentation.common.h3TextStyle
-import com.vishal2376.snaptick.presentation.common.infoDescTextStyle
 
 @Composable
 fun SoundOptionComponent(
@@ -46,18 +45,12 @@ fun SoundOptionComponent(
 			verticalAlignment = Alignment.CenterVertically,
 			horizontalArrangement = Arrangement.SpaceBetween
 		) {
-			Column(modifier = Modifier.weight(1f)) {
-				Text(
-					text = stringResource(R.string.enable_sounds),
-					style = h3TextStyle,
-					color = MaterialTheme.colorScheme.onBackground
-				)
-				Text(
-					text = "Plays a chime when you add or complete a task",
-					style = infoDescTextStyle,
-					color = MaterialTheme.colorScheme.onPrimaryContainer
-				)
-			}
+			Text(
+				modifier = Modifier.weight(1f),
+				text = stringResource(R.string.enable_sounds),
+				style = h3TextStyle,
+				color = MaterialTheme.colorScheme.onBackground
+			)
 			Switch(
 				checked = enabled,
 				onCheckedChange = onToggle,

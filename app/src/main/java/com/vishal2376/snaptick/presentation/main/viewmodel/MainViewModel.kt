@@ -170,14 +170,15 @@ class MainViewModel @Inject constructor(
 			val last = settingsStore.lastUpdateCheckAtKey.first()
 			if (now - last < Constants.UPDATE_CHECK_THROTTLE_MILLIS) return
 		}
-		_state.update { it.copy(updateCheckInFlight = true) }
+		_state.update { it.copy(updateCheckInFlight = true, updateCheckFailed = false) }
 		val release = gitHubReleaseClient.fetchLatest()
-		settingsStore.setLastUpdateCheckAt(now)
 		if (release == null) {
-			_state.update { it.copy(updateCheckInFlight = false) }
-			if (ignoreThrottle) _events.emit(MainEvent.ShowToast("Update check failed"))
+			_state.update {
+				it.copy(updateCheckInFlight = false, updateCheckFailed = true)
+			}
 			return
 		}
+		settingsStore.setLastUpdateCheckAt(now)
 		val current = BuildConfig.VERSION_NAME
 			.split('.', '-')
 			.mapNotNull { it.takeWhile(Char::isDigit).toIntOrNull() }
@@ -186,9 +187,10 @@ class MainViewModel @Inject constructor(
 			it.copy(
 				updateAvailable = if (isNewer) release else null,
 				updateCheckInFlight = false,
+				updateCheckFailed = false,
+				lastUpdateCheckAt = now,
 			)
 		}
-		if (ignoreThrottle && !isNewer) _events.emit(MainEvent.UpToDate)
 	}
 
 	private fun parseIcsFile(uri: Uri) {

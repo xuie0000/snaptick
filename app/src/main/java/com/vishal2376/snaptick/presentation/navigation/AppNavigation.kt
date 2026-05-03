@@ -92,8 +92,6 @@ fun AppNavigation(
 							Manifest.permission.WRITE_CALENDAR
 						)
 					)
-				is MainEvent.UpToDate ->
-					showToast(activity, activity.getString(R.string.up_to_date), Toast.LENGTH_SHORT)
 				is MainEvent.LanguageChanged -> activity.recreate()
 			}
 		}

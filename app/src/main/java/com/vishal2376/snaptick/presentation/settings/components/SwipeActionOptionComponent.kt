@@ -153,20 +153,22 @@ private fun SwipePreview(accent: Color, icon: ImageVector) {
 			.fillMaxWidth()
 			.height(40.dp)
 			.background(accent.copy(alpha = 0.85f), outerShape),
-		contentAlignment = Alignment.CenterEnd
 	) {
-		// Action icon revealed under the row
+		// Action icon sits on the right edge — that's where the swipe reveals it.
 		Icon(
 			imageVector = icon,
 			contentDescription = null,
 			tint = Color.White,
 			modifier = Modifier
+				.align(Alignment.CenterEnd)
 				.padding(end = 8.dp)
 				.size(16.dp)
 		)
-		// Row sliding to the left to expose the action
+		// Row hugs the LEFT and is partially slid left of its full width, so
+		// the colored action zone is exposed on the RIGHT (right-to-left swipe).
 		Box(
 			modifier = Modifier
+				.align(Alignment.CenterStart)
 				.fillMaxWidth(0.7f)
 				.height(40.dp)
 				.background(MaterialTheme.colorScheme.background, rowShape)
