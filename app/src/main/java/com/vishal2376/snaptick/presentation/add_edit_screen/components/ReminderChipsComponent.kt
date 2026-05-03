@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.vishal2376.snaptick.presentation.common.taskTextStyle
+import com.vishal2376.snaptick.ui.theme.Red
 
 private const val MAX_REMINDERS = 4
 
@@ -80,7 +81,7 @@ private fun ReminderChip(
 		Icon(
 			imageVector = Icons.Default.Close,
 			contentDescription = "Remove $label",
-			tint = MaterialTheme.colorScheme.primaryContainer,
+			tint = Red,
 			modifier = Modifier
 				.size(18.dp)
 				.clickable { onDismiss() }
@@ -102,7 +103,7 @@ private fun AddChip(onClick: () -> Unit) {
 		Icon(
 			imageVector = Icons.Default.Add,
 			contentDescription = "Add reminder",
-			tint = MaterialTheme.colorScheme.primaryContainer,
+			tint = MaterialTheme.colorScheme.primary,
 			modifier = Modifier.size(20.dp)
 		)
 	}

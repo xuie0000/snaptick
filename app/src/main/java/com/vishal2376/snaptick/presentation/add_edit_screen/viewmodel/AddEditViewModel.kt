@@ -73,12 +73,15 @@ class AddEditViewModel @Inject constructor(
 			}
 			is AddEditAction.UpdateDate -> _state.update { it.copy(date = action.date) }
 			is AddEditAction.UpdateReminder -> _state.update {
+				// Keep offsets populated through toggle-off so AnimatedVisibility
+				// has stable content to shrink. saveTask filters them out when
+				// !reminder, so an empty list never reaches the repository.
 				val nextOffsets = if (action.enabled && it.reminderOffsets.isEmpty())
 					listOf(0)
 				else it.reminderOffsets
 				it.copy(
 					reminder = action.enabled,
-					reminderOffsets = if (action.enabled) nextOffsets else emptyList(),
+					reminderOffsets = nextOffsets,
 				)
 			}
 			is AddEditAction.RemoveReminderOffset -> _state.update {

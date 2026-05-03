@@ -44,7 +44,15 @@ fun ThemePreviewPage(
 	val initialDemos = remember { demoTasks() }
 	var demoOrder by remember { mutableStateOf(initialDemos) }
 
+	// LaunchedEffect(selectedTheme) fires on first composition too, which is
+	// when the user just lands on the page — they shouldn't see the cards
+	// reordering then. Only shuffle on subsequent theme changes.
+	var primed by remember { mutableStateOf(false) }
 	LaunchedEffect(selectedTheme) {
+		if (!primed) {
+			primed = true
+			return@LaunchedEffect
+		}
 		demoOrder = demoOrder.shuffled()
 	}
 
