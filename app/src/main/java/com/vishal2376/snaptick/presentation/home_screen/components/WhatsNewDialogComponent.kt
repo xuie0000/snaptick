@@ -66,24 +66,24 @@ fun WhatsNewDialogComponent(
 
 	val newFeatures = listOf(
 		NewItem(
-			"Custom Swipe Action",
-			"Swipe action can be customized",
-			"https://github.com/vishal2376/snaptick/issues/93#issuecomment-2802442282"
+			"Pomodoro Timer",
+			"Foreground timer keeps running even when the app is closed."
 		),
 		NewItem(
-			"Open App From Notification",
-			"App can be open directly from notification",
-			"https://github.com/vishal2376/snaptick/issues/104#issuecomment-2802255286"
+			"Multiple Reminders",
+			"Set up to four reminders per task with custom offsets."
 		),
 		NewItem(
-			"Fix Snackbar Overlap Issue",
-			"No more overlapping with system navigation buttons",
-			"https://github.com/vishal2376/snaptick/issues/94#issue-2873065226"
+			"Calendar Sync & ICS Import",
+			"Mirror tasks to your device calendar and import .ics files."
 		),
 		NewItem(
-			"Fix App Crash Issue",
-			"No more crash in Pomodoro Timer Screen",
-			"https://github.com/vishal2376/snaptick/issues/101"
+			"Home-screen Widget",
+			"Today's tasks at a glance with one-tap complete."
+		),
+		NewItem(
+			"Refreshed UI",
+			"New onboarding, theme cards, swipe action picker, and minimal time picker."
 		),
 	)
 

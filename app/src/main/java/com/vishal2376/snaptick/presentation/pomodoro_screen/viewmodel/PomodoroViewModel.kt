@@ -63,7 +63,7 @@ class PomodoroViewModel @Inject constructor(
 					}
 
 					else -> {
-						// Different pomodoro running — stage a confirm.
+						// Different pomodoro running, stage a confirm.
 						_state.value = _state.value.copy(
 							pendingReplace = running.taskTitle to taskId
 						)

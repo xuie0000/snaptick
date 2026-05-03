@@ -23,11 +23,7 @@ import com.vishal2376.snaptick.presentation.common.taskTextStyle
 import com.vishal2376.snaptick.presentation.settings.common.TopLanguage
 import com.vishal2376.snaptick.ui.theme.Blue
 
-/**
- * Tap a language to apply it instantly. The activity recreates so every
- * string in the running screen flips to the new locale right away — no
- * confirm step needed.
- */
+// Tap to apply: activity recreates so locale flips instantly without a confirm step.
 @Composable
 fun LanguageOptionComponent(
 	defaultLanguage: String,

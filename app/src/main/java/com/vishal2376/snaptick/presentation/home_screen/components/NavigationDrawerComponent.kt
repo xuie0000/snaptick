@@ -97,7 +97,7 @@ fun NavigationDrawerComponent(
 
 			Spacer(modifier = Modifier.height(8.dp))
 
-			// Analytics hidden for 4.0 — restore after the rework.
+			// Analytics hidden for 4.0; restore after the rework.
 
 			NavDrawerItemUI(
 				icon = Icons.Default.Settings,
