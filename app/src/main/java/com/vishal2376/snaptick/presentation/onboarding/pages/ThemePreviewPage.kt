@@ -1,5 +1,6 @@
 package com.vishal2376.snaptick.presentation.onboarding.pages
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -24,15 +25,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.vishal2376.snaptick.domain.model.Task
 import com.vishal2376.snaptick.presentation.common.AppTheme
+import com.vishal2376.snaptick.presentation.common.animation.SnaptickMotion
 import com.vishal2376.snaptick.presentation.common.components.ThemeSelector
 import com.vishal2376.snaptick.presentation.common.h1TextStyle
 import com.vishal2376.snaptick.presentation.common.infoDescTextStyle
 import com.vishal2376.snaptick.presentation.home_screen.components.TaskComponent
-import com.vishal2376.snaptick.util.Constants
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
 
@@ -88,7 +94,13 @@ fun ThemePreviewPage(
 				verticalArrangement = Arrangement.spacedBy(8.dp)
 			) {
 				itemsIndexed(demoOrder, key = { _, task -> task.uuid }) { index, task ->
-					Box(
+					// Initial entry uses the slide-up + fade-in cascade from
+					// page 1's FeatureRow. Stable uuid keys keep each item's
+					// composition across theme taps, so this LaunchedEffect
+					// fires exactly once per item — shuffles after that just
+					// reorder via animateItemPlacement.
+					StaggeredEntry(
+						index = index,
 						modifier = Modifier.animateItemPlacement(
 							tween(durationMillis = 500, easing = FastOutSlowInEasing)
 						)
@@ -100,7 +112,7 @@ fun ThemePreviewPage(
 							onPomodoro = {},
 							onDelete = {},
 							is24HourTimeFormat = false,
-							animDelay = index * Constants.LIST_ANIMATION_DELAY
+							animDelay = 0
 						)
 					}
 				}
@@ -113,6 +125,37 @@ fun ThemePreviewPage(
 			selected = selectedTheme,
 			onSelect = onThemeSelected,
 		)
+	}
+}
+
+/** Slide-up + fade-in once when the item first enters composition. Mirrors
+ * the FeatureRow animation used on the welcome page. */
+@Composable
+private fun StaggeredEntry(
+	index: Int,
+	modifier: Modifier = Modifier,
+	content: @Composable () -> Unit,
+) {
+	val alpha = remember { Animatable(0f) }
+	val translate = remember { Animatable(28f) }
+	val density = LocalDensity.current
+
+	LaunchedEffect(Unit) {
+		val delayMs = index.coerceAtMost(SnaptickMotion.MAX_STAGGERED_ITEMS) * 110L
+		if (delayMs > 0) delay(delayMs)
+		coroutineScope {
+			launch { alpha.animateTo(1f, tween(520, easing = FastOutSlowInEasing)) }
+			launch { translate.animateTo(0f, tween(560, easing = FastOutSlowInEasing)) }
+		}
+	}
+
+	Box(
+		modifier = modifier.graphicsLayer {
+			this.alpha = alpha.value
+			translationY = with(density) { translate.value.dp.toPx() }
+		}
+	) {
+		content()
 	}
 }
 
