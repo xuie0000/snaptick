@@ -43,18 +43,7 @@ import kotlinx.coroutines.delay
 
 private const val AUTO_DISMISS_DELAY_MS = 5000L
 
-/**
- * Inline update result rendered as a settings-style card. Visual rules:
- *
- *  - Mirrors `SettingCategoryItem` (primaryContainer surface, rounded
- *    corners, same horizontal padding) so it doesn't read as a separate
- *    surface stuck onto the settings list.
- *  - Always offers a manual close (×) so the user can dismiss anytime.
- *  - Auto-hides after 5 s for the transient outcomes (up-to-date, failed).
- *    "Update available" stays put — it carries an action the user needs.
- *  - "Checking…" never auto-hides; it goes away on its own when the
- *    request resolves.
- */
+// Settings-card-style inline update status with auto-dismiss for transient states.
 @Composable
 fun UpdateStatusComponent(
 	checking: Boolean,
@@ -67,9 +56,8 @@ fun UpdateStatusComponent(
 ) {
 	val visible = checking || failed || updateAvailable != null || lastCheckedAt > 0
 
-	// Auto-dismiss for transient states only.
+	// Re-key on the timestamp so a new check resets the countdown.
 	val autoHideKey = if (!checking && updateAvailable == null && (failed || lastCheckedAt > 0)) {
-		// Re-key on the timestamp so a new check resets the countdown.
 		lastCheckedAt to failed
 	} else null
 	if (autoHideKey != null) {
@@ -97,6 +85,7 @@ fun UpdateStatusComponent(
 				},
 				onDismiss = null,
 			)
+
 			updateAvailable != null -> StatusCard(
 				accent = MaterialTheme.colorScheme.primary,
 				title = stringResource(
@@ -113,6 +102,7 @@ fun UpdateStatusComponent(
 				onCta = onOpenUpdate,
 				onDismiss = onDismiss,
 			)
+
 			failed -> StatusCard(
 				accent = Red,
 				title = stringResource(R.string.update_check_failed),
@@ -123,6 +113,7 @@ fun UpdateStatusComponent(
 				onCta = onRetry,
 				onDismiss = onDismiss,
 			)
+
 			else -> StatusCard(
 				accent = LightGreen,
 				title = stringResource(R.string.up_to_date),

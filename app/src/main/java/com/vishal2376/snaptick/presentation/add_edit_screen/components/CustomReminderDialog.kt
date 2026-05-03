@@ -17,17 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.vishal2376.snaptick.wheelpicker.WheelTimePicker
 import com.vishal2376.snaptick.presentation.common.durationTextStyle
 import com.vishal2376.snaptick.presentation.common.h3TextStyle
 import com.vishal2376.snaptick.ui.theme.SnaptickTheme
+import com.vishal2376.snaptick.wheelpicker.WheelTimePicker
 import java.time.LocalTime
 
-/**
- * Wheel-time picker that returns a "minutes before task starts" offset.
- * Default seed is 00:05 (5 min before) so the most common custom value is one
- * tap away. Mirrors CustomDurationDialogComponent's UX.
- */
+// Returns a "minutes before task starts" offset; seeded at 00:05 for one-tap default.
 @Composable
 fun CustomReminderDialog(
 	onClose: () -> Unit,

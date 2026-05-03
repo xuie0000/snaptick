@@ -55,7 +55,8 @@ fun FreeTimeScreen(
 	val sortedTasks = remember(inCompletedTasks) { inCompletedTasks.sortedBy { -it.getDuration() } }
 	val totalColors = pieChartColors.size
 
-	val totalTaskTime = remember(inCompletedTasks) { inCompletedTasks.sumOf { it.getDuration(checkPastTask = true) } }
+	val totalTaskTime =
+		remember(inCompletedTasks) { inCompletedTasks.sumOf { it.getDuration(checkPastTask = true) } }
 	val freeTimeText = getFreeTime(totalTaskTime, appState.sleepTime)
 
 	Scaffold(topBar = {

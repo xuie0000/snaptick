@@ -194,7 +194,10 @@ fun EditTaskScreen(
 					modifier = Modifier
 						.fillMaxWidth()
 						.padding(32.dp, 8.dp)
-						.background(priorityColors[state.priority.ordinal], RoundedCornerShape(8.dp))
+						.background(
+							priorityColors[state.priority.ordinal],
+							RoundedCornerShape(8.dp)
+						)
 				) {
 					TextField(
 						value = state.title,

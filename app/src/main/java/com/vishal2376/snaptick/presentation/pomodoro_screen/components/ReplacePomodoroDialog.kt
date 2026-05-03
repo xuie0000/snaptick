@@ -40,7 +40,7 @@ fun ReplacePomodoroDialog(
 			)
 			Text(
 				text = "Only one pomodoro can run at a time. Stop the timer for \"" +
-					runningTaskTitle + "\" and start the new one?",
+						runningTaskTitle + "\" and start the new one?",
 				style = taskDescTextStyle,
 				color = MaterialTheme.colorScheme.onPrimaryContainer,
 			)

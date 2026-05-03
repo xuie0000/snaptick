@@ -22,11 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-/**
- * Rounded card with a breathing primary border when [selected] (same pulse
- * cadence as the onboarding notification card). Idle state keeps a faint
- * static outline so the cards still read as containers.
- */
+// Breathing primary border on selection; faint static outline when idle.
 @Composable
 fun AnimatedBorderCard(
 	selected: Boolean,
@@ -57,7 +53,7 @@ fun AnimatedBorderCard(
 		label = "card-breath-alpha"
 	)
 	val effectiveBorder = if (selected) animatedBorder.copy(alpha = breathAlpha)
-		else animatedBorder
+	else animatedBorder
 
 	Box(
 		modifier = modifier

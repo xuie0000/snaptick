@@ -68,7 +68,15 @@ object AppModule {
 		calendarPusher: CalendarPusher,
 		reminderScheduler: ReminderScheduler,
 	): TaskRepository {
-		return TaskRepository(dao, completionDao, reminderDao, database, context, calendarPusher, reminderScheduler)
+		return TaskRepository(
+			dao,
+			completionDao,
+			reminderDao,
+			database,
+			context,
+			calendarPusher,
+			reminderScheduler
+		)
 	}
 
 }

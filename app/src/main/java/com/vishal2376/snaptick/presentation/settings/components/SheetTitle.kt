@@ -12,11 +12,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.vishal2376.snaptick.presentation.common.h2TextStyle
 
-/**
- * Shared title used at the top of every settings bottom sheet. Centered,
- * h2 weight, primary text color — same look across every sheet so the
- * surface feels like one family.
- */
+// Shared centered h2 title used at the top of every settings bottom sheet.
 @Composable
 fun SheetTitle(text: String, modifier: Modifier = Modifier) {
 	Text(

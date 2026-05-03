@@ -4,7 +4,9 @@
 
 # **Snaptick**
 
-Snaptick is a free daily task planner app designed to help users increase productivity. With an easy-to-use interface and features like a pomodoro timer, users can easily organize and achieve their daily plans
+Snaptick is a free daily task planner app designed to help users increase productivity. With an
+easy-to-use interface and features like a pomodoro timer, users can easily organize and achieve
+their daily plans
 
 <br/>
 
@@ -37,10 +39,8 @@ Snaptick is a free daily task planner app designed to help users increase produc
   <a href="https://ko-fi.com/vishal2376"><img src="https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white" /></a>&nbsp;&nbsp;&nbsp;&nbsp;
   <a href="https://buymeacoffee.com/vishal2376"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" /></a>&nbsp;&nbsp;&nbsp;&nbsp;
   <a href="https://paypal.me/vishal2376"><img src="https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white" /></a>&nbsp;&nbsp;&nbsp;&nbsp;
-    
+
 </p>
-
-
 
 ## 🚀 Features
 
@@ -57,7 +57,6 @@ Snaptick is a free daily task planner app designed to help users increase produc
 - 🎨 **Modern UI with Cool Themes**
 - 🌐 **Available in 15+ Languages**
 - 🧩 **Create Widgets**
-
 
 ## Screenshots ([All Designs(Figma)](https://www.figma.com/file/fO6pafK7iAJMZDAtjOy1Mt/Snaptick-App-UI?type=design&node-id=0%3A1&mode=design&t=071Ijr8Yg44PVvmz-1))
 
@@ -99,14 +98,14 @@ missing or if the alias is the public Android debug key — the build refuses
 to produce a debug-signed release APK.
 
 1. Clone the repository
-``` git clone https://github.com/vishal2376/snaptick.git ```
+   ``` git clone https://github.com/vishal2376/snaptick.git ```
 2. Open the project in Android Studio
 3. Build and run the app
 
 ## Contributing
 
-We welcome contributions from anyone interested in helping to improve Snaptick! Feel free to submit a pull request or open an issue if you notice any bugs or have suggestions for new features.
-
+We welcome contributions from anyone interested in helping to improve Snaptick! Feel free to submit
+a pull request or open an issue if you notice any bugs or have suggestions for new features.
 
 ## Star History
 
@@ -123,4 +122,6 @@ We welcome contributions from anyone interested in helping to improve Snaptick! 
 This project is licensed under the GPL v3.0 License - see the [LICENSE](LICENSE) file for details.
 
 ## Credits
-App Icon created by <a href="https://www.flaticon.com/free-icons/task" title="task icons"> icon_small - Flaticon</a>
+
+App Icon created by <a href="https://www.flaticon.com/free-icons/task" title="task icons">
+icon_small - Flaticon</a>

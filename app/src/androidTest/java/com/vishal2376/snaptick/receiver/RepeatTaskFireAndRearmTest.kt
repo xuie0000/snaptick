@@ -38,7 +38,8 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class RepeatTaskFireAndRearmTest {
 
-	@get:Rule val permissionRule: GrantPermissionRule = if (Build.VERSION.SDK_INT >= 33) {
+	@get:Rule
+	val permissionRule: GrantPermissionRule = if (Build.VERSION.SDK_INT >= 33) {
 		GrantPermissionRule.grant(android.Manifest.permission.POST_NOTIFICATIONS)
 	} else {
 		GrantPermissionRule.grant()
@@ -48,7 +49,8 @@ class RepeatTaskFireAndRearmTest {
 	private val testTaskId = 72_001
 	private var capturedTaskId: Int = -1
 
-	@Before fun setUp() {
+	@Before
+	fun setUp() {
 		context = ApplicationProvider.getApplicationContext()
 		capturedTaskId = -1
 		val factory = object : WorkerFactory() {
@@ -75,12 +77,14 @@ class RepeatTaskFireAndRearmTest {
 		nm.cancel(testTaskId)
 	}
 
-	@After fun tearDown() {
+	@After
+	fun tearDown() {
 		val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 		nm.cancel(testTaskId)
 	}
 
-	@Test fun receiver_forwardsTaskId_toRescheduleWorker_andPostsNotification() {
+	@Test
+	fun receiver_forwardsTaskId_toRescheduleWorker_andPostsNotification() {
 		val fireIntent = Intent().apply {
 			putExtra(Constants.TASK_ID, testTaskId)
 			putExtra(Constants.TASK_UUID, "fire-and-rearm")

@@ -63,10 +63,7 @@ class MainActivity : ComponentActivity() {
 	val notificationGrantedState = mutableStateOf(false)
 
 	override fun attachBaseContext(newBase: Context) {
-		// Resources (and therefore Compose stringResource) are bound at activity
-		// inflation time. The persisted language must be applied here so the
-		// initial composition uses the right locale; later changes call
-		// recreate() so this runs again with the new value.
+		// Apply persisted locale here; recreate() re-runs this on language change.
 		val lang = runCatching {
 			runBlocking { SettingsStore(newBase).languageKey.first() }
 		}.getOrDefault("en")

@@ -18,7 +18,8 @@ class TaskRepositoryFake {
 	init {
 		coEvery { repo.insertTask(task = any(), reminderOffsets = any()) } answers {
 			val t = firstArg<Task>()
-			val assigned = if (t.id == 0) t.copy(id = (tasks.value.maxOfOrNull { it.id } ?: 0) + 1) else t
+			val assigned =
+				if (t.id == 0) t.copy(id = (tasks.value.maxOfOrNull { it.id } ?: 0) + 1) else t
 			tasks.value = tasks.value + assigned
 		}
 		coEvery { repo.updateTask(task = any(), reminderOffsets = any()) } answers {

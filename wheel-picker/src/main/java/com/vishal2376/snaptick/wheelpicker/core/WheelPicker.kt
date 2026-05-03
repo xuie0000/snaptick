@@ -37,9 +37,7 @@ import dev.chrisbanes.snapper.rememberLazyListSnapperLayoutInfo
 import dev.chrisbanes.snapper.rememberSnapperFlingBehavior
 import kotlin.math.absoluteValue
 
-// Number of virtual repetitions of the item set when wrapping is on.
-// 1000 cycles is enough that a user would have to flick continuously for
-// minutes to hit either edge; small enough to keep LazyColumn sizing sane.
+// Virtual repetitions for wrap mode. Enough that hitting an edge is impractical.
 private const val WRAP_REPEAT = 1000
 
 @Composable
@@ -56,11 +54,8 @@ internal fun WheelPicker(
 	onScrollFinished: (snappedIndex: Int) -> Int? = { null },
 	content: @Composable LazyItemScope.(index: Int) -> Unit,
 ) {
-	// Wrapping works by rendering count*WRAP_REPEAT identical slots and
-	// folding the index back to [0, count) for content + callbacks. Initial
-	// scroll lands in the middle of the virtual range so the user can swipe
-	// either direction without hitting an edge.
 	val virtualCount = if (wrapAround) count * WRAP_REPEAT else count
+	// Land mid-range so swipes either direction can't hit an edge.
 	val initialVirtualIndex = if (wrapAround) {
 		(WRAP_REPEAT / 2) * count + startIndex.coerceIn(0, count - 1)
 	} else startIndex
@@ -75,9 +70,7 @@ internal fun WheelPicker(
 			val target = scrollToIndex.coerceIn(0, count - 1)
 			val currentVirtual = lazyListState.firstVisibleItemIndex
 			val virtualTarget = if (wrapAround) {
-				// Pick the closest virtual occurrence of `target`. Stops the
-				// wheel from spinning across the entire range when the user is
-				// near a wrap (e.g. shifting from hour 23 to hour 0).
+				// Closest virtual occurrence so the wheel doesn't spin a full cycle.
 				val currentReal = ((currentVirtual % count) + count) % count
 				val forwardDelta = ((target - currentReal) % count + count) % count
 				val backwardDelta = forwardDelta - count
@@ -101,8 +94,7 @@ internal fun WheelPicker(
 			val snappedReal = if (wrapAround) ((snappedVirtual % count) + count) % count
 				else snappedVirtual
 			onScrollFinished(snappedReal)?.let { reqReal ->
-				// Stay on the current virtual page when correcting position so
-				// we don't teleport across the wrap range.
+				// Stay on the current virtual page; otherwise we'd teleport across the wrap.
 				val virtualLand = if (wrapAround) {
 					val page = snappedVirtual / count
 					page * count + reqReal.coerceIn(0, count - 1)

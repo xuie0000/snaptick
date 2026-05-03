@@ -21,9 +21,11 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AddTaskScreenTest {
 
-	@get:Rule val composeRule = createComposeRule()
+	@get:Rule
+	val composeRule = createComposeRule()
 
-	@Test fun titleInput_dispatchesUpdateTitle() {
+	@Test
+	fun titleInput_dispatchesUpdateTitle() {
 		val dispatched = mutableListOf<AddEditAction>()
 		composeRule.setContent {
 			AddTaskScreen(
@@ -40,7 +42,8 @@ class AddTaskScreenTest {
 		assertTrue(dispatched.any { it is AddEditAction.UpdateTitle && it.title == "Run" })
 	}
 
-	@Test fun saveButton_dispatchesSaveTask_whenTitlePresent() {
+	@Test
+	fun saveButton_dispatchesSaveTask_whenTitlePresent() {
 		val dispatched = mutableListOf<AddEditAction>()
 		composeRule.setContent {
 			AddTaskScreen(

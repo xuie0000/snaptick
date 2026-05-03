@@ -16,27 +16,13 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
-/**
- * Toggles task completion from the widget. Two phases:
- *
- *  1. Foreground (this coroutine): drop the row from the widget's visible
- *     list and push the new state to *this widget instance only*. Returning
- *     fast lets Glance hand the click back to the launcher with no perceived
- *     lag. Single-instance update beats `updateAll` because Glance can skip
- *     re-rendering every other host.
- *  2. Background (process-lifetime scope): do the repository write. The
- *     repo's own side-effects already enqueue a [WidgetUpdateWorker] run
- *     for full reconciliation, so we don't kick a refresh from here — that
- *     would just do the same work twice and risk a brief re-render flicker.
- */
+// Optimistic widget push first; DB write deferred so the click returns instantly.
 class ToggleTaskAction : ActionCallback {
 
 	companion object {
 		val TaskIdKey = ActionParameters.Key<Int>("task_id")
 
-		// Process-lifetime scope so DB writes survive after this suspending
-		// callback returns. Using a viewmodel/worker-bound scope would tie
-		// the lifetime to a host that's already gone.
+		// Survives after the suspend callback returns.
 		private val backgroundScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 	}
 
@@ -47,7 +33,6 @@ class ToggleTaskAction : ActionCallback {
 	) {
 		val taskId = parameters[TaskIdKey] ?: return
 
-		// Phase 1: optimistic visual update on this instance.
 		val current = WidgetStateDefinition.getDataStore(context, "snaptick_widget_state")
 			.data.first()
 		val nextTasks = current.tasks.filterNot { it.id == taskId }
@@ -56,8 +41,6 @@ class ToggleTaskAction : ActionCallback {
 			TaskAppWidget().update(context, glanceId)
 		}
 
-		// Phase 2: defer DB write so we don't keep the action coroutine alive
-		// across reminder rescheduling, calendar push, and worker enqueueing.
 		backgroundScope.launch {
 			val entry = EntryPointAccessors
 				.fromApplication(context.applicationContext, WidgetEntryPoint::class.java)

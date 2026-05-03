@@ -20,7 +20,8 @@ import java.time.LocalTime
 @OptIn(ExperimentalCoroutinesApi::class)
 class TaskListViewModelTest {
 
-	@get:Rule val mainRule = MainDispatcherRule()
+	@get:Rule
+	val mainRule = MainDispatcherRule()
 
 	private lateinit var repoFake: TaskRepositoryFake
 	private lateinit var vm: TaskListViewModel
@@ -38,19 +39,22 @@ class TaskListViewModelTest {
 		date = LocalDate.now()
 	)
 
-	@Before fun setUp() {
+	@Before
+	fun setUp() {
 		repoFake = TaskRepositoryFake()
 		vm = TaskListViewModel(repoFake.repo)
 	}
 
-	@Test fun `ToggleCompletion on one-off updates isCompleted via updateTask`() = runTest {
+	@Test
+	fun `ToggleCompletion on one-off updates isCompleted via updateTask`() = runTest {
 		repoFake.seed(listOf(task(1)))
 		vm.onAction(TaskListAction.ToggleCompletion(taskId = 1, isCompleted = true))
 		advanceUntilIdle()
 		assertTrue(repoFake.current().single().isCompleted)
 	}
 
-	@Test fun `ToggleCompletion on repeat task writes per-date completion not isCompleted`() = runTest {
+	@Test
+	fun `ToggleCompletion on repeat task writes per-date completion not isCompleted`() = runTest {
 		repoFake.seed(listOf(task(1, repeated = true)))
 		vm.onAction(TaskListAction.ToggleCompletion(taskId = 1, isCompleted = true))
 		advanceUntilIdle()
@@ -59,14 +63,16 @@ class TaskListViewModelTest {
 		coVerify { repoFake.repo.markCompletedForDate("u1", LocalDate.now()) }
 	}
 
-	@Test fun `ToggleCompletion off on repeat clears the date completion`() = runTest {
+	@Test
+	fun `ToggleCompletion off on repeat clears the date completion`() = runTest {
 		repoFake.seed(listOf(task(1, repeated = true)))
 		vm.onAction(TaskListAction.ToggleCompletion(taskId = 1, isCompleted = false))
 		advanceUntilIdle()
 		coVerify { repoFake.repo.unmarkCompletedForDate("u1", LocalDate.now()) }
 	}
 
-	@Test fun `SwipeTask deletes and UndoDelete restores`() = runTest {
+	@Test
+	fun `SwipeTask deletes and UndoDelete restores`() = runTest {
 		val t = task(1)
 		repoFake.seed(listOf(t))
 		vm.onAction(TaskListAction.SwipeTask(t))
@@ -77,14 +83,16 @@ class TaskListViewModelTest {
 		assertEquals(1, repoFake.current().size)
 	}
 
-	@Test fun `DeleteTask for missing id is no-op`() = runTest {
+	@Test
+	fun `DeleteTask for missing id is no-op`() = runTest {
 		repoFake.seed(emptyList())
 		vm.onAction(TaskListAction.DeleteTask(taskId = 99))
 		advanceUntilIdle()
 		assertEquals(emptyList<Task>(), repoFake.current())
 	}
 
-	@Test fun `UndoDelete before any delete is safe`() = runTest {
+	@Test
+	fun `UndoDelete before any delete is safe`() = runTest {
 		vm.onAction(TaskListAction.UndoDelete)
 		advanceUntilIdle()
 		assertEquals(emptyList<Task>(), repoFake.current())

@@ -42,7 +42,6 @@ import com.vishal2376.snaptick.presentation.common.h2TextStyle
 import com.vishal2376.snaptick.presentation.common.h3TextStyle
 import com.vishal2376.snaptick.presentation.common.taskTextStyle
 import com.vishal2376.snaptick.presentation.common.utils.Formatters
-import com.vishal2376.snaptick.ui.theme.Blue
 import com.vishal2376.snaptick.ui.theme.SnaptickTheme
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -74,7 +73,11 @@ fun CustomDatePickerDialog(defaultDay: LocalDate = LocalDate.now(), onClose: (Lo
 		Card(
 			modifier = Modifier
 				.fillMaxWidth()
-				.border(4.dp, MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(16.dp)),
+				.border(
+					4.dp,
+					MaterialTheme.colorScheme.primaryContainer,
+					RoundedCornerShape(16.dp)
+				),
 			shape = RoundedCornerShape(16.dp),
 			colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
 		) {

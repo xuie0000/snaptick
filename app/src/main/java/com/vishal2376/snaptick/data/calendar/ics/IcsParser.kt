@@ -1,5 +1,8 @@
 package com.vishal2376.snaptick.data.calendar.ics
 
+import com.vishal2376.snaptick.data.calendar.ics.IcsParser.MAX_EVENTS
+import com.vishal2376.snaptick.data.calendar.ics.IcsParser.MAX_LOGICAL_LINE_BYTES
+import com.vishal2376.snaptick.data.calendar.ics.IcsParser.parse
 import java.io.BufferedReader
 import java.io.Reader
 import java.time.LocalDate
@@ -64,10 +67,12 @@ object IcsParser {
 					inEvent = true
 					buffer = mutableMapOf()
 				}
+
 				line.equals("END:VEVENT", ignoreCase = true) -> {
 					if (inEvent) buildEvent(buffer)?.let(events::add)
 					inEvent = false
 				}
+
 				inEvent -> {
 					val colon = line.indexOf(':')
 					if (colon > 0) {
@@ -118,7 +123,7 @@ object IcsParser {
 		val dtEndKey = fields.keys.firstOrNull { it.startsWith("DTEND") }
 
 		val allDay = dtStartKey.contains("VALUE=DATE", ignoreCase = true) &&
-			!dtStartKey.contains("VALUE=DATE-TIME", ignoreCase = true)
+				!dtStartKey.contains("VALUE=DATE-TIME", ignoreCase = true)
 		val start = parseDateTime(fields[dtStartKey]!!, allDay) ?: return null
 		val end = dtEndKey?.let { parseDateTime(fields[it]!!, allDay) }
 			?: if (allDay) start else start.plusHours(1)
@@ -145,6 +150,7 @@ object IcsParser {
 				.atZone(ZoneId.of("UTC"))
 				.withZoneSameInstant(ZoneId.systemDefault())
 				.toLocalDateTime()
+
 			else -> LocalDateTime.parse(raw.trim(), dateTimeBasic)
 		}
 	} catch (e: Exception) {

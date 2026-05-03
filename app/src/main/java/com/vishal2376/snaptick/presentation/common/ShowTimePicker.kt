@@ -6,12 +6,7 @@ import com.vishal2376.snaptick.wheelpicker.WheelTimePicker
 import com.vishal2376.snaptick.wheelpicker.core.TimeFormat
 import java.time.LocalTime
 
-/**
- * Vendored wheel picker animates to external `startTime` changes (and swallows
- * the resulting snap callback so the parent state does not see a phantom
- * edit). The end-time wheel can therefore follow a start-time scroll without
- * a remount or feedback loop.
- */
+// Vendored wheel reacts to external startTime changes without remount or feedback loop.
 @Composable
 fun ShowTimePicker(
 	time: LocalTime,

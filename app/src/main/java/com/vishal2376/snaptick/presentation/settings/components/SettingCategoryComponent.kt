@@ -63,11 +63,12 @@ fun SettingsCategoryComponent(categoryTitle: String, categoryList: List<SettingC
 fun CategoryItemComponent(title: String, resId: Int, onClick: () -> Unit) {
 	val icon = painterResource(id = resId)
 
-	Row(modifier = Modifier
-		.fillMaxWidth()
-		.clickable { onClick() }
-		.background(MaterialTheme.colorScheme.primaryContainer)
-		.padding(16.dp, 8.dp),
+	Row(
+		modifier = Modifier
+			.fillMaxWidth()
+			.clickable { onClick() }
+			.background(MaterialTheme.colorScheme.primaryContainer)
+			.padding(16.dp, 8.dp),
 		verticalAlignment = Alignment.CenterVertically,
 		horizontalArrangement = Arrangement.spacedBy(8.dp)
 	) {

@@ -4,10 +4,10 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vishal2376.snaptick.data.repositories.TaskRepository
-import com.vishal2376.snaptick.util.Constants
 import com.vishal2376.snaptick.presentation.add_edit_screen.action.AddEditAction
 import com.vishal2376.snaptick.presentation.add_edit_screen.events.AddEditEvent
 import com.vishal2376.snaptick.presentation.add_edit_screen.state.AddEditState
+import com.vishal2376.snaptick.util.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -60,6 +60,7 @@ class AddEditViewModel @Inject constructor(
 					duration = gapMin,
 				)
 			}
+
 			is AddEditAction.UpdateEndTime -> _state.update {
 				val startSec = it.startTime.toSecondOfDay()
 				val endSec = action.time.toSecondOfDay()
@@ -71,11 +72,10 @@ class AddEditViewModel @Inject constructor(
 				val gapMin = (gapSec / 60L).coerceAtLeast(0L)
 				it.copy(endTime = action.time, duration = gapMin)
 			}
+
 			is AddEditAction.UpdateDate -> _state.update { it.copy(date = action.date) }
 			is AddEditAction.UpdateReminder -> _state.update {
-				// Keep offsets populated through toggle-off so AnimatedVisibility
-				// has stable content to shrink. saveTask filters them out when
-				// !reminder, so an empty list never reaches the repository.
+				// Keep offsets through toggle-off so AnimatedVisibility shrinks cleanly.
 				val nextOffsets = if (action.enabled && it.reminderOffsets.isEmpty())
 					listOf(0)
 				else it.reminderOffsets
@@ -84,10 +84,12 @@ class AddEditViewModel @Inject constructor(
 					reminderOffsets = nextOffsets,
 				)
 			}
+
 			is AddEditAction.RemoveReminderOffset -> _state.update {
 				val next = it.reminderOffsets - action.offsetMinutes
 				it.copy(reminderOffsets = next, reminder = next.isNotEmpty())
 			}
+
 			is AddEditAction.AddReminderOffset -> _state.update {
 				val current = it.reminderOffsets
 				if (action.offsetMinutes in current || current.size >= 4) return@update it
@@ -96,9 +98,14 @@ class AddEditViewModel @Inject constructor(
 					reminder = true,
 				)
 			}
+
 			is AddEditAction.UpdateAllDay -> _state.update {
-				it.copy(isAllDay = action.enabled, endTime = if (action.enabled) it.startTime else it.endTime)
+				it.copy(
+					isAllDay = action.enabled,
+					endTime = if (action.enabled) it.startTime else it.endTime
+				)
 			}
+
 			is AddEditAction.UpdateRepeated -> _state.update { it.copy(isRepeated = action.enabled) }
 			is AddEditAction.UpdateRepeatWeekDays -> _state.update { it.copy(repeatWeekdays = action.weekDays) }
 			is AddEditAction.UpdatePriority -> _state.update { it.copy(priority = action.priority) }
@@ -109,6 +116,7 @@ class AddEditViewModel @Inject constructor(
 					pomodoroTimer = -1
 				)
 			}
+
 			is AddEditAction.SaveTask -> saveTask()
 			is AddEditAction.UpdateTask -> updateTask()
 			is AddEditAction.DeleteTask -> deleteTask()

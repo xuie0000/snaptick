@@ -28,7 +28,8 @@ class MigrationTest {
 		FrameworkSQLiteOpenHelperFactory()
 	)
 
-	@Test fun migrate1To2_renamesIsRepeatToIsRepeated_andPreservesData() {
+	@Test
+	fun migrate1To2_renamesIsRepeatToIsRepeated_andPreservesData() {
 		// Build v1 DB and insert a realistic row using the legacy `isRepeat` column.
 		helper.createDatabase(dbName, 1).use { db ->
 			db.execSQL(
@@ -42,7 +43,15 @@ class MigrationTest {
 			)
 		}
 
-		helper.runMigrationsAndValidate(dbName, 5, true, MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5).use { db ->
+		helper.runMigrationsAndValidate(
+			dbName,
+			5,
+			true,
+			MIGRATION_1_2,
+			MIGRATION_2_3,
+			MIGRATION_3_4,
+			MIGRATION_4_5
+		).use { db ->
 			val cursor = db.query(
 				"SELECT id, uuid, title, isCompleted, isRepeated, repeatWeekdays, pomodoroTimer, priority, calendarEventId FROM task_table ORDER BY id"
 			)
@@ -74,7 +83,8 @@ class MigrationTest {
 		}
 	}
 
-	@Test fun afterMigration_roomCanOpenDatabaseNormally() = runBlocking {
+	@Test
+	fun afterMigration_roomCanOpenDatabaseNormally() = runBlocking {
 		// Seed a v1 DB, migrate through 1→2→3, then re-open via Room and confirm DAO queries work.
 		helper.createDatabase(dbName, 1).use { db ->
 			db.execSQL(
@@ -85,7 +95,15 @@ class MigrationTest {
 				""".trimIndent()
 			)
 		}
-		helper.runMigrationsAndValidate(dbName, 5, true, MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5).close()
+		helper.runMigrationsAndValidate(
+			dbName,
+			5,
+			true,
+			MIGRATION_1_2,
+			MIGRATION_2_3,
+			MIGRATION_3_4,
+			MIGRATION_4_5
+		).close()
 
 		val ctx = ApplicationProvider.getApplicationContext<android.content.Context>()
 		val room = Room.databaseBuilder(ctx, TaskDatabase::class.java, dbName)
@@ -100,11 +118,20 @@ class MigrationTest {
 		}
 	}
 
-	@Test fun migrate3To4_taskCompletionDao_roundTripsAfterMigration() = runBlocking {
+	@Test
+	fun migrate3To4_taskCompletionDao_roundTripsAfterMigration() = runBlocking {
 		// Migrate a v3 db forward, then re-open via Room and exercise the DAO
 		// just like production does: insert, read back, delete.
 		helper.createDatabase(dbName, 3).close()
-		helper.runMigrationsAndValidate(dbName, 5, true, MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5).close()
+		helper.runMigrationsAndValidate(
+			dbName,
+			5,
+			true,
+			MIGRATION_1_2,
+			MIGRATION_2_3,
+			MIGRATION_3_4,
+			MIGRATION_4_5
+		).close()
 
 		val ctx = ApplicationProvider.getApplicationContext<android.content.Context>()
 		val room = Room.databaseBuilder(ctx, TaskDatabase::class.java, dbName)
@@ -134,7 +161,8 @@ class MigrationTest {
 		}
 	}
 
-	@Test fun migrate3To4_createsEmptyTaskCompletionsTable() {
+	@Test
+	fun migrate3To4_createsEmptyTaskCompletionsTable() {
 		// Seed a v3 DB with a task, then migrate forward.
 		helper.createDatabase(dbName, 3).use { db ->
 			db.execSQL(
@@ -146,7 +174,15 @@ class MigrationTest {
 			)
 		}
 
-		helper.runMigrationsAndValidate(dbName, 5, true, MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5).use { db ->
+		helper.runMigrationsAndValidate(
+			dbName,
+			5,
+			true,
+			MIGRATION_1_2,
+			MIGRATION_2_3,
+			MIGRATION_3_4,
+			MIGRATION_4_5
+		).use { db ->
 			// Existing task row preserved.
 			db.query("SELECT id, title FROM task_table").use {
 				assertTrue(it.moveToNext())

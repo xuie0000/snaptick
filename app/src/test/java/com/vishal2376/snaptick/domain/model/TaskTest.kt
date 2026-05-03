@@ -25,39 +25,47 @@ class TaskTest {
 		date = date
 	)
 
-	@Test fun `duration returns seconds between start and end`() {
+	@Test
+	fun `duration returns seconds between start and end`() {
 		val d = task(LocalTime.of(9, 0), LocalTime.of(10, 30)).getDuration()
 		assertEquals(90 * 60L, d)
 	}
 
-	@Test fun `midnight crossing returns correct duration`() {
+	@Test
+	fun `midnight crossing returns correct duration`() {
 		val d = task(LocalTime.of(23, 0), LocalTime.of(1, 0)).getDuration()
 		assertEquals(7200L, d)
 	}
 
-	@Test fun `non crossing duration unchanged`() {
+	@Test
+	fun `non crossing duration unchanged`() {
 		val d = task(LocalTime.of(9, 0), LocalTime.of(10, 30)).getDuration()
 		assertEquals(5400L, d)
 	}
 
-	@Test fun `isAllDayTaskEnabled true when start equals end`() {
+	@Test
+	fun `isAllDayTaskEnabled true when start equals end`() {
 		val t = task(LocalTime.of(8, 0), LocalTime.of(8, 0))
 		assertTrue(t.isAllDayTaskEnabled())
 	}
 
-	@Test fun `isAllDayTaskEnabled false when start differs from end`() {
+	@Test
+	fun `isAllDayTaskEnabled false when start differs from end`() {
 		assertFalse(task().isAllDayTaskEnabled())
 	}
 
-	@Test fun `getRepeatWeekList returns empty when repeatWeekdays blank`() {
+	@Test
+	fun `getRepeatWeekList returns empty when repeatWeekdays blank`() {
 		assertEquals(emptyList<Int>(), task(repeatWeekdays = "").getRepeatWeekList())
 	}
 
-	@Test fun `getRepeatWeekList parses comma separated indices`() {
+	@Test
+	fun `getRepeatWeekList parses comma separated indices`() {
 		assertEquals(listOf(0, 2, 4), task(repeatWeekdays = "0,2,4").getRepeatWeekList())
 	}
 
-	@Test fun `isValidPomodoroSession requires at least MIN_VALID seconds elapsed`() {
+	@Test
+	fun `isValidPomodoroSession requires at least MIN_VALID seconds elapsed`() {
 		val t = task(LocalTime.of(9, 0), LocalTime.of(9, 30)) // 1800s total
 		val minSessionSec = Constants.MIN_VALID_POMODORO_SESSION * 60
 		// timeLeft such that elapsed (total - timeLeft) == minSessionSec → valid
@@ -67,7 +75,8 @@ class TaskTest {
 		assertFalse(t.isValidPomodoroSession(validTimeLeft + 1))
 	}
 
-	@Test fun `shouldOccurOn one-off matches only its date`() {
+	@Test
+	fun `shouldOccurOn one-off matches only its date`() {
 		val day = LocalDate.of(2026, 4, 27)
 		val t = task(date = day)
 		assertTrue(t.shouldOccurOn(day))
@@ -75,7 +84,8 @@ class TaskTest {
 		assertFalse(t.shouldOccurOn(day.minusDays(1)))
 	}
 
-	@Test fun `shouldOccurOn repeat matches weekdays in set on or after creation date`() {
+	@Test
+	fun `shouldOccurOn repeat matches weekdays in set on or after creation date`() {
 		// Mon, Wed, Fri = 0, 2, 4
 		val createdMon = LocalDate.of(2026, 4, 27) // Monday
 		val t = Task(

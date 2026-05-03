@@ -116,8 +116,8 @@ android {
 gradle.taskGraph.whenReady {
 	val isReleaseBuild = allTasks.any {
 		it.path.startsWith(":app:assembleRelease") ||
-			it.path.startsWith(":app:bundleRelease") ||
-			it.path == ":app:packageRelease"
+				it.path.startsWith(":app:bundleRelease") ||
+				it.path == ":app:packageRelease"
 	}
 	if (!isReleaseBuild) return@whenReady
 
@@ -126,7 +126,7 @@ gradle.taskGraph.whenReady {
 	val alias = sc.keyAlias
 	require(storeFile != null && storeFile.exists()) {
 		"Release keystore not configured. Set SNAPTICK_KEYSTORE_FILE in " +
-			"local.properties (local dev) or as an env var (CI)."
+				"local.properties (local dev) or as an env var (CI)."
 	}
 	require(alias != null && alias != "androiddebugkey") {
 		"Refusing to sign release with the public Android debug key alias."

@@ -13,9 +13,11 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class PomodoroScreenTest {
 
-	@get:Rule val composeRule = createComposeRule()
+	@get:Rule
+	val composeRule = createComposeRule()
 
-	@Test fun timeLeft_rendersFormattedAsMmss() {
+	@Test
+	fun timeLeft_rendersFormattedAsMmss() {
 		composeRule.setContent {
 			PomodoroScreen(
 				state = PomodoroState(
@@ -33,7 +35,8 @@ class PomodoroScreenTest {
 		composeRule.onNodeWithText("Focus").assertIsDisplayed()
 	}
 
-	@Test fun completedState_rendersCompletedText() {
+	@Test
+	fun completedState_rendersCompletedText() {
 		composeRule.setContent {
 			PomodoroScreen(
 				state = PomodoroState(

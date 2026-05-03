@@ -27,15 +27,16 @@ sealed interface MainAction {
 	data class UpdateSwipeBehaviour(val swipeBehaviour: SwipeBehavior) : MainAction
 	data class OnClickNavDrawerItem(val item: NavDrawerItem) : MainAction
 	data class CreateBackup(val uri: Uri, val backupData: BackupData) : MainAction
-	/**
-	 * Stage 1 of restore: parse the picked file, validate, populate
-	 * MainState.pendingRestore. UI shows a confirm dialog. NO db writes yet.
-	 */
+
+	// Stage 1: parse + validate, stage on MainState.pendingRestore. No db writes.
 	data class PreviewBackup(val uri: Uri) : MainAction
-	/** Stage 2: user confirmed in the preview dialog; wipe + insert. */
+
+	// Stage 2: user confirmed; wipe + insert.
 	data object ConfirmRestore : MainAction
-	/** Stage 2 alt: user dismissed the dialog; drop the pending preview. */
+
+	// Stage 2 alt: user dismissed; drop the pending preview.
 	data object CancelRestore : MainAction
+
 	@Deprecated(
 		"Restore is now two-stage. Dispatch PreviewBackup followed by ConfirmRestore.",
 		ReplaceWith("MainAction.PreviewBackup(uri)")

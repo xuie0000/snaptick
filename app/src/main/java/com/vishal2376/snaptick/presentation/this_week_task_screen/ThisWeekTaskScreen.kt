@@ -137,7 +137,8 @@ fun ThisWeekTaskScreen(
 						),
 					contentPadding = PaddingValues(vertical = 12.dp)
 				) {
-					itemsIndexed(items = thisWeekTasks,
+					itemsIndexed(
+						items = thisWeekTasks,
 						key = { index, task ->
 							task.id
 						}) { index, task ->

@@ -22,18 +22,10 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/**
- * Thin wrapper around [PomodoroService]. The service is the source of truth
- * for timer state; this VM binds to it on init, mirrors its StateFlow into
- * its own [state], and forwards user actions back into the service. The
- * service also drives the foreground notification, so when this VM is gone
- * (user navigated away), the timer keeps ticking and the notification
- * remains the visible UI.
- */
+// Thin VM binding to PomodoroService; service owns the timer + FG notification.
 @HiltViewModel
 class PomodoroViewModel @Inject constructor(
 	@ApplicationContext private val context: Context,
@@ -61,9 +53,7 @@ class PomodoroViewModel @Inject constructor(
 				when {
 					running.taskId == taskId || running.timeLeft <= 0 || running.taskId <= 0 -> {
 						svc.startForTask(taskId)
-						// Toast only when there is a non-trivial saved session to
-						// resume from; a fresh start (pomodoroTimer == -1) or one
-						// with under a minute left should not surface "resuming".
+						// Resuming toast only for a real partial session (>1 min left).
 						viewModelScope.launch {
 							val savedSec = repository.getTaskById(taskId)?.pomodoroTimer ?: -1
 							if (savedSec > 60) {
@@ -71,9 +61,9 @@ class PomodoroViewModel @Inject constructor(
 							}
 						}
 					}
+
 					else -> {
-						// Different pomodoro is already running. Stage a confirm
-						// prompt; do not start the new one until user confirms.
+						// Different pomodoro running — stage a confirm.
 						_state.value = _state.value.copy(
 							pendingReplace = running.taskTitle to taskId
 						)
@@ -105,11 +95,13 @@ class PomodoroViewModel @Inject constructor(
 				svc?.markCompleted()
 				viewModelScope.launch { _events.emit(PomodoroEvent.TaskMarkedCompleted) }
 			}
+
 			is PomodoroAction.ConfirmReplaceRunning -> {
 				val pending = _state.value.pendingReplace ?: return
 				_state.value = _state.value.copy(pendingReplace = null)
 				svc?.startForTask(pending.second)
 			}
+
 			is PomodoroAction.DismissReplacePrompt -> {
 				_state.value = _state.value.copy(pendingReplace = null)
 				viewModelScope.launch { _events.emit(PomodoroEvent.Cancelled) }

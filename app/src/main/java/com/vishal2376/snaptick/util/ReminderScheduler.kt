@@ -69,7 +69,10 @@ class ReminderScheduler @Inject constructor(
 			return
 		}
 
-		val pendingIntent = buildPendingIntent(task, flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+		val pendingIntent = buildPendingIntent(
+			task,
+			flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+		)
 
 		val canExact = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
 			alarmManager.canScheduleExactAlarms()
@@ -146,7 +149,8 @@ class ReminderScheduler @Inject constructor(
 		val zone = ZoneId.systemDefault()
 
 		if (!task.isRepeated) {
-			val fire = LocalDateTime.of(task.date, task.startTime).minusMinutes(offsetMinutes.toLong())
+			val fire =
+				LocalDateTime.of(task.date, task.startTime).minusMinutes(offsetMinutes.toLong())
 			return if (fire.isAfter(now)) fire.atZone(zone).toInstant().toEpochMilli() else null
 		}
 
@@ -158,7 +162,8 @@ class ReminderScheduler @Inject constructor(
 			val candidateDate = today.plusDays(offset.toLong())
 			val candidateDow = candidateDate.dayOfWeek.value - 1 // Mon=0 … Sun=6
 			if (candidateDow !in weekdays) continue
-			val candidate = LocalDateTime.of(candidateDate, task.startTime).minusMinutes(offsetMinutes.toLong())
+			val candidate =
+				LocalDateTime.of(candidateDate, task.startTime).minusMinutes(offsetMinutes.toLong())
 			if (candidate.isAfter(now)) {
 				return candidate.atZone(zone).toInstant().toEpochMilli()
 			}

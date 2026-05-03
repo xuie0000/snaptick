@@ -38,11 +38,11 @@ class CalendarRepository @Inject constructor(
 
 	fun hasReadPermission(): Boolean =
 		ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CALENDAR) ==
-			PackageManager.PERMISSION_GRANTED
+				PackageManager.PERMISSION_GRANTED
 
 	fun hasWritePermission(): Boolean =
 		ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_CALENDAR) ==
-			PackageManager.PERMISSION_GRANTED
+				PackageManager.PERMISSION_GRANTED
 
 	// ───────── Calendars ─────────
 
@@ -181,9 +181,9 @@ class CalendarRepository @Inject constructor(
 		)
 		val selection =
 			"${CalendarContract.Events.CALENDAR_ID} = ? AND " +
-				"${CalendarContract.Events.DTSTART} >= ? AND " +
-				"${CalendarContract.Events.DTSTART} <= ? AND " +
-				"${CalendarContract.Events.DELETED} = 0"
+					"${CalendarContract.Events.DTSTART} >= ? AND " +
+					"${CalendarContract.Events.DTSTART} <= ? AND " +
+					"${CalendarContract.Events.DELETED} = 0"
 		val selectionArgs =
 			arrayOf(calendarId.toString(), startMillis.toString(), endMillis.toString())
 

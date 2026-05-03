@@ -114,8 +114,7 @@ fun AddTaskScreen(
 	var showDialogDatePicker by remember { mutableStateOf(false) }
 	var showDialogStartTimePicker by remember { mutableStateOf(false) }
 	var showDialogEndTimePicker by remember { mutableStateOf(false) }
-	// Guards against rapid double-taps creating duplicate tasks before the
-	// TaskSaved event fires and pops the back stack.
+	// Guards rapid double-taps from creating duplicate tasks.
 	var isSaving by remember { mutableStateOf(false) }
 
 	LaunchedEffect(Unit) {
@@ -242,7 +241,10 @@ fun AddTaskScreen(
 					modifier = Modifier
 						.fillMaxWidth()
 						.padding(32.dp, 8.dp)
-						.background(priorityColors[state.priority.ordinal], RoundedCornerShape(8.dp))
+						.background(
+							priorityColors[state.priority.ordinal],
+							RoundedCornerShape(8.dp)
+						)
 				) {
 
 					TextField(

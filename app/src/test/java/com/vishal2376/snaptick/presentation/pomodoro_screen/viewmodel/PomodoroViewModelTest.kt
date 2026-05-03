@@ -13,7 +13,8 @@ import org.junit.Test
  */
 class PomodoroViewModelTest {
 
-	@Test fun placeholder() {
+	@Test
+	fun placeholder() {
 		// Intentionally empty. See PomodoroServiceTest for integration coverage.
 	}
 }

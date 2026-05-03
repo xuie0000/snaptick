@@ -43,11 +43,6 @@ import com.vishal2376.snaptick.ui.theme.LightGreen
 import com.vishal2376.snaptick.ui.theme.Red
 import com.vishal2376.snaptick.ui.theme.SnaptickTheme
 
-/**
- * Card-style swipe-action picker. Each card shows a mini task row with the
- * action background already revealed on the right edge so the user sees
- * exactly what will happen on a left swipe.
- */
 @Composable
 fun SwipeActionOptionComponent(
 	selected: SwipeBehavior,
@@ -117,7 +112,8 @@ private fun SwipeActionCard(
 		animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
 		label = "swipe-scale"
 	)
-	val borderColor = if (selected) accent else MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.18f)
+	val borderColor =
+		if (selected) accent else MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.18f)
 	val borderWidth = if (selected) 2.dp else 1.dp
 
 	Column(
@@ -149,7 +145,6 @@ private fun SwipePreview(accent: Color, icon: ImageVector) {
 			.height(40.dp)
 			.background(accent.copy(alpha = 0.85f), outerShape),
 	) {
-		// Action icon sits on the right edge — that's where the swipe reveals it.
 		Icon(
 			imageVector = icon,
 			contentDescription = null,
@@ -159,8 +154,7 @@ private fun SwipePreview(accent: Color, icon: ImageVector) {
 				.padding(end = 8.dp)
 				.size(16.dp)
 		)
-		// Row hugs the LEFT and is partially slid left of its full width, so
-		// the colored action zone is exposed on the RIGHT (right-to-left swipe).
+		// Row slid left, action zone exposed on the right (right-to-left swipe).
 		Box(
 			modifier = Modifier
 				.align(Alignment.CenterStart)

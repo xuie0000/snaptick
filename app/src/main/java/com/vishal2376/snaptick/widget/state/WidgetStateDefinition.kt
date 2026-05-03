@@ -88,7 +88,10 @@ object WidgetStateDefinition : GlanceStateDefinition<WidgetState> {
 					writer.write(jsonData)
 					writer.flush()
 				} catch (e: JsonParseException) {
-					throw CorruptionException("Could not write widget state to JSON: ${e.message}", e)
+					throw CorruptionException(
+						"Could not write widget state to JSON: ${e.message}",
+						e
+					)
 				}
 			}
 		}

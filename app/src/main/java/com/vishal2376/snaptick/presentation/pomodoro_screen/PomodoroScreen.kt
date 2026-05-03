@@ -85,6 +85,7 @@ fun PomodoroScreen(
 					"Resuming Previous Session",
 					actionColor = LightGreen
 				)
+
 				is PomodoroEvent.TaskMarkedCompleted -> onBack()
 				is PomodoroEvent.TimerCompleted -> {}
 				is PomodoroEvent.Cancelled -> onBack()

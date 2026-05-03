@@ -54,9 +54,13 @@ class RescheduleSingleReminderWorkerTest {
 	private lateinit var scheduler: ReminderScheduler
 	private val testTaskId = 70_001  // unique within the test process
 
-	@Before fun setUp() {
+	@Before
+	fun setUp() {
 		context = ApplicationProvider.getApplicationContext()
-		WorkManagerTestInitHelper.initializeTestWorkManager(context, Configuration.Builder().build())
+		WorkManagerTestInitHelper.initializeTestWorkManager(
+			context,
+			Configuration.Builder().build()
+		)
 		db = Room.inMemoryDatabaseBuilder(context, TaskDatabase::class.java)
 			.allowMainThreadQueries()
 			.build()
@@ -64,17 +68,27 @@ class RescheduleSingleReminderWorkerTest {
 		scheduler = ReminderScheduler(context, am)
 		val settings = SettingsStore(context)
 		val pusher = CalendarPusher(CalendarRepository(context), db.taskDao(), settings)
-		repo = TaskRepository(db.taskDao(), db.taskCompletionDao(), db.taskReminderDao(), db, context, pusher, scheduler)
+		repo = TaskRepository(
+			db.taskDao(),
+			db.taskCompletionDao(),
+			db.taskReminderDao(),
+			db,
+			context,
+			pusher,
+			scheduler
+		)
 		// Wipe any leftover pending intent from prior runs.
 		scheduler.cancel(testTaskId)
 	}
 
-	@After fun tearDown() {
+	@After
+	fun tearDown() {
 		scheduler.cancel(testTaskId)
 		db.close()
 	}
 
-	@Test fun worker_armsAlarmForTaskInDb() = runBlocking {
+	@Test
+	fun worker_armsAlarmForTaskInDb() = runBlocking {
 		val seeded = Task(
 			id = testTaskId, uuid = "single-rearm",
 			title = "Repeat task",
@@ -107,7 +121,8 @@ class RescheduleSingleReminderWorkerTest {
 		assertNotNull("worker did not arm an alarm for task $testTaskId", pi)
 	}
 
-	@Test fun worker_succeeds_silently_whenTaskMissing() = runBlocking {
+	@Test
+	fun worker_succeeds_silently_whenTaskMissing() = runBlocking {
 		val worker = TestListenableWorkerBuilder<RescheduleSingleReminderWorker>(context)
 			.setInputData(workDataOf(Constants.TASK_ID to 999_999))  // not in DB
 			.setWorkerFactory(factory())
@@ -119,7 +134,8 @@ class RescheduleSingleReminderWorkerTest {
 		assertEquals(ListenableWorker.Result.success(), result)
 	}
 
-	@Test fun worker_failsCleanly_whenTaskIdInputMissing() = runBlocking {
+	@Test
+	fun worker_failsCleanly_whenTaskIdInputMissing() = runBlocking {
 		val worker = TestListenableWorkerBuilder<RescheduleSingleReminderWorker>(context)
 			.setWorkerFactory(factory())
 			.build()

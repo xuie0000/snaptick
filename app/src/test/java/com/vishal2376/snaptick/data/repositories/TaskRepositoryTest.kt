@@ -63,7 +63,8 @@ class TaskRepositoryTest {
 		date = LocalDate.now(),
 	)
 
-	@Before fun setUp() {
+	@Before
+	fun setUp() {
 		dao = mockk(relaxed = true)
 		completionDao = mockk(relaxed = true)
 		reminderDao = mockk(relaxed = true)
@@ -92,14 +93,24 @@ class TaskRepositoryTest {
 		coJustRun { completionDao.delete(any(), any()) }
 		coJustRun { completionDao.deleteAllForTask(any()) }
 
-		repo = TaskRepository(dao, completionDao, reminderDao, database, context, calendarPusher, scheduler)
+		repo = TaskRepository(
+			dao,
+			completionDao,
+			reminderDao,
+			database,
+			context,
+			calendarPusher,
+			scheduler
+		)
 	}
 
-	@After fun tearDown() {
+	@After
+	fun tearDown() {
 		unmockkObject(WidgetUpdateWorker.Companion)
 	}
 
-	@Test fun `insertTask schedules reminder and pushes to calendar`() = runTest {
+	@Test
+	fun `insertTask schedules reminder and pushes to calendar`() = runTest {
 		val t = task(id = 0)
 		coEvery { dao.getTaskByUuid(t.uuid) } returns t.copy(id = 1)
 
@@ -110,7 +121,8 @@ class TaskRepositoryTest {
 		coVerify(exactly = 1) { calendarPusher.pushInsert(any()) }
 	}
 
-	@Test fun `updateTask cancels old alarm before persisting then reschedules`() = runTest {
+	@Test
+	fun `updateTask cancels old alarm before persisting then reschedules`() = runTest {
 		val t = task(id = 7)
 		repo.updateTask(t)
 
@@ -120,7 +132,8 @@ class TaskRepositoryTest {
 		verify(exactly = 1) { scheduler.schedule(eq(t), any(), any()) }
 	}
 
-	@Test fun `updateTask with reminder off still calls schedule (scheduler is the policy)`() = runTest {
+	@Test
+	fun `updateTask with reminder off still calls schedule (scheduler is the policy)`() = runTest {
 		// The repository always delegates to the scheduler. The scheduler's
 		// internal contract is what decides "no alarm needed for this task";
 		// the repository doesn't second-guess it.
@@ -130,7 +143,8 @@ class TaskRepositoryTest {
 		verify(exactly = 1) { scheduler.schedule(eq(t), any(), any()) }
 	}
 
-	@Test fun `deleteTask cancels alarm and clears all completions for that uuid`() = runTest {
+	@Test
+	fun `deleteTask cancels alarm and clears all completions for that uuid`() = runTest {
 		val t = task(id = 3, uuid = "u-bye")
 		repo.deleteTask(t)
 		verify(exactly = 1) { scheduler.cancel(3) }
@@ -139,29 +153,34 @@ class TaskRepositoryTest {
 		coVerify(exactly = 1) { calendarPusher.pushDelete(t) }
 	}
 
-	@Test fun `markCompletedForDate writes a TaskCompletion row`() = runTest {
+	@Test
+	fun `markCompletedForDate writes a TaskCompletion row`() = runTest {
 		repo.markCompletedForDate("u1", LocalDate.of(2026, 5, 4))
 		coVerify(exactly = 1) {
 			completionDao.insert(TaskCompletion(uuid = "u1", date = "2026-05-04"))
 		}
 	}
 
-	@Test fun `unmarkCompletedForDate deletes the row by uuid + date`() = runTest {
+	@Test
+	fun `unmarkCompletedForDate deletes the row by uuid + date`() = runTest {
 		repo.unmarkCompletedForDate("u1", LocalDate.of(2026, 5, 4))
 		coVerify(exactly = 1) { completionDao.delete("u1", "2026-05-04") }
 	}
 
-	@Test fun `isCompletedOn delegates to the DAO`() = runTest {
+	@Test
+	fun `isCompletedOn delegates to the DAO`() = runTest {
 		coEvery { completionDao.isCompleted("u1", "2026-05-04") } returns true
 		assertTrue(repo.isCompletedOn("u1", LocalDate.of(2026, 5, 4)))
 	}
 
-	@Test fun `isCompletedOn returns false when DAO returns false`() = runTest {
+	@Test
+	fun `isCompletedOn returns false when DAO returns false`() = runTest {
 		coEvery { completionDao.isCompleted("u1", "2026-05-04") } returns false
 		assertFalse(repo.isCompletedOn("u1", LocalDate.of(2026, 5, 4)))
 	}
 
-	@Test fun `deletePushedCalendarEvents delegates to the pusher and returns its count`() = runTest {
+	@Test
+	fun `deletePushedCalendarEvents delegates to the pusher and returns its count`() = runTest {
 		val tasks = listOf(
 			task(id = 1).copy(calendarEventId = 100L),
 			task(id = 2).copy(calendarEventId = null),
@@ -174,7 +193,8 @@ class TaskRepositoryTest {
 		coVerify(exactly = 1) { calendarPusher.deleteAllPushedEvents(tasks) }
 	}
 
-	@Test fun `rescheduleAllReminders skips completed and reminder-off tasks`() = runTest {
+	@Test
+	fun `rescheduleAllReminders skips completed and reminder-off tasks`() = runTest {
 		val active = task(id = 1, reminder = true, isCompleted = false)
 		val noReminder = task(id = 2, reminder = false)
 		val completed = task(id = 3, reminder = true, isCompleted = true)

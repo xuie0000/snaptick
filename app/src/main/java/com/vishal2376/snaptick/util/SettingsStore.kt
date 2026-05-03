@@ -38,7 +38,8 @@ class SettingsStore(val context: Context) {
 		private val BUILD_VERSION_CODE = intPreferencesKey("build_version_code")
 		private val SWIPE_BEHAVIOUR_KEY = intPreferencesKey("swipe_behaviour_key")
 		private val CALENDAR_SYNC_ENABLED_KEY = booleanPreferencesKey("calendar_sync_enabled_key")
-		private val CALENDAR_SYNC_CALENDAR_ID_KEY = stringPreferencesKey("calendar_sync_calendar_id_key")
+		private val CALENDAR_SYNC_CALENDAR_ID_KEY =
+			stringPreferencesKey("calendar_sync_calendar_id_key")
 		private val ONBOARDING_COMPLETED_KEY = booleanPreferencesKey("onboarding_completed_key")
 		private val SOUND_ENABLED_KEY = booleanPreferencesKey("sound_enabled_key")
 		private val LAST_UPDATE_CHECK_AT_KEY = longPreferencesKey("last_update_check_at_key")

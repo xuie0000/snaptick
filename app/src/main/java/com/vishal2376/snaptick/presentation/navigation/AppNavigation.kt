@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.tween
@@ -16,11 +15,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -31,17 +28,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.vishal2376.snaptick.MainActivity
-import com.vishal2376.snaptick.R
 import com.vishal2376.snaptick.presentation.about_screen.AboutScreen
-import com.vishal2376.snaptick.presentation.analytics_screen.AnalyticsScreen
-import com.vishal2376.snaptick.presentation.analytics_screen.viewmodel.AnalyticsViewModel
-import com.vishal2376.snaptick.presentation.common.BackupRestoreConfirmDialog
-import com.vishal2376.snaptick.presentation.common.UpdateAvailableDialog
-import com.vishal2376.snaptick.util.openUrl
 import com.vishal2376.snaptick.presentation.add_edit_screen.AddTaskScreen
 import com.vishal2376.snaptick.presentation.add_edit_screen.EditTaskScreen
 import com.vishal2376.snaptick.presentation.add_edit_screen.viewmodel.AddEditViewModel
+import com.vishal2376.snaptick.presentation.analytics_screen.AnalyticsScreen
+import com.vishal2376.snaptick.presentation.analytics_screen.viewmodel.AnalyticsViewModel
 import com.vishal2376.snaptick.presentation.calender_screen.CalenderScreen
+import com.vishal2376.snaptick.presentation.common.BackupRestoreConfirmDialog
+import com.vishal2376.snaptick.presentation.common.UpdateAvailableDialog
 import com.vishal2376.snaptick.presentation.completed_task_screen.CompletedTaskScreen
 import com.vishal2376.snaptick.presentation.free_time_screen.FreeTimeScreen
 import com.vishal2376.snaptick.presentation.home_screen.HomeScreen
@@ -55,6 +50,7 @@ import com.vishal2376.snaptick.presentation.settings.SettingsScreen
 import com.vishal2376.snaptick.presentation.task_list.viewmodel.TaskListViewModel
 import com.vishal2376.snaptick.presentation.this_week_task_screen.ThisWeekTaskScreen
 import com.vishal2376.snaptick.util.openMail
+import com.vishal2376.snaptick.util.openUrl
 import com.vishal2376.snaptick.util.showToast
 
 @Composable
@@ -74,17 +70,22 @@ fun AppNavigation(
 				is MainEvent.OpenMail -> openMail(activity, event.subject)
 				is MainEvent.CalendarSyncComplete ->
 					showToast(activity, "Calendar sync complete", Toast.LENGTH_SHORT)
+
 				is MainEvent.ImportComplete ->
 					showToast(activity, "Imported ${event.count} tasks", Toast.LENGTH_SHORT)
+
 				is MainEvent.IcsParsedReady ->
 					showToast(activity, "Found ${event.count} events", Toast.LENGTH_SHORT)
+
 				is MainEvent.ImportFailed ->
 					showToast(activity, event.message, Toast.LENGTH_LONG)
+
 				is MainEvent.BackupPreviewReady -> {
 					// Dialog rendering is driven by mainState.pendingRestore;
 					// no toast needed. The event exists so callers can react to
 					// the parse-success moment if they want (e.g., haptic).
 				}
+
 				is MainEvent.CalendarPermissionRequired ->
 					activity.calendarPermissionLauncher.launch(
 						arrayOf(
@@ -92,6 +93,7 @@ fun AppNavigation(
 							Manifest.permission.WRITE_CALENDAR
 						)
 					)
+
 				is MainEvent.LanguageChanged -> activity.recreate()
 			}
 		}
@@ -285,7 +287,8 @@ fun AppNavigation(
 				})
 		}
 
-		composable(route = Routes.SettingsScreen.name,
+		composable(
+			route = Routes.SettingsScreen.name,
 			enterTransition = {
 				slideIntoContainer(
 					animationSpec = tween(300, easing = EaseOut),

@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -66,7 +65,6 @@ fun CalendarSyncOptionComponent(
 	) {
 		SheetTitle(text = stringResource(R.string.calendar_sync))
 
-		// Enable card: icon + title + switch.
 		ToggleCard(
 			icon = Icons.Filled.CalendarMonth,
 			title = stringResource(R.string.sync_tasks_to_device_calendar),
@@ -213,7 +211,7 @@ private fun CalendarRow(
 ) {
 	val shape = RoundedCornerShape(12.dp)
 	val bg = if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
-		else MaterialTheme.colorScheme.primaryContainer
+	else MaterialTheme.colorScheme.primaryContainer
 	val border = if (selected) 2.dp else 0.dp
 	val borderColor = if (selected) MaterialTheme.colorScheme.primary else Color.Transparent
 

@@ -39,8 +39,6 @@ data class MainState(
 	val updateAvailable: GitHubRelease? = null,
 	val updateCheckInFlight: Boolean = false,
 	val updateCheckFailed: Boolean = false,
-	// Wall-clock millis of last successful response, used to render
-	// "Up to date · Xm ago" in settings without re-fetching.
 	val lastUpdateCheckAt: Long = 0L,
 	/**
 	 * Set when the user picks a backup .json. UI renders a confirmation dialog

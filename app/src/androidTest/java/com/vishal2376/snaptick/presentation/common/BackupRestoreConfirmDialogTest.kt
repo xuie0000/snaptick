@@ -17,9 +17,11 @@ import org.junit.Test
  */
 class BackupRestoreConfirmDialogTest {
 
-	@get:Rule val composeRule = createComposeRule()
+	@get:Rule
+	val composeRule = createComposeRule()
 
-	@Test fun renders_taskCount_and_warning_copy() {
+	@Test
+	fun renders_taskCount_and_warning_copy() {
 		composeRule.setContent {
 			SnaptickTheme {
 				BackupRestoreConfirmDialog(
@@ -37,11 +39,12 @@ class BackupRestoreConfirmDialogTest {
 		// Warning copy must mention that this is destructive.
 		composeRule.onNodeWithText(
 			"This will replace every task currently in Snaptick with " +
-				"42 tasks from the selected backup file. This cannot be undone.",
+					"42 tasks from the selected backup file. This cannot be undone.",
 		).assertIsDisplayed()
 	}
 
-	@Test fun renders_dropped_count_when_nonzero() {
+	@Test
+	fun renders_dropped_count_when_nonzero() {
 		composeRule.setContent {
 			SnaptickTheme {
 				BackupRestoreConfirmDialog(
@@ -55,11 +58,12 @@ class BackupRestoreConfirmDialogTest {
 
 		composeRule.onNodeWithText(
 			"This will replace every task currently in Snaptick with " +
-				"10 tasks from the selected backup file (3 skipped). This cannot be undone.",
+					"10 tasks from the selected backup file (3 skipped). This cannot be undone.",
 		).assertIsDisplayed()
 	}
 
-	@Test fun confirm_button_invokes_onConfirm() {
+	@Test
+	fun confirm_button_invokes_onConfirm() {
 		var confirmed = 0
 		var dismissed = 0
 		composeRule.setContent {
@@ -79,7 +83,8 @@ class BackupRestoreConfirmDialogTest {
 		assertEquals(0, dismissed)
 	}
 
-	@Test fun cancel_button_invokes_onDismiss() {
+	@Test
+	fun cancel_button_invokes_onDismiss() {
 		var confirmed = 0
 		var dismissed = 0
 		composeRule.setContent {
@@ -99,7 +104,8 @@ class BackupRestoreConfirmDialogTest {
 		assertTrue("dismiss should fire at least once", dismissed >= 1)
 	}
 
-	@Test fun singular_task_count_uses_singular_copy() {
+	@Test
+	fun singular_task_count_uses_singular_copy() {
 		composeRule.setContent {
 			SnaptickTheme {
 				BackupRestoreConfirmDialog(
@@ -113,7 +119,7 @@ class BackupRestoreConfirmDialogTest {
 
 		composeRule.onNodeWithText(
 			"This will replace every task currently in Snaptick with " +
-				"1 task from the selected backup file. This cannot be undone.",
+					"1 task from the selected backup file. This cannot be undone.",
 		).assertIsDisplayed()
 	}
 }

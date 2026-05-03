@@ -25,7 +25,8 @@ import java.time.LocalTime
 @RunWith(AndroidJUnit4::class)
 class ExactAlarmFallbackTest {
 
-	@Test fun schedule_doesNotThrow_evenIfExactAlarmIsRefused() {
+	@Test
+	fun schedule_doesNotThrow_evenIfExactAlarmIsRefused() {
 		val context = ApplicationProvider.getApplicationContext<Context>()
 		val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 		val scheduler = ReminderScheduler(context, am)

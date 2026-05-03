@@ -39,17 +39,23 @@ class TaskListViewModel @Inject constructor(
 
 	fun onAction(action: TaskListAction) {
 		when (action) {
-			is TaskListAction.ToggleCompletion -> toggleCompletion(action.taskId, action.isCompleted)
+			is TaskListAction.ToggleCompletion -> toggleCompletion(
+				action.taskId,
+				action.isCompleted
+			)
+
 			is TaskListAction.SwipeTask -> {
 				deletedTask = action.task
 				deleteTask(action.task)
 			}
+
 			is TaskListAction.DeleteTask -> viewModelScope.launch {
 				repository.getTaskById(action.taskId)?.let {
 					deletedTask = it
 					repository.deleteTask(it)
 				}
 			}
+
 			is TaskListAction.UndoDelete -> viewModelScope.launch {
 				deletedTask?.let { task -> repository.insertTask(task) }
 			}

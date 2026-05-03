@@ -35,12 +35,6 @@ import com.vishal2376.snaptick.presentation.common.h3TextStyle
 import com.vishal2376.snaptick.presentation.common.taskTextStyle
 import com.vishal2376.snaptick.ui.theme.SnaptickTheme
 
-/**
- * Minimal style picker: a single primaryContainer pill with two segmented
- * options, plus a separate 24-hour-format pill. No mini-previews — fewer
- * pixels, less visual noise. Selected segment fills with primary, inactive
- * stays as the container surface.
- */
 @Composable
 fun TimePickerOptionComponent(
 	isWheelTimePicker: Boolean,
@@ -55,7 +49,6 @@ fun TimePickerOptionComponent(
 	) {
 		SheetTitle(text = stringResource(R.string.choose_time_picker_style))
 
-		// Segmented control.
 		Row(
 			modifier = Modifier
 				.fillMaxWidth()
@@ -80,7 +73,6 @@ fun TimePickerOptionComponent(
 			)
 		}
 
-		// 24-hour format pill (background to keep visual hierarchy).
 		Row(
 			modifier = Modifier
 				.fillMaxWidth()
@@ -124,7 +116,7 @@ private fun SegmentOption(
 	)
 	val fg by animateColorAsState(
 		targetValue = if (selected) MaterialTheme.colorScheme.onPrimary
-			else MaterialTheme.colorScheme.onPrimaryContainer,
+		else MaterialTheme.colorScheme.onPrimaryContainer,
 		animationSpec = tween(200),
 		label = "segment-fg"
 	)

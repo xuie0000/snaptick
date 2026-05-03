@@ -41,7 +41,8 @@ import java.util.TimeZone
 @RunWith(AndroidJUnit4::class)
 class CalendarPusherDeleteEventsTest {
 
-	@get:Rule val permissionRule: GrantPermissionRule = GrantPermissionRule.grant(
+	@get:Rule
+	val permissionRule: GrantPermissionRule = GrantPermissionRule.grant(
 		Manifest.permission.READ_CALENDAR,
 		Manifest.permission.WRITE_CALENDAR,
 	)
@@ -54,7 +55,8 @@ class CalendarPusherDeleteEventsTest {
 	private var seededEventId: Long? = null
 	private var targetCalendarId: Long? = null
 
-	@Before fun setUp() {
+	@Before
+	fun setUp() {
 		context = ApplicationProvider.getApplicationContext()
 		calendarRepo = CalendarRepository(context)
 		settings = SettingsStore(context)
@@ -64,7 +66,8 @@ class CalendarPusherDeleteEventsTest {
 		pusher = CalendarPusher(calendarRepo, db.taskDao(), settings)
 	}
 
-	@After fun tearDown() {
+	@After
+	fun tearDown() {
 		// Best-effort cleanup if the test bailed mid-flight.
 		seededEventId?.let { id ->
 			runCatching {
@@ -75,7 +78,8 @@ class CalendarPusherDeleteEventsTest {
 		db.close()
 	}
 
-	@Test fun deleteAllPushedEvents_removesEvent_andClearsLink() = runBlocking {
+	@Test
+	fun deleteAllPushedEvents_removesEvent_andClearsLink() = runBlocking {
 		val writable = calendarRepo.getWritableCalendars()
 		assumeTrue("no writable calendar present on this emulator", writable.isNotEmpty())
 		val calendarId = writable.first().id
@@ -135,7 +139,10 @@ class CalendarPusherDeleteEventsTest {
 		// Linked task's calendarEventId column must be cleared, unlinked stays null.
 		val linkedAfter = db.taskDao().getTaskByUuid("linked")
 		assertNotNull(linkedAfter)
-		assertTrue("linked task's calendarEventId should be cleared", linkedAfter!!.calendarEventId == null)
+		assertTrue(
+			"linked task's calendarEventId should be cleared",
+			linkedAfter!!.calendarEventId == null
+		)
 		val unlinkedAfter = db.taskDao().getTaskByUuid("unlinked")
 		assertTrue("unlinked task should stay unlinked", unlinkedAfter?.calendarEventId == null)
 	}

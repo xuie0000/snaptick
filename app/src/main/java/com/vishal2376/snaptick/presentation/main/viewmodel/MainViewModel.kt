@@ -4,8 +4,8 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.vishal2376.snaptick.R
 import com.vishal2376.snaptick.BuildConfig
+import com.vishal2376.snaptick.R
 import com.vishal2376.snaptick.data.calendar.CalendarImporter
 import com.vishal2376.snaptick.data.calendar.CalendarInfo
 import com.vishal2376.snaptick.data.calendar.CalendarRepository
@@ -15,7 +15,6 @@ import com.vishal2376.snaptick.domain.model.BACKUP_VERSION
 import com.vishal2376.snaptick.domain.model.BackupData
 import com.vishal2376.snaptick.domain.model.Task
 import com.vishal2376.snaptick.domain.model.compareVersions
-import com.vishal2376.snaptick.util.Constants
 import com.vishal2376.snaptick.presentation.common.AppTheme
 import com.vishal2376.snaptick.presentation.common.CalenderView
 import com.vishal2376.snaptick.presentation.common.NavDrawerItem
@@ -26,6 +25,7 @@ import com.vishal2376.snaptick.presentation.main.events.MainEvent
 import com.vishal2376.snaptick.presentation.main.state.MainState
 import com.vishal2376.snaptick.presentation.main.state.PendingRestore
 import com.vishal2376.snaptick.util.BackupManager
+import com.vishal2376.snaptick.util.Constants
 import com.vishal2376.snaptick.util.SettingsStore
 import com.vishal2376.snaptick.util.SplashThemeMirror
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -85,26 +85,78 @@ class MainViewModel @Inject constructor(
 				settingsStore.setTheme(action.theme.ordinal)
 				SplashThemeMirror.write(context, action.theme)
 			}
-			is MainAction.UpdateDynamicTheme -> persist { _state.update { s -> s.copy(dynamicTheme = action.isEnabled) }; settingsStore.setDynamicTheme(action.isEnabled) }
-			is MainAction.UpdateTimePicker -> persist { _state.update { s -> s.copy(isWheelTimePicker = action.isWheelTimePicker) }; settingsStore.setTimePicker(action.isWheelTimePicker) }
-			is MainAction.UpdateTimeFormat -> persist { _state.update { s -> s.copy(is24hourTimeFormat = action.is24Hour) }; settingsStore.setTimeFormat(action.is24Hour) }
-			is MainAction.UpdateSleepTime -> persist { _state.update { s -> s.copy(sleepTime = action.sleepTime) }; settingsStore.setSleepTime(action.sleepTime.toString()) }
+
+			is MainAction.UpdateDynamicTheme -> persist {
+				_state.update { s -> s.copy(dynamicTheme = action.isEnabled) }; settingsStore.setDynamicTheme(
+				action.isEnabled
+			)
+			}
+
+			is MainAction.UpdateTimePicker -> persist {
+				_state.update { s ->
+					s.copy(
+						isWheelTimePicker = action.isWheelTimePicker
+					)
+				}; settingsStore.setTimePicker(action.isWheelTimePicker)
+			}
+
+			is MainAction.UpdateTimeFormat -> persist {
+				_state.update { s ->
+					s.copy(
+						is24hourTimeFormat = action.is24Hour
+					)
+				}; settingsStore.setTimeFormat(action.is24Hour)
+			}
+
+			is MainAction.UpdateSleepTime -> persist {
+				_state.update { s -> s.copy(sleepTime = action.sleepTime) }; settingsStore.setSleepTime(
+				action.sleepTime.toString()
+			)
+			}
+
 			is MainAction.UpdateLanguage -> persist {
 				_state.update { s -> s.copy(language = action.language) }
 				settingsStore.setLanguage(action.language)
-				// Resources are bound at activity creation; the only reliable way
-				// to apply a new locale to an already-inflated Compose tree is to
-				// recreate the activity. attachBaseContext picks up the persisted
-				// value on the next inflation.
+				// Activity recreate is the only way to apply locale to an inflated tree.
 				_events.emit(MainEvent.LanguageChanged)
 			}
-			is MainAction.UpdateSortByTask -> persist { _state.update { s -> s.copy(sortBy = action.sortTask) }; settingsStore.setSortTask(action.sortTask.ordinal) }
-			is MainAction.UpdateCalenderView -> persist { _state.update { s -> s.copy(calenderView = action.calenderView) }; settingsStore.setCalenderView(action.calenderView.ordinal) }
+
+			is MainAction.UpdateSortByTask -> persist {
+				_state.update { s -> s.copy(sortBy = action.sortTask) }; settingsStore.setSortTask(
+				action.sortTask.ordinal
+			)
+			}
+
+			is MainAction.UpdateCalenderView -> persist {
+				_state.update { s -> s.copy(calenderView = action.calenderView) }; settingsStore.setCalenderView(
+				action.calenderView.ordinal
+			)
+			}
+
 			is MainAction.UpdateCalenderDate -> _state.update { it.copy(calenderDate = action.date) }
-			is MainAction.UpdateShowWhatsNew -> persist { _state.update { s -> s.copy(showWhatsNew = action.show) }; settingsStore.setShowWhatsNew(action.show) }
+			is MainAction.UpdateShowWhatsNew -> persist {
+				_state.update { s -> s.copy(showWhatsNew = action.show) }; settingsStore.setShowWhatsNew(
+				action.show
+			)
+			}
+
 			is MainAction.UpdateFirstTimeOpened -> _state.update { it.copy(firstTimeOpened = action.isFirstTimeOpened) }
-			is MainAction.UpdateBuildVersionCode -> persist { _state.update { s -> s.copy(buildVersionCode = action.versionCode) }; settingsStore.setBuildVersionCode(action.versionCode) }
-			is MainAction.UpdateSwipeBehaviour -> persist { _state.update { s -> s.copy(swipeBehaviour = action.swipeBehaviour) }; settingsStore.setSwipeBehaviour(action.swipeBehaviour.ordinal) }
+			is MainAction.UpdateBuildVersionCode -> persist {
+				_state.update { s ->
+					s.copy(
+						buildVersionCode = action.versionCode
+					)
+				}; settingsStore.setBuildVersionCode(action.versionCode)
+			}
+
+			is MainAction.UpdateSwipeBehaviour -> persist {
+				_state.update { s ->
+					s.copy(
+						swipeBehaviour = action.swipeBehaviour
+					)
+				}; settingsStore.setSwipeBehaviour(action.swipeBehaviour.ordinal)
+			}
+
 			is MainAction.OnClickNavDrawerItem -> handleNavDrawerClick(action.item)
 			is MainAction.CreateBackup -> createBackup(action.uri, action.backupData)
 			is MainAction.PreviewBackup -> previewBackup(action.uri)
@@ -132,10 +184,12 @@ class MainViewModel @Inject constructor(
 					}
 				}
 			}
+
 			is MainAction.SetCalendarSyncTarget -> persist {
 				_state.update { s -> s.copy(calendarSyncCalendarId = action.calendarId) }
 				settingsStore.setCalendarSyncCalendarId(action.calendarId)
 			}
+
 			is MainAction.ImportTasks -> importTasks(action.tasks)
 			is MainAction.ParseIcsFile -> parseIcsFile(action.uri)
 			is MainAction.ImportIcsFile -> importIcsFile(action.uri)
@@ -144,17 +198,21 @@ class MainViewModel @Inject constructor(
 				repository.syncAllTasksNow()
 				_events.emit(MainEvent.CalendarSyncComplete(0))
 			}
+
 			is MainAction.CompleteOnboarding -> persist {
 				_state.update { it.copy(onboardingCompleted = true) }
 				settingsStore.setOnboardingCompleted(true)
 			}
+
 			is MainAction.UpdateSoundEnabled -> persist {
 				_state.update { it.copy(soundEnabled = action.enabled) }
 				settingsStore.setSoundEnabled(action.enabled)
 			}
+
 			is MainAction.CheckForUpdates -> viewModelScope.launch {
 				checkForUpdates(ignoreThrottle = action.ignoreThrottle)
 			}
+
 			is MainAction.DismissUpdateBanner -> _state.update { it.copy(updateAvailable = null) }
 			is MainAction.DismissUpdateStatus -> _state.update {
 				it.copy(
@@ -163,6 +221,7 @@ class MainViewModel @Inject constructor(
 					lastUpdateCheckAt = 0L,
 				)
 			}
+
 			is MainAction.RefreshWritableCalendars -> viewModelScope.launch {
 				val list = calendarRepository.getWritableCalendars()
 				_state.update { it.copy(writableCalendars = list) }
@@ -257,7 +316,8 @@ class MainViewModel @Inject constructor(
 		return true
 	}
 
-	suspend fun loadWritableCalendars(): List<CalendarInfo> = calendarRepository.getWritableCalendars()
+	suspend fun loadWritableCalendars(): List<CalendarInfo> =
+		calendarRepository.getWritableCalendars()
 
 	private fun importTasks(tasks: List<Task>) {
 		viewModelScope.launch {
@@ -371,25 +431,137 @@ class MainViewModel @Inject constructor(
 	}
 
 	private fun loadPersistedState() {
-		viewModelScope.launch { settingsStore.themeKey.collect { ordinal -> _state.update { it.copy(theme = AppTheme.entries[ordinal]) } } }
-		viewModelScope.launch { settingsStore.dynamicThemeKey.collect { v -> _state.update { it.copy(dynamicTheme = v) } } }
-		viewModelScope.launch { settingsStore.timePickerKey.collect { v -> _state.update { it.copy(isWheelTimePicker = v) } } }
-		viewModelScope.launch { settingsStore.streakKey.collect { v -> _state.update { it.copy(streak = v) } } }
-		viewModelScope.launch { settingsStore.sleepTimeKey.collect { v -> _state.update { it.copy(sleepTime = LocalTime.parse(v)) } } }
+		viewModelScope.launch {
+			settingsStore.themeKey.collect { ordinal ->
+				_state.update {
+					it.copy(
+						theme = AppTheme.entries[ordinal]
+					)
+				}
+			}
+		}
+		viewModelScope.launch {
+			settingsStore.dynamicThemeKey.collect { v ->
+				_state.update {
+					it.copy(
+						dynamicTheme = v
+					)
+				}
+			}
+		}
+		viewModelScope.launch {
+			settingsStore.timePickerKey.collect { v ->
+				_state.update {
+					it.copy(
+						isWheelTimePicker = v
+					)
+				}
+			}
+		}
+		viewModelScope.launch {
+			settingsStore.streakKey.collect { v ->
+				_state.update {
+					it.copy(
+						streak = v
+					)
+				}
+			}
+		}
+		viewModelScope.launch {
+			settingsStore.sleepTimeKey.collect { v ->
+				_state.update {
+					it.copy(
+						sleepTime = LocalTime.parse(v)
+					)
+				}
+			}
+		}
 		viewModelScope.launch {
 			settingsStore.languageKey.collect { v ->
 				_state.update { it.copy(language = v) }
 			}
 		}
-		viewModelScope.launch { settingsStore.calenderViewKey.collect { v -> _state.update { it.copy(calenderView = CalenderView.entries[v]) } } }
-		viewModelScope.launch { settingsStore.timeFormatKey.collect { v -> _state.update { it.copy(is24hourTimeFormat = v) } } }
-		viewModelScope.launch { settingsStore.sortTaskKey.collect { v -> _state.update { it.copy(sortBy = SortTask.entries[v]) } } }
-		viewModelScope.launch { settingsStore.showWhatsNewKey.collect { v -> _state.update { it.copy(showWhatsNew = v) } } }
-		viewModelScope.launch { settingsStore.swipeBehaviourKey.collect { v -> _state.update { it.copy(swipeBehaviour = SwipeBehavior.entries[v]) } } }
-		viewModelScope.launch { settingsStore.buildVersionCode.collect { v -> _state.update { it.copy(buildVersionCode = v) } } }
-		viewModelScope.launch { settingsStore.calendarSyncEnabledKey.collect { v -> _state.update { it.copy(calendarSyncEnabled = v) } } }
-		viewModelScope.launch { settingsStore.calendarSyncCalendarIdKey.collect { v -> _state.update { it.copy(calendarSyncCalendarId = v) } } }
-		viewModelScope.launch { settingsStore.soundEnabledKey.collect { v -> _state.update { it.copy(soundEnabled = v) } } }
+		viewModelScope.launch {
+			settingsStore.calenderViewKey.collect { v ->
+				_state.update {
+					it.copy(
+						calenderView = CalenderView.entries[v]
+					)
+				}
+			}
+		}
+		viewModelScope.launch {
+			settingsStore.timeFormatKey.collect { v ->
+				_state.update {
+					it.copy(
+						is24hourTimeFormat = v
+					)
+				}
+			}
+		}
+		viewModelScope.launch {
+			settingsStore.sortTaskKey.collect { v ->
+				_state.update {
+					it.copy(
+						sortBy = SortTask.entries[v]
+					)
+				}
+			}
+		}
+		viewModelScope.launch {
+			settingsStore.showWhatsNewKey.collect { v ->
+				_state.update {
+					it.copy(
+						showWhatsNew = v
+					)
+				}
+			}
+		}
+		viewModelScope.launch {
+			settingsStore.swipeBehaviourKey.collect { v ->
+				_state.update {
+					it.copy(
+						swipeBehaviour = SwipeBehavior.entries[v]
+					)
+				}
+			}
+		}
+		viewModelScope.launch {
+			settingsStore.buildVersionCode.collect { v ->
+				_state.update {
+					it.copy(
+						buildVersionCode = v
+					)
+				}
+			}
+		}
+		viewModelScope.launch {
+			settingsStore.calendarSyncEnabledKey.collect { v ->
+				_state.update {
+					it.copy(
+						calendarSyncEnabled = v
+					)
+				}
+			}
+		}
+		viewModelScope.launch {
+			settingsStore.calendarSyncCalendarIdKey.collect { v ->
+				_state.update {
+					it.copy(
+						calendarSyncCalendarId = v
+					)
+				}
+			}
+		}
+		viewModelScope.launch {
+			settingsStore.soundEnabledKey.collect { v ->
+				_state.update {
+					it.copy(
+						soundEnabled = v
+					)
+				}
+			}
+		}
 		viewModelScope.launch {
 			settingsStore.onboardingCompletedKey.collect { v ->
 				_state.update {

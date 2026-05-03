@@ -16,6 +16,7 @@ import com.vishal2376.snaptick.R
 import com.vishal2376.snaptick.data.repositories.TaskRepository
 import com.vishal2376.snaptick.domain.model.Task
 import com.vishal2376.snaptick.presentation.common.utils.formatDurationTimestamp
+import com.vishal2376.snaptick.service.PomodoroService.Companion.startForTask
 import com.vishal2376.snaptick.util.vibrateDevice
 import com.vishal2376.snaptick.widget.presentation.EXTRA_NAVIGATE_TO
 import dagger.hilt.android.AndroidEntryPoint
@@ -57,7 +58,8 @@ private const val PERSIST_INTERVAL_TICKS = 10
 @AndroidEntryPoint
 class PomodoroService : Service() {
 
-	@Inject lateinit var repository: TaskRepository
+	@Inject
+	lateinit var repository: TaskRepository
 
 	private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 	private var tickerJob: Job? = null
@@ -72,10 +74,7 @@ class PomodoroService : Service() {
 
 	override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 		ensureChannel()
-		// API 34+ rejects startForeground() without the explicit type, even
-		// though the service is declared with foregroundServiceType="dataSync"
-		// in the manifest. Without the third arg, the notification silently
-		// never appears and the system kills the service shortly after.
+		// API 34+ requires the explicit FG type or the notification never appears.
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
 			startForeground(
 				POMODORO_NOTIFICATION_ID,
@@ -90,12 +89,10 @@ class PomodoroService : Service() {
 			ACTION_CANCEL -> cancelTimer()
 			ACTION_CANCEL_FOR_TASK -> {
 				val taskId = intent.getIntExtra(EXTRA_TASK_ID, -1)
-				// Only cancel when the request matches the timer that is
-				// actually running. Stale callers (deleted task that never
-				// had a pomodoro) become a no-op.
 				if (taskId > 0 && _state.value.taskId == taskId) cancelTimer()
 				else if (_state.value.taskId <= 0) stopSelfQuiet()
 			}
+
 			ACTION_START_FOR_TASK -> {
 				val taskId = intent.getIntExtra(EXTRA_TASK_ID, -1)
 				if (taskId > 0) startForTask(taskId)
@@ -113,8 +110,7 @@ class PomodoroService : Service() {
 		if (_state.value.taskId == taskId && _state.value.timeLeft > 0) return
 		scope.launch {
 			val task = repository.getTaskById(taskId) ?: return@launch
-			// Replacing a different task: clear its persisted timer so the old
-			// task no longer reports a partial session in lists / widget.
+			// Clear the previous task's timer so it stops showing a partial session.
 			val previous = currentTask
 			if (previous != null && previous.id != task.id) {
 				repository.updateTask(previous.copy(pomodoroTimer = -1))
@@ -150,7 +146,8 @@ class PomodoroService : Service() {
 	fun cancelTimer() {
 		val task = currentTask
 		val s = _state.value
-		val shouldPromptSave = task != null && task.isValidPomodoroSession(s.timeLeft) && !s.isCompleted
+		val shouldPromptSave =
+			task != null && task.isValidPomodoroSession(s.timeLeft) && !s.isCompleted
 		tickerJob?.cancel()
 		runningTaskId = -1
 		scope.launch {
@@ -234,7 +231,10 @@ class PomodoroService : Service() {
 		nm.notify(POMODORO_NOTIFICATION_ID, buildNotification(_state.value, showCompleted))
 	}
 
-	private fun buildNotification(s: ServiceTimerState, showCompleted: Boolean = false): android.app.Notification {
+	private fun buildNotification(
+		s: ServiceTimerState,
+		showCompleted: Boolean = false
+	): android.app.Notification {
 		val openIntent = PendingIntent.getActivity(
 			this, 0,
 			Intent(this, MainActivity::class.java).apply {
@@ -255,7 +255,8 @@ class PomodoroService : Service() {
 			builder.addAction(0, getString(R.string.mark_done), pendingAction(ACTION_MARK_DONE))
 		} else {
 			builder.setContentText(formatDurationTimestamp(s.timeLeft))
-			val playPauseLabel = if (s.isPaused) getString(R.string.play) else getString(R.string.pause)
+			val playPauseLabel =
+				if (s.isPaused) getString(R.string.play) else getString(R.string.pause)
 			builder.addAction(0, playPauseLabel, pendingAction(ACTION_TOGGLE_PAUSE))
 			builder.addAction(0, getString(R.string.cancel), pendingAction(ACTION_CANCEL))
 		}
@@ -291,7 +292,8 @@ class PomodoroService : Service() {
 		 * round-trip when no pomodoro is up at all. Reset by `startForTask`,
 		 * `cancelTimer`, and `onDestroy`.
 		 */
-		@Volatile var runningTaskId: Int = -1
+		@Volatile
+		var runningTaskId: Int = -1
 			private set
 
 		fun startForTask(context: Context, taskId: Int) {
@@ -306,20 +308,13 @@ class PomodoroService : Service() {
 			}
 		}
 
-		/**
-		 * Stops the running pomodoro if it belongs to [taskId]. No-op when
-		 * nothing is running or a different task is active. Used by the
-		 * repository so that completing/deleting a task auto-stops its timer
-		 * and clears the foreground notification.
-		 */
+		// Stops the timer iff it belongs to taskId; no-op otherwise.
 		fun stopIfRunningFor(context: Context, taskId: Int) {
 			if (runningTaskId != taskId) return
 			val intent = Intent(context, PomodoroService::class.java).apply {
 				action = ACTION_CANCEL_FOR_TASK
 				putExtra(EXTRA_TASK_ID, taskId)
 			}
-			// Service is already up (runningTaskId guard); plain startService is
-			// fine and avoids spinning a fresh foreground instance just to stop.
 			runCatching {
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 					context.startForegroundService(intent)

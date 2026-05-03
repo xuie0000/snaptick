@@ -9,7 +9,6 @@ import android.os.Vibrator
 import android.widget.Toast
 import androidx.core.net.toUri
 import com.vishal2376.snaptick.R
-import com.vishal2376.snaptick.util.Constants
 import java.time.LocalTime
 
 fun vibrateDevice(

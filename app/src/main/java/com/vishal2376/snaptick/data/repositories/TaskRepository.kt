@@ -51,12 +51,10 @@ class TaskRepository(
 
 	suspend fun updateTask(task: Task, reminderOffsets: List<Int>? = null) {
 		reminderScheduler.cancel(task.id)
-		// Completing a task should kill its timer + clear the FG notification.
-		// Skip when the caller is the pomodoro service itself wiping
-		// pomodoroTimer back to -1 (still incomplete) so we don't recurse.
 		if (task.isCompleted) PomodoroService.stopIfRunningFor(context, task.id)
 		dao.updateTask(task)
-		val effective = reminderOffsets ?: reminderDao.offsetsForTask(task.uuid).ifEmpty { defaultOffsets(task) }
+		val effective = reminderOffsets ?: reminderDao.offsetsForTask(task.uuid)
+			.ifEmpty { defaultOffsets(task) }
 		if (reminderOffsets != null) writeReminderOffsets(task.uuid, reminderOffsets)
 		reminderScheduler.schedule(task, offsets = effective)
 		calendarPusher.pushUpdate(task)
@@ -80,7 +78,6 @@ class TaskRepository(
 	}
 
 	suspend fun deleteAllTasks() {
-		// Wipe takes the running timer with it.
 		val active = PomodoroService.runningTaskId
 		if (active > 0) PomodoroService.stopIfRunningFor(context, active)
 		dao.deleteAllTasks()
@@ -191,8 +188,6 @@ class TaskRepository(
 	suspend fun markCompletedForDate(uuid: String, date: LocalDate) {
 		completionDao.insert(TaskCompletion(uuid = uuid, date = date.toString()))
 		dao.getTaskByUuid(uuid)?.let { task ->
-			// Repeat template was completed for today: any pomodoro for this
-			// task is considered done too.
 			if (date == LocalDate.now()) {
 				PomodoroService.stopIfRunningFor(context, task.id)
 			}

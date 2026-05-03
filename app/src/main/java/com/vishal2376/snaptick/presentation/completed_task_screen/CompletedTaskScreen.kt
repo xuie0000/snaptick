@@ -91,7 +91,8 @@ fun CompletedTaskScreen(
 						),
 					contentPadding = PaddingValues(vertical = 12.dp)
 				) {
-					itemsIndexed(items = completedTasks,
+					itemsIndexed(
+						items = completedTasks,
 						key = { index, task ->
 							task.id
 						}) { index, task ->

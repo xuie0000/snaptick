@@ -28,7 +28,8 @@ class ReminderReceiverIntegrationTest {
 
 	// On API 33+ POST_NOTIFICATIONS is a runtime permission. Without it
 	// NotificationManager.notify silently drops, so the test must grant it.
-	@get:Rule val permissionRule: GrantPermissionRule = if (Build.VERSION.SDK_INT >= 33) {
+	@get:Rule
+	val permissionRule: GrantPermissionRule = if (Build.VERSION.SDK_INT >= 33) {
 		GrantPermissionRule.grant(android.Manifest.permission.POST_NOTIFICATIONS)
 	} else {
 		GrantPermissionRule.grant()  // no-op on older APIs
@@ -38,7 +39,8 @@ class ReminderReceiverIntegrationTest {
 	private lateinit var nm: NotificationManager
 	private val taskId = 9999
 
-	@Before fun setUp() {
+	@Before
+	fun setUp() {
 		context = ApplicationProvider.getApplicationContext()
 		nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 		// The notification channel is normally created from MainActivity.onCreate.
@@ -48,11 +50,13 @@ class ReminderReceiverIntegrationTest {
 		nm.cancel(taskId)
 	}
 
-	@After fun tearDown() {
+	@After
+	fun tearDown() {
 		nm.cancel(taskId)
 	}
 
-	@Test fun onReceive_postsNotification_withMatchingId() {
+	@Test
+	fun onReceive_postsNotification_withMatchingId() {
 		val intent = Intent().apply {
 			putExtra(Constants.TASK_ID, taskId)
 			putExtra(Constants.TASK_UUID, "test-uuid")
@@ -67,7 +71,8 @@ class ReminderReceiverIntegrationTest {
 		assertTrue("notification with id $taskId not posted within timeout", active)
 	}
 
-	@Test fun onReceive_isNoOp_whenTaskIdMissing() {
+	@Test
+	fun onReceive_isNoOp_whenTaskIdMissing() {
 		val before = nm.activeNotifications.size
 		ReminderReceiver().onReceive(context, Intent())
 		// No new notification should appear.

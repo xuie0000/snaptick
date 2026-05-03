@@ -20,39 +20,49 @@ class ValidationTest {
 		startTime = start, endTime = end, date = date
 	)
 
-	@Test fun `empty title is invalid`() {
+	@Test
+	fun `empty title is invalid`() {
 		val (valid, msg) = checkValidTask(task = task(title = "   "))
 		assertFalse(valid)
 		assertEquals("Title can't be empty", msg)
 	}
 
-	@Test fun `duration below MIN_ALLOWED_DURATION is invalid when not all day`() {
+	@Test
+	fun `duration below MIN_ALLOWED_DURATION is invalid when not all day`() {
 		val t = task(start = LocalTime.of(9, 0), end = LocalTime.of(9, 2))
 		val (valid, _) = checkValidTask(task = t, isTaskAllDay = false)
 		assertFalse(valid)
 	}
 
-	@Test fun `short duration allowed when all day`() {
+	@Test
+	fun `short duration allowed when all day`() {
 		val t = task(start = LocalTime.of(9, 0), end = LocalTime.of(9, 0))
 		val (valid, _) = checkValidTask(task = t, isTaskAllDay = true)
 		assertTrue(valid)
 	}
 
-	@Test fun `past date is invalid`() {
+	@Test
+	fun `past date is invalid`() {
 		val t = task(date = LocalDate.now().minusDays(1))
 		val (valid, msg) = checkValidTask(task = t)
 		assertFalse(valid)
 		assertEquals("Past dates are not allowed", msg)
 	}
 
-	@Test fun `future date short circuits as valid`() {
-		val t = task(date = LocalDate.now().plusDays(1), start = LocalTime.of(9, 0), end = LocalTime.of(10, 0))
+	@Test
+	fun `future date short circuits as valid`() {
+		val t = task(
+			date = LocalDate.now().plusDays(1),
+			start = LocalTime.of(9, 0),
+			end = LocalTime.of(10, 0)
+		)
 		val (valid, msg) = checkValidTask(task = t)
 		assertTrue(valid)
 		assertEquals("Future Task", msg)
 	}
 
-	@Test fun `midnight crossing task is valid`() {
+	@Test
+	fun `midnight crossing task is valid`() {
 		val t = task(start = LocalTime.of(23, 0), end = LocalTime.of(1, 0))
 		val (valid, _) = checkValidTask(task = t)
 		assertTrue(valid)

@@ -27,9 +27,11 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -38,7 +40,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.ui.window.Dialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -54,6 +55,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.vishal2376.snaptick.R
 import com.vishal2376.snaptick.data.calendar.CalendarInfo
 import com.vishal2376.snaptick.presentation.common.h1TextStyle
@@ -65,8 +67,6 @@ import com.vishal2376.snaptick.ui.theme.Blue
 import com.vishal2376.snaptick.ui.theme.LightGreen
 import com.vishal2376.snaptick.ui.theme.Red
 import com.vishal2376.snaptick.ui.theme.Yellow
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.filled.Check
 
 @Composable
 fun RestoreAndSyncPage(
@@ -87,8 +87,7 @@ fun RestoreAndSyncPage(
 	var showCalendarDialog by remember { mutableStateOf(false) }
 	var pendingPickerAfterGrant by remember { mutableStateOf(false) }
 
-	// After requesting permission, the launcher refreshes writableCalendars.
-	// Once that lands (or is already populated), open the picker we deferred.
+	// Open the picker once the perm grant + calendar list lands.
 	LaunchedEffect(writableCalendars, calendarPermissionGranted, pendingPickerAfterGrant) {
 		if (pendingPickerAfterGrant && calendarPermissionGranted) {
 			pendingPickerAfterGrant = false
@@ -166,8 +165,7 @@ fun RestoreAndSyncPage(
 		val onCalendarToggle: (Boolean) -> Unit = { enabled ->
 			haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
 			if (enabled) {
-				// Permission first; open picker only once calendars are queryable.
-				// Otherwise the dialog opens with an empty list and looks broken.
+				// Permission first; otherwise the dialog opens with an empty list.
 				if (calendarPermissionGranted) {
 					onRefreshCalendars()
 					showCalendarDialog = true

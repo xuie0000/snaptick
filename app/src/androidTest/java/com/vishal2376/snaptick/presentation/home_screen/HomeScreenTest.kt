@@ -15,7 +15,8 @@ import java.time.LocalTime
 @RunWith(AndroidJUnit4::class)
 class HomeScreenTest {
 
-	@get:Rule val composeRule = createComposeRule()
+	@get:Rule
+	val composeRule = createComposeRule()
 
 	private fun task(id: Int, title: String) = Task(
 		id = id, uuid = "u$id", title = title,
@@ -23,7 +24,8 @@ class HomeScreenTest {
 		date = LocalDate.now()
 	)
 
-	@Test fun rendersTaskTitles() {
+	@Test
+	fun rendersTaskTitles() {
 		composeRule.setContent {
 			HomeScreen(
 				tasks = listOf(task(1, "Stand up"), task(2, "Lunch")),

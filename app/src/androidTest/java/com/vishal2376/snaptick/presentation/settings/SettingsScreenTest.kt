@@ -14,9 +14,11 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SettingsScreenTest {
 
-	@get:Rule val composeRule = createComposeRule()
+	@get:Rule
+	val composeRule = createComposeRule()
 
-	@Test fun aboutRow_invokesOnClickAbout() {
+	@Test
+	fun aboutRow_invokesOnClickAbout() {
 		var aboutClicks = 0
 		composeRule.setContent {
 			SettingsScreen(
@@ -30,7 +32,8 @@ class SettingsScreenTest {
 		assertTrue(aboutClicks == 1)
 	}
 
-	@Test fun rendersSettingsCategoriesHeader() {
+	@Test
+	fun rendersSettingsCategoriesHeader() {
 		composeRule.setContent {
 			SettingsScreen(
 				appState = MainState(),

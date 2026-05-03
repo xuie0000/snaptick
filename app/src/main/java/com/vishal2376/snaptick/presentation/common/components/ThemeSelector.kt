@@ -47,10 +47,7 @@ import com.vishal2376.snaptick.presentation.common.h3TextStyle
 import com.vishal2376.snaptick.presentation.common.taskTextStyle
 import com.vishal2376.snaptick.presentation.onboarding.components.AnimatedBorderCard
 
-/**
- * Row of theme cards with the same look used by onboarding. Lives in
- * `common/components` so settings and onboarding render identical chips.
- */
+// Shared between onboarding and settings so both render identical theme cards.
 @Composable
 fun ThemeSelector(
 	selected: AppTheme,

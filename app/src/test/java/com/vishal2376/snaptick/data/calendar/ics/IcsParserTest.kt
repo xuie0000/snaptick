@@ -8,7 +8,8 @@ import java.time.LocalDateTime
 
 class IcsParserTest {
 
-	@Test fun parses_single_VEVENT_with_dtstart_and_dtend() {
+	@Test
+	fun parses_single_VEVENT_with_dtstart_and_dtend() {
 		val ics = """
 			BEGIN:VCALENDAR
 			VERSION:2.0
@@ -33,7 +34,8 @@ class IcsParserTest {
 		assertEquals(false, e.allDay)
 	}
 
-	@Test fun parses_all_day_event() {
+	@Test
+	fun parses_all_day_event() {
 		val ics = """
 			BEGIN:VEVENT
 			UID:1
@@ -48,7 +50,8 @@ class IcsParserTest {
 		assertEquals(LocalDateTime.of(2026, 5, 4, 0, 0), e.start)
 	}
 
-	@Test fun parses_multiple_events() {
+	@Test
+	fun parses_multiple_events() {
 		val ics = """
 			BEGIN:VEVENT
 			UID:1
@@ -68,7 +71,8 @@ class IcsParserTest {
 		assertEquals(listOf("A", "B"), events.map { it.summary })
 	}
 
-	@Test fun skips_malformed_event_without_DTSTART() {
+	@Test
+	fun skips_malformed_event_without_DTSTART() {
 		val ics = """
 			BEGIN:VEVENT
 			SUMMARY:Orphan
@@ -77,7 +81,8 @@ class IcsParserTest {
 		assertTrue(IcsParser.parse(StringReader(ics)).isEmpty())
 	}
 
-	@Test fun defaults_end_to_one_hour_after_start_when_missing() {
+	@Test
+	fun defaults_end_to_one_hour_after_start_when_missing() {
 		val ics = """
 			BEGIN:VEVENT
 			UID:1
@@ -89,13 +94,16 @@ class IcsParserTest {
 		assertEquals(LocalDateTime.of(2026, 1, 1, 11, 0), e.end)
 	}
 
-	@Test fun handles_line_folding() {
-		val ics = "BEGIN:VEVENT\r\nUID:1\r\nSUMMARY:Very long\r\n title continuation\r\nDTSTART:20260101T100000\r\nDTEND:20260101T110000\r\nEND:VEVENT\r\n"
+	@Test
+	fun handles_line_folding() {
+		val ics =
+			"BEGIN:VEVENT\r\nUID:1\r\nSUMMARY:Very long\r\n title continuation\r\nDTSTART:20260101T100000\r\nDTEND:20260101T110000\r\nEND:VEVENT\r\n"
 		val e = IcsParser.parse(StringReader(ics)).single()
 		assertEquals("Very longtitle continuation", e.summary)
 	}
 
-	@Test fun caps_event_count_at_MAX_EVENTS_and_marks_truncated() {
+	@Test
+	fun caps_event_count_at_MAX_EVENTS_and_marks_truncated() {
 		val one = """
 			BEGIN:VEVENT
 			UID:%d
@@ -111,12 +119,14 @@ class IcsParserTest {
 		assertTrue(result.truncated)
 	}
 
-	@Test fun drops_pathologically_long_lines_instead_of_OOM() {
+	@Test
+	fun drops_pathologically_long_lines_instead_of_OOM() {
 		// 100 KiB SUMMARY line - way past the per-line cap. Parser should drop it
 		// silently, leaving the event without a SUMMARY which buildEvent then
 		// rejects.
 		val giant = "X".repeat(100 * 1024)
-		val ics = "BEGIN:VEVENT\nUID:1\nSUMMARY:$giant\nDTSTART:20260101T100000\nDTEND:20260101T110000\nEND:VEVENT\n"
+		val ics =
+			"BEGIN:VEVENT\nUID:1\nSUMMARY:$giant\nDTSTART:20260101T100000\nDTEND:20260101T110000\nEND:VEVENT\n"
 		val events = IcsParser.parse(StringReader(ics))
 		assertEquals(0, events.size)
 	}

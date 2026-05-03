@@ -195,7 +195,7 @@ All notable changes to this project will be documented in this file.
 - Widget receiver class
 - Widget_info
 - Priority colors
-- Task bg  shapes with priority colors
+- Task bg shapes with priority colors
 
 ### Upgrade
 
@@ -209,7 +209,7 @@ All notable changes to this project will be documented in this file.
 - *(repeat-task)* Improve insert and update task logic
 - *(calender)* Edit tasks
 - *(calender)* Add indicator in weekly view
-- *(calender)* Impl  edit task ,toggle completion and start pomodoro timer
+- *(calender)* Impl edit task ,toggle completion and start pomodoro timer
 
 ### 🐛 Bug Fixes
 
@@ -509,7 +509,7 @@ All notable changes to this project will be documented in this file.
 - Show wrong time and priority onEditTask
 - *(pomodoro_screen)* Show wrong time and priority
 - Theme switch button not working
-- Flicker effect when reset timer and  timer text alpha not resetting
+- Flicker effect when reset timer and timer text alpha not resetting
 - Wrong exception
 - Topbar bg color delay
 - Free time count past task durations
@@ -676,7 +676,7 @@ All notable changes to this project will be documented in this file.
 - Remove startTime validation
 - Improve validation and duration logic
 - Add releases to .gitignore
-- Increase  default startTime to 5min
+- Increase default startTime to 5min
 - Update reminder notification when update OnComplete Task
 
 ### Add

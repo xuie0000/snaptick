@@ -56,7 +56,8 @@ data class Task(
 		val startSec = startTime.toSecondOfDay()
 		val endSec = endTime.toSecondOfDay()
 		val crossesMidnight = endSec < startSec
-		val fullDuration = if (crossesMidnight) endSec + Constants.SECONDS_IN_DAY - startSec else endSec - startSec
+		val fullDuration =
+			if (crossesMidnight) endSec + Constants.SECONDS_IN_DAY - startSec else endSec - startSec
 
 		if (!checkPastTask) return fullDuration.coerceAtLeast(0).toLong()
 

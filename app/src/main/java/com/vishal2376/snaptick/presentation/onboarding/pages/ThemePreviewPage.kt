@@ -51,9 +51,7 @@ fun ThemePreviewPage(
 	val initialDemos = remember { demoTasks() }
 	var demoOrder by remember { mutableStateOf(initialDemos) }
 
-	// LaunchedEffect(selectedTheme) fires on first composition too, which is
-	// when the user just lands on the page — they shouldn't see the cards
-	// reordering then. Only shuffle on subsequent theme changes.
+	// Skip the initial firing so landing on the page doesn't shuffle.
 	var primed by remember { mutableStateOf(false) }
 	LaunchedEffect(selectedTheme) {
 		if (!primed) {
@@ -94,11 +92,8 @@ fun ThemePreviewPage(
 				verticalArrangement = Arrangement.spacedBy(8.dp)
 			) {
 				itemsIndexed(demoOrder, key = { _, task -> task.uuid }) { index, task ->
-					// Initial entry uses the slide-up + fade-in cascade from
-					// page 1's FeatureRow. Stable uuid keys keep each item's
-					// composition across theme taps, so this LaunchedEffect
-					// fires exactly once per item — shuffles after that just
-					// reorder via animateItemPlacement.
+					// Stable uuid keys keep composition across theme taps, so
+					// the entry cascade fires only on first appearance.
 					StaggeredEntry(
 						index = index,
 						modifier = Modifier.animateItemPlacement(
@@ -128,8 +123,7 @@ fun ThemePreviewPage(
 	}
 }
 
-/** Slide-up + fade-in once when the item first enters composition. Mirrors
- * the FeatureRow animation used on the welcome page. */
+// Slide-up + fade-in once on first composition. Mirrors WelcomePage's FeatureRow.
 @Composable
 private fun StaggeredEntry(
 	index: Int,

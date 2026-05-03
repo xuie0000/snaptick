@@ -28,7 +28,8 @@ class ReminderSchedulerTest {
 	private lateinit var context: Context
 	private lateinit var scheduler: ReminderScheduler
 
-	@Before fun setUp() {
+	@Before
+	fun setUp() {
 		context = ApplicationProvider.getApplicationContext()
 		val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 		scheduler = ReminderScheduler(context, am)
@@ -47,7 +48,8 @@ class ReminderSchedulerTest {
 		date = LocalDate.now(),
 	)
 
-	@Test fun oneOff_inFuture_returnsLocalEpochMillis() {
+	@Test
+	fun oneOff_inFuture_returnsLocalEpochMillis() {
 		val now = LocalDateTime.of(2026, 5, 1, 9, 0)
 		val task = oneOff(LocalDate.of(2026, 5, 1), LocalTime.of(15, 30))
 		val expected = LocalDateTime.of(2026, 5, 1, 15, 30)
@@ -55,13 +57,15 @@ class ReminderSchedulerTest {
 		assertEquals(expected, scheduler.nextFireMillis(task, now))
 	}
 
-	@Test fun oneOff_inPast_returnsNull() {
+	@Test
+	fun oneOff_inPast_returnsNull() {
 		val now = LocalDateTime.of(2026, 5, 1, 16, 0)
 		val task = oneOff(LocalDate.of(2026, 5, 1), LocalTime.of(15, 30))
 		assertNull(scheduler.nextFireMillis(task, now))
 	}
 
-	@Test fun repeat_today_inFuture_picksToday() {
+	@Test
+	fun repeat_today_inFuture_picksToday() {
 		// 2026-05-04 is Monday → dayOfWeek=0
 		val now = LocalDateTime.of(2026, 5, 4, 9, 0)
 		val task = repeat(weekdays = "0,2,4", time = LocalTime.of(15, 30))
@@ -70,7 +74,8 @@ class ReminderSchedulerTest {
 		assertEquals(expected, scheduler.nextFireMillis(task, now))
 	}
 
-	@Test fun repeat_today_inPast_picksNextWeekdayInSet() {
+	@Test
+	fun repeat_today_inPast_picksNextWeekdayInSet() {
 		// Monday 16:00; weekdays = MON, WED, FRI → next is WED
 		val now = LocalDateTime.of(2026, 5, 4, 16, 0)
 		val task = repeat(weekdays = "0,2,4", time = LocalTime.of(15, 30))
@@ -79,13 +84,15 @@ class ReminderSchedulerTest {
 		assertEquals(expected, scheduler.nextFireMillis(task, now))
 	}
 
-	@Test fun repeat_emptyWeekdays_returnsNull() {
+	@Test
+	fun repeat_emptyWeekdays_returnsNull() {
 		val now = LocalDateTime.of(2026, 5, 4, 9, 0)
 		val task = repeat(weekdays = "", time = LocalTime.of(15, 30))
 		assertNull(scheduler.nextFireMillis(task, now))
 	}
 
-	@Test fun repeat_singleWeekday_picksNextWeekOccurrence() {
+	@Test
+	fun repeat_singleWeekday_picksNextWeekOccurrence() {
 		// Tuesday now, only Friday in set → next Friday
 		val now = LocalDateTime.of(2026, 5, 5, 9, 0)
 		val task = repeat(weekdays = "4", time = LocalTime.of(15, 30))
@@ -94,13 +101,15 @@ class ReminderSchedulerTest {
 		assertEquals(expected, scheduler.nextFireMillis(task, now))
 	}
 
-	@Test fun cancel_isIdempotent_whenNoAlarmExists() {
+	@Test
+	fun cancel_isIdempotent_whenNoAlarmExists() {
 		// Should not throw.
 		scheduler.cancel(taskId = 999)
 		assertTrue(true)
 	}
 
-	@Test fun schedule_setsAlarmReachableViaCancel() {
+	@Test
+	fun schedule_setsAlarmReachableViaCancel() {
 		val task = oneOff(LocalDate.now().plusDays(1), LocalTime.of(10, 0))
 		scheduler.schedule(task)
 		// Idempotent re-schedule should also work.

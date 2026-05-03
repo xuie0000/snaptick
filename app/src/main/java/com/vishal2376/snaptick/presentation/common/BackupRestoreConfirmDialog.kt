@@ -47,8 +47,8 @@ fun BackupRestoreConfirmDialog(
 			val dropNote = if (droppedCount > 0) " ($droppedCount skipped)" else ""
 			Text(
 				text = "This will replace every task currently in Snaptick with " +
-					"$taskCount task${if (taskCount == 1) "" else "s"} from the " +
-					"selected backup file$dropNote. This cannot be undone.",
+						"$taskCount task${if (taskCount == 1) "" else "s"} from the " +
+						"selected backup file$dropNote. This cannot be undone.",
 			)
 		},
 	)

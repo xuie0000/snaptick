@@ -27,7 +27,8 @@ class ToggleTaskActionTest {
 	private lateinit var context: Context
 	private lateinit var db: TaskDatabase
 
-	@Before fun setUp() = runBlocking {
+	@Before
+	fun setUp() = runBlocking {
 		context = ApplicationProvider.getApplicationContext()
 		WorkManagerTestInitHelper.initializeTestWorkManager(
 			context,
@@ -45,17 +46,17 @@ class ToggleTaskActionTest {
 		)
 	}
 
-	@After fun tearDown() = runBlocking {
+	@After
+	fun tearDown() = runBlocking {
 		db.taskDao().deleteAllTasks()
 	}
 
-	@Test fun onAction_togglesTaskCompletion() = runBlocking {
+	@Test
+	fun onAction_togglesTaskCompletion() = runBlocking {
 		val params: ActionParameters = actionParametersOf(ToggleTaskAction.TaskIdKey to 1)
 		val glanceId = object : GlanceId {}
 
-		// onAction returns as soon as the optimistic widget push is done; the
-		// repository write runs on a process-lifetime background scope, so
-		// poll the DB instead of asserting synchronously.
+		// DB write is deferred to a background scope; poll instead of asserting sync.
 		ToggleTaskAction().onAction(context, glanceId, params)
 		assertTrue(awaitCompleted(true))
 
@@ -72,7 +73,8 @@ class ToggleTaskActionTest {
 		return false
 	}
 
-	@Test fun onAction_noopForMissingParam() = runBlocking {
+	@Test
+	fun onAction_noopForMissingParam() = runBlocking {
 		val params: ActionParameters = actionParametersOf()
 		val glanceId = object : GlanceId {}
 		ToggleTaskAction().onAction(context, glanceId, params)

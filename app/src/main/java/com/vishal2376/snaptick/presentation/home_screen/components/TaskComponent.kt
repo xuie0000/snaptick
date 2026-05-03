@@ -2,7 +2,6 @@ package com.vishal2376.snaptick.presentation.home_screen.components
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
-import com.vishal2376.snaptick.presentation.common.animation.SnaptickMotion
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
@@ -45,6 +44,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.vishal2376.snaptick.R
 import com.vishal2376.snaptick.domain.model.Task
+import com.vishal2376.snaptick.presentation.common.animation.SnaptickMotion
 import com.vishal2376.snaptick.presentation.common.taskDescTextStyle
 import com.vishal2376.snaptick.presentation.common.taskTextStyle
 import com.vishal2376.snaptick.presentation.common.utils.formatTaskTime
@@ -69,9 +69,7 @@ fun TaskComponent(
 	today: LocalDate = LocalDate.now()
 ) {
 
-	// Optimistic completion state. Flip locally on tap so the checkmark
-	// renders before the DB roundtrip + Flow re-emit lands. Reset whenever
-	// the upstream task identity or canonical completed flag changes.
+	// Optimistic flip on tap; resets when upstream task id or isCompleted lands.
 	var localCompleted by remember(task.id, task.isCompleted) { mutableStateOf(task.isCompleted) }
 
 	val alphaAnimation = remember { Animatable(initialValue = 0f) }
@@ -142,13 +140,14 @@ fun TaskComponent(
 							modifier = Modifier.size(20.dp)
 						)
 					} else {
-						Box(modifier = Modifier
-							.size(20.dp)
-							.border(
-								width = 2.dp,
-								color = MaterialTheme.colorScheme.onPrimaryContainer,
-								shape = CircleShape
-							),
+						Box(
+							modifier = Modifier
+								.size(20.dp)
+								.border(
+									width = 2.dp,
+									color = MaterialTheme.colorScheme.onPrimaryContainer,
+									shape = CircleShape
+								),
 							contentAlignment = Alignment.Center,
 							content = {})
 					}
@@ -231,7 +230,9 @@ fun TaskComponent(
 
 								)
 								Text(
-									text = if (isDailyTask) stringResource(R.string.every_day) else formatWeekDays(task.getRepeatWeekList()),
+									text = if (isDailyTask) stringResource(R.string.every_day) else formatWeekDays(
+										task.getRepeatWeekList()
+									),
 									style = taskDescTextStyle,
 									color = MaterialTheme.colorScheme.onPrimaryContainer
 

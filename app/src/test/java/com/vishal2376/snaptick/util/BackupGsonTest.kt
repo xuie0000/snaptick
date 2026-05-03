@@ -16,7 +16,8 @@ class BackupGsonTest {
 		.registerTypeAdapter(LocalTime::class.java, LocalTimeAdapter())
 		.create()
 
-	@Test fun backupData_roundTrip_preservesTasks() {
+	@Test
+	fun backupData_roundTrip_preservesTasks() {
 		val original = BackupData(
 			tasks = listOf(
 				Task(
@@ -44,7 +45,8 @@ class BackupGsonTest {
 		assertEquals(original, decoded)
 	}
 
-	@Test fun backupData_roundTrip_preservesCompletionsAndVersion() {
+	@Test
+	fun backupData_roundTrip_preservesCompletionsAndVersion() {
 		val original = BackupData(
 			version = 1,
 			tasks = emptyList(),
@@ -57,7 +59,8 @@ class BackupGsonTest {
 		assertEquals(original, decoded)
 	}
 
-	@Test fun empty_backup_roundTrips() {
+	@Test
+	fun empty_backup_roundTrips() {
 		val empty = BackupData(tasks = emptyList())
 		val decoded = gson.fromJson(gson.toJson(empty), BackupData::class.java)
 		assertEquals(empty, decoded)
@@ -65,13 +68,15 @@ class BackupGsonTest {
 		assertEquals(emptyList<BackupCompletion>(), decoded.completions)
 	}
 
-	@Test fun localDate_adapter_usesIsoFormat() {
+	@Test
+	fun localDate_adapter_usesIsoFormat() {
 		val d = LocalDate.of(2026, 1, 5)
 		val json = gson.toJson(d)
 		assertEquals("\"2026-01-05\"", json)
 	}
 
-	@Test fun localTime_adapter_usesIsoFormat() {
+	@Test
+	fun localTime_adapter_usesIsoFormat() {
 		val t = LocalTime.of(9, 30)
 		val json = gson.toJson(t)
 		assertEquals("\"09:30:00\"", json)

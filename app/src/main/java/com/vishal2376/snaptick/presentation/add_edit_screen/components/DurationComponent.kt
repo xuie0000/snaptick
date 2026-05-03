@@ -45,7 +45,11 @@ fun DurationComponent(
 		var defaultDurationIndex = durationList.indexOf(defaultDuration)
 		if (defaultDurationIndex == -1) defaultDurationIndex = lastIndex
 
-		var selectedOption by remember(defaultDurationIndex) { mutableIntStateOf(defaultDurationIndex) }
+		var selectedOption by remember(defaultDurationIndex) {
+			mutableIntStateOf(
+				defaultDurationIndex
+			)
+		}
 
 		durationList.forEachIndexed { index, it ->
 			var durationText = "$it min"

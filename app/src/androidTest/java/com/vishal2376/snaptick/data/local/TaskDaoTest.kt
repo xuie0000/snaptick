@@ -21,7 +21,8 @@ class TaskDaoTest {
 	private lateinit var db: TaskDatabase
 	private lateinit var dao: TaskDao
 
-	@Before fun setUp() {
+	@Before
+	fun setUp() {
 		val ctx = ApplicationProvider.getApplicationContext<android.content.Context>()
 		db = Room.inMemoryDatabaseBuilder(ctx, TaskDatabase::class.java)
 			.allowMainThreadQueries()
@@ -29,25 +30,32 @@ class TaskDaoTest {
 		dao = db.taskDao()
 	}
 
-	@After fun tearDown() { db.close() }
+	@After
+	fun tearDown() {
+		db.close()
+	}
 
-	private fun task(id: Int = 0, date: LocalDate = LocalDate.now(), repeated: Boolean = false) = Task(
-		id = id, uuid = "u$id", title = "T$id",
-		startTime = LocalTime.of(9, 0), endTime = LocalTime.of(10, 0),
-		isRepeated = repeated, date = date
-	)
+	private fun task(id: Int = 0, date: LocalDate = LocalDate.now(), repeated: Boolean = false) =
+		Task(
+			id = id, uuid = "u$id", title = "T$id",
+			startTime = LocalTime.of(9, 0), endTime = LocalTime.of(10, 0),
+			isRepeated = repeated, date = date
+		)
 
-	@Test fun insertAndGetById_roundtrip() = runBlocking {
+	@Test
+	fun insertAndGetById_roundtrip() = runBlocking {
 		dao.insertTask(task(id = 1))
 		val loaded = dao.getTaskById(1)
 		assertEquals("T1", loaded?.title)
 	}
 
-	@Test fun getTaskById_returnsNullForMissing() = runBlocking {
+	@Test
+	fun getTaskById_returnsNullForMissing() = runBlocking {
 		assertEquals(null, dao.getTaskById(99))
 	}
 
-	@Test fun getTasksByDate_filtersToTheDate() = runBlocking {
+	@Test
+	fun getTasksByDate_filtersToTheDate() = runBlocking {
 		dao.insertTask(task(id = 1, date = LocalDate.now()))
 		dao.insertTask(task(id = 2, date = LocalDate.now().plusDays(1)))
 		val todays = dao.getTasksByDate(LocalDate.now().toString()).first()
@@ -55,7 +63,8 @@ class TaskDaoTest {
 		assertEquals(1, todays.single().id)
 	}
 
-	@Test fun deleteAllTasks_empties() = runBlocking {
+	@Test
+	fun deleteAllTasks_empties() = runBlocking {
 		dao.insertTask(task(id = 1))
 		dao.insertTask(task(id = 2))
 		dao.deleteAllTasks()
@@ -63,13 +72,15 @@ class TaskDaoTest {
 		assertTrue(rows.isEmpty())
 	}
 
-	@Test fun updateTask_persistsChanges() = runBlocking {
+	@Test
+	fun updateTask_persistsChanges() = runBlocking {
 		dao.insertTask(task(id = 1))
 		dao.updateTask(task(id = 1).copy(title = "Updated"))
 		assertEquals("Updated", dao.getTaskById(1)?.title)
 	}
 
-	@Test fun deleteTask_removesRow() = runBlocking {
+	@Test
+	fun deleteTask_removesRow() = runBlocking {
 		val t = task(id = 1)
 		dao.insertTask(t)
 		dao.deleteTask(t)

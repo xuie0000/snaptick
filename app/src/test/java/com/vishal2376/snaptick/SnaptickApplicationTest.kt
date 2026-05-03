@@ -11,15 +11,18 @@ import org.junit.Test
  */
 class SnaptickApplicationTest {
 
-	@Test fun shouldInitAcra_withConfiguredEmail_returnsTrue() {
+	@Test
+	fun shouldInitAcra_withConfiguredEmail_returnsTrue() {
 		assertTrue(SnaptickApplication.shouldInitAcra("dev@example.com"))
 	}
 
-	@Test fun shouldInitAcra_withEmptyEmail_returnsFalse() {
+	@Test
+	fun shouldInitAcra_withEmptyEmail_returnsFalse() {
 		assertFalse(SnaptickApplication.shouldInitAcra(""))
 	}
 
-	@Test fun shouldInitAcra_withWhitespaceOnly_returnsFalse() {
+	@Test
+	fun shouldInitAcra_withWhitespaceOnly_returnsFalse() {
 		assertFalse(SnaptickApplication.shouldInitAcra("   "))
 		assertFalse(SnaptickApplication.shouldInitAcra("\t\n"))
 	}

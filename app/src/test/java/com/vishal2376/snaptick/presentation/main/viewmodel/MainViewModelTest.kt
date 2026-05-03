@@ -16,7 +16,6 @@ import com.vishal2376.snaptick.util.MainDispatcherRule
 import com.vishal2376.snaptick.util.SettingsStoreFake
 import com.vishal2376.snaptick.util.TaskRepositoryFake
 import io.mockk.coEvery
-import io.mockk.coJustRun
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
@@ -32,14 +31,16 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainViewModelTest {
 
-	@get:Rule val mainRule = MainDispatcherRule()
+	@get:Rule
+	val mainRule = MainDispatcherRule()
 
 	private lateinit var context: Context
 	private lateinit var store: SettingsStoreFake
 	private lateinit var backupManager: BackupManager
 	private lateinit var repoFake: TaskRepositoryFake
 
-	@Before fun setUp() {
+	@Before
+	fun setUp() {
 		context = mockk(relaxed = true)
 		every { context.getString(R.string.report_bug) } returns "Report a bug"
 		every { context.getString(R.string.suggestions) } returns "Suggestions"
@@ -64,7 +65,8 @@ class MainViewModelTest {
 		mockk(relaxed = true),
 	)
 
-	@Test fun `UpdateAppTheme updates state and persists`() = runTest {
+	@Test
+	fun `UpdateAppTheme updates state and persists`() = runTest {
 		val vm = buildVm()
 		advanceUntilIdle()
 		vm.onAction(MainAction.UpdateAppTheme(AppTheme.Amoled))
@@ -73,7 +75,8 @@ class MainViewModelTest {
 		coVerify { store.store.setTheme(AppTheme.Amoled.ordinal) }
 	}
 
-	@Test fun `UpdateLanguage persists new language`() = runTest {
+	@Test
+	fun `UpdateLanguage persists new language`() = runTest {
 		val vm = buildVm()
 		advanceUntilIdle()
 		vm.onAction(MainAction.UpdateLanguage("fr"))
@@ -82,7 +85,8 @@ class MainViewModelTest {
 		coVerify { store.store.setLanguage("fr") }
 	}
 
-	@Test fun `OnClickNavDrawerItem REPORT_BUGS emits OpenMail event`() = runTest {
+	@Test
+	fun `OnClickNavDrawerItem REPORT_BUGS emits OpenMail event`() = runTest {
 		val vm = buildVm()
 		advanceUntilIdle()
 		vm.events.test {
@@ -92,7 +96,8 @@ class MainViewModelTest {
 		}
 	}
 
-	@Test fun `CreateBackup success emits ShowToast with success text`() = runTest {
+	@Test
+	fun `CreateBackup success emits ShowToast with success text`() = runTest {
 		val uri = mockk<Uri>()
 		val data = BackupData(tasks = emptyList())
 		coEvery { backupManager.createBackup(any(), any()) } returns true
@@ -106,7 +111,8 @@ class MainViewModelTest {
 		}
 	}
 
-	@Test fun `PreviewBackup with null backup emits read-failure ShowToast`() = runTest {
+	@Test
+	fun `PreviewBackup with null backup emits read-failure ShowToast`() = runTest {
 		val uri = mockk<Uri>()
 		coEvery { backupManager.loadBackup(uri) } returns null
 
@@ -119,7 +125,8 @@ class MainViewModelTest {
 		}
 	}
 
-	@Test fun `PreviewBackup stages pendingRestore and emits BackupPreviewReady`() = runTest {
+	@Test
+	fun `PreviewBackup stages pendingRestore and emits BackupPreviewReady`() = runTest {
 		val uri = mockk<Uri>()
 		val data = BackupData(tasks = emptyList())
 		coEvery { backupManager.loadBackup(uri) } returns data
@@ -135,7 +142,8 @@ class MainViewModelTest {
 		coVerify(exactly = 0) { repoFake.repo.deleteAllTasks() }
 	}
 
-	@Test fun `ConfirmRestore invokes restoreFromBackup`() = runTest {
+	@Test
+	fun `ConfirmRestore invokes restoreFromBackup`() = runTest {
 		val uri = mockk<Uri>()
 		val data = BackupData(tasks = emptyList())
 		coEvery { backupManager.loadBackup(uri) } returns data
@@ -150,7 +158,8 @@ class MainViewModelTest {
 		coVerify(exactly = 1) { repoFake.repo.restoreFromBackup(any()) }
 	}
 
-	@Test fun `CancelRestore clears pendingRestore without DB writes`() = runTest {
+	@Test
+	fun `CancelRestore clears pendingRestore without DB writes`() = runTest {
 		val uri = mockk<Uri>()
 		val data = BackupData(tasks = emptyList())
 		coEvery { backupManager.loadBackup(uri) } returns data

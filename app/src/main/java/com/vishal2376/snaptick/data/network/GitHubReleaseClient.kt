@@ -24,13 +24,14 @@ class GitHubReleaseClient @Inject constructor() {
 
 	suspend fun fetchLatest(): GitHubRelease? = withContext(Dispatchers.IO) {
 		runCatching {
-			val conn = (URL(Constants.GITHUB_LATEST_RELEASE_API).openConnection() as HttpURLConnection).apply {
-				requestMethod = "GET"
-				connectTimeout = 8000
-				readTimeout = 8000
-				setRequestProperty("Accept", "application/vnd.github+json")
-				setRequestProperty("User-Agent", "snaptick-android")
-			}
+			val conn =
+				(URL(Constants.GITHUB_LATEST_RELEASE_API).openConnection() as HttpURLConnection).apply {
+					requestMethod = "GET"
+					connectTimeout = 8000
+					readTimeout = 8000
+					setRequestProperty("Accept", "application/vnd.github+json")
+					setRequestProperty("User-Agent", "snaptick-android")
+				}
 			try {
 				if (conn.responseCode != 200) return@runCatching null
 				val text = conn.inputStream.bufferedReader().use { it.readText() }

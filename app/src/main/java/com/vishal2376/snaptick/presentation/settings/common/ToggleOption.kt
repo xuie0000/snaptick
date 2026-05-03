@@ -1,7 +1,6 @@
 package com.vishal2376.snaptick.presentation.settings.common
 
 import androidx.compose.animation.core.Animatable
-import com.vishal2376.snaptick.presentation.common.animation.SnaptickMotion
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.vishal2376.snaptick.presentation.common.animation.SnaptickMotion
 import com.vishal2376.snaptick.presentation.common.h3TextStyle
 
 @Composable

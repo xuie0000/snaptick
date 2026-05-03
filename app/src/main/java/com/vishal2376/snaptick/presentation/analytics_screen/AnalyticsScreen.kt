@@ -1,6 +1,5 @@
 package com.vishal2376.snaptick.presentation.analytics_screen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -62,7 +61,9 @@ fun AnalyticsScreen(
 			},
 		)
 	}) { innerPadding ->
-		Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+		Box(modifier = Modifier
+			.padding(innerPadding)
+			.fillMaxSize()) {
 			val snap = state.snapshot
 			if (state.isLoading || snap == null) {
 				Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

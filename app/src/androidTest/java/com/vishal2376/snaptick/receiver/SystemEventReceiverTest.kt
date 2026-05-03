@@ -24,7 +24,8 @@ class SystemEventReceiverTest {
 
 	private lateinit var context: Context
 
-	@Before fun setUp() {
+	@Before
+	fun setUp() {
 		context = ApplicationProvider.getApplicationContext()
 		val cfg = Configuration.Builder()
 			.setMinimumLoggingLevel(android.util.Log.DEBUG)
@@ -32,27 +33,32 @@ class SystemEventReceiverTest {
 		WorkManagerTestInitHelper.initializeTestWorkManager(context, cfg)
 	}
 
-	@Test fun bootCompleted_enqueuesRescheduleWorker() {
+	@Test
+	fun bootCompleted_enqueuesRescheduleWorker() {
 		dispatch(Intent.ACTION_BOOT_COMPLETED)
 		assertWorkEnqueued()
 	}
 
-	@Test fun timeSet_enqueuesRescheduleWorker() {
+	@Test
+	fun timeSet_enqueuesRescheduleWorker() {
 		dispatch(Intent.ACTION_TIME_CHANGED)
 		assertWorkEnqueued()
 	}
 
-	@Test fun timezoneChanged_enqueuesRescheduleWorker() {
+	@Test
+	fun timezoneChanged_enqueuesRescheduleWorker() {
 		dispatch(Intent.ACTION_TIMEZONE_CHANGED)
 		assertWorkEnqueued()
 	}
 
-	@Test fun packageReplaced_enqueuesRescheduleWorker() {
+	@Test
+	fun packageReplaced_enqueuesRescheduleWorker() {
 		dispatch(Intent.ACTION_MY_PACKAGE_REPLACED)
 		assertWorkEnqueued()
 	}
 
-	@Test fun unrelatedAction_doesNotEnqueueWorker() {
+	@Test
+	fun unrelatedAction_doesNotEnqueueWorker() {
 		dispatch("android.intent.action.SOMETHING_ELSE_ENTIRELY")
 		val infos = WorkManager.getInstance(context)
 			.getWorkInfosForUniqueWork(SystemEventReceiver.UNIQUE_WORK_NAME)

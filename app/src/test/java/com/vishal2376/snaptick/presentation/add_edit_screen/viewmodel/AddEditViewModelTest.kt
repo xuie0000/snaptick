@@ -23,26 +23,37 @@ import java.time.LocalTime
 @OptIn(ExperimentalCoroutinesApi::class)
 class AddEditViewModelTest {
 
-	@get:Rule val mainRule = MainDispatcherRule()
+	@get:Rule
+	val mainRule = MainDispatcherRule()
 
 	private lateinit var repoFake: TaskRepositoryFake
 
 	private fun buildVm(savedStateHandle: SavedStateHandle = SavedStateHandle(mapOf("id" to -1))): AddEditViewModel =
 		AddEditViewModel(repoFake.repo, savedStateHandle)
 
-	@Before fun setUp() {
+	@Before
+	fun setUp() {
 		repoFake = TaskRepositoryFake()
 	}
 
-	@Test fun `id -1 starts with blank state`() = runTest {
+	@Test
+	fun `id -1 starts with blank state`() = runTest {
 		val vm = buildVm()
 		advanceUntilIdle()
 		assertEquals(0, vm.state.value.taskId)
 		assertEquals("", vm.state.value.title)
 	}
 
-	@Test fun `id loads existing task into state`() = runTest {
-		val existing = Task(id = 5, uuid = "u5", title = "Ring", startTime = LocalTime.of(9, 0), endTime = LocalTime.of(10, 0), date = LocalDate.now())
+	@Test
+	fun `id loads existing task into state`() = runTest {
+		val existing = Task(
+			id = 5,
+			uuid = "u5",
+			title = "Ring",
+			startTime = LocalTime.of(9, 0),
+			endTime = LocalTime.of(10, 0),
+			date = LocalDate.now()
+		)
 		repoFake.seed(listOf(existing))
 		val vm = buildVm(SavedStateHandle(mapOf("id" to 5)))
 		advanceUntilIdle()
@@ -50,13 +61,15 @@ class AddEditViewModelTest {
 		assertEquals("Ring", vm.state.value.title)
 	}
 
-	@Test fun `UpdateTitle mutates state title`() = runTest {
+	@Test
+	fun `UpdateTitle mutates state title`() = runTest {
 		val vm = buildVm()
 		vm.onAction(AddEditAction.UpdateTitle("foo"))
 		assertEquals("foo", vm.state.value.title)
 	}
 
-	@Test fun `UpdateAllDay true syncs endTime with startTime`() = runTest {
+	@Test
+	fun `UpdateAllDay true syncs endTime with startTime`() = runTest {
 		val vm = buildVm()
 		vm.onAction(AddEditAction.UpdateStartTime(LocalTime.of(11, 0)))
 		vm.onAction(AddEditAction.UpdateAllDay(true))
@@ -65,7 +78,8 @@ class AddEditViewModelTest {
 		assertEquals(s.startTime, s.endTime)
 	}
 
-	@Test fun `UpdateDurationMinutes sets endTime`() = runTest {
+	@Test
+	fun `UpdateDurationMinutes sets endTime`() = runTest {
 		val vm = buildVm()
 		vm.onAction(AddEditAction.UpdateStartTime(LocalTime.of(9, 0)))
 		vm.onAction(AddEditAction.UpdateDurationMinutes(90))
@@ -74,21 +88,24 @@ class AddEditViewModelTest {
 		assertEquals(LocalTime.of(10, 30), s.endTime)
 	}
 
-	@Test fun `UpdateEndTime recomputes duration from gap`() = runTest {
+	@Test
+	fun `UpdateEndTime recomputes duration from gap`() = runTest {
 		val vm = buildVm()
 		vm.onAction(AddEditAction.UpdateStartTime(LocalTime.of(9, 0)))
 		vm.onAction(AddEditAction.UpdateEndTime(LocalTime.of(10, 15)))
 		assertEquals(75L, vm.state.value.duration)
 	}
 
-	@Test fun `UpdateEndTime midnight crossing duration is positive`() = runTest {
+	@Test
+	fun `UpdateEndTime midnight crossing duration is positive`() = runTest {
 		val vm = buildVm()
 		vm.onAction(AddEditAction.UpdateStartTime(LocalTime.of(23, 0)))
 		vm.onAction(AddEditAction.UpdateEndTime(LocalTime.of(1, 0)))
 		assertEquals(120L, vm.state.value.duration)
 	}
 
-	@Test fun `UpdateStartTime preserves duration and shifts endTime`() = runTest {
+	@Test
+	fun `UpdateStartTime preserves duration and shifts endTime`() = runTest {
 		val vm = buildVm()
 		vm.onAction(AddEditAction.UpdateStartTime(LocalTime.of(9, 0)))
 		vm.onAction(AddEditAction.UpdateDurationMinutes(60))
@@ -99,17 +116,26 @@ class AddEditViewModelTest {
 		assertEquals(60L, s.duration)
 	}
 
-	@Test fun `default state has reminder off and isLoaded true`() = runTest {
+	@Test
+	fun `default state has reminder off and isLoaded true`() = runTest {
 		val s = AddEditState()
 		assertEquals(false, s.reminder)
 		assertTrue(s.isLoaded)
 	}
 
-	@Test fun `add starts isLoaded true and edit toggles false then true`() = runTest {
+	@Test
+	fun `add starts isLoaded true and edit toggles false then true`() = runTest {
 		val addVm = buildVm()
 		assertTrue(addVm.state.value.isLoaded)
 
-		val existing = Task(id = 9, uuid = "u9", title = "X", startTime = LocalTime.of(9, 0), endTime = LocalTime.of(10, 0), date = LocalDate.now())
+		val existing = Task(
+			id = 9,
+			uuid = "u9",
+			title = "X",
+			startTime = LocalTime.of(9, 0),
+			endTime = LocalTime.of(10, 0),
+			date = LocalDate.now()
+		)
 		repoFake.seed(listOf(existing))
 		val editVm = buildVm(SavedStateHandle(mapOf("id" to 9)))
 		assertEquals(false, editVm.state.value.isLoaded)
@@ -117,7 +143,8 @@ class AddEditViewModelTest {
 		assertTrue(editVm.state.value.isLoaded)
 	}
 
-	@Test fun `SaveTask inserts, schedules reminder, emits TaskSaved`() = runTest {
+	@Test
+	fun `SaveTask inserts, schedules reminder, emits TaskSaved`() = runTest {
 		val vm = buildVm()
 		vm.onAction(AddEditAction.UpdateTitle("Run"))
 		vm.onAction(AddEditAction.UpdateStartTime(LocalTime.of(9, 0)))
@@ -130,8 +157,17 @@ class AddEditViewModelTest {
 		assertEquals(1, repoFake.current().size)
 	}
 
-	@Test fun `UpdateTask with reminder off cancels and emits TaskUpdated`() = runTest {
-		val t = Task(id = 7, uuid = "u7", title = "X", reminder = false, startTime = LocalTime.of(9, 0), endTime = LocalTime.of(10, 0), date = LocalDate.now())
+	@Test
+	fun `UpdateTask with reminder off cancels and emits TaskUpdated`() = runTest {
+		val t = Task(
+			id = 7,
+			uuid = "u7",
+			title = "X",
+			reminder = false,
+			startTime = LocalTime.of(9, 0),
+			endTime = LocalTime.of(10, 0),
+			date = LocalDate.now()
+		)
 		repoFake.seed(listOf(t))
 		val vm = buildVm(SavedStateHandle(mapOf("id" to 7)))
 		advanceUntilIdle()
@@ -144,8 +180,16 @@ class AddEditViewModelTest {
 		assertEquals("Y", repoFake.current().single().title)
 	}
 
-	@Test fun `DeleteTask removes and emits TaskDeleted`() = runTest {
-		val t = Task(id = 3, uuid = "u3", title = "Del", startTime = LocalTime.of(9, 0), endTime = LocalTime.of(10, 0), date = LocalDate.now())
+	@Test
+	fun `DeleteTask removes and emits TaskDeleted`() = runTest {
+		val t = Task(
+			id = 3,
+			uuid = "u3",
+			title = "Del",
+			startTime = LocalTime.of(9, 0),
+			endTime = LocalTime.of(10, 0),
+			date = LocalDate.now()
+		)
 		repoFake.seed(listOf(t))
 		val vm = buildVm(SavedStateHandle(mapOf("id" to 3)))
 		advanceUntilIdle()
@@ -157,7 +201,8 @@ class AddEditViewModelTest {
 		assertEquals(emptyList<Task>(), repoFake.current())
 	}
 
-	@Test fun `UpdatePriority sets state priority`() = runTest {
+	@Test
+	fun `UpdatePriority sets state priority`() = runTest {
 		val vm = buildVm()
 		vm.onAction(AddEditAction.UpdatePriority(Priority.HIGH))
 		assertEquals(Priority.HIGH, vm.state.value.priority)

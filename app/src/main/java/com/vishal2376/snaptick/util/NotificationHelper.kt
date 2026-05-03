@@ -63,19 +63,13 @@ class NotificationHelper(private val context: Context) {
 		}
 	}
 
-	/**
-	 * Builds a PendingIntent that, when fired, kicks the foreground
-	 * [PomodoroService] for [taskId]. Use a per-task request code so multiple
-	 * outstanding reminder notifications don't collide on the same intent.
-	 */
+	// Per-task request code so multiple outstanding reminders don't collide.
 	private fun startPomodoroPendingIntent(taskId: Int): PendingIntent {
 		val intent = Intent(context, PomodoroService::class.java).apply {
 			action = PomodoroService.ACTION_START_FOR_TASK
 			putExtra(PomodoroService.EXTRA_TASK_ID, taskId)
 		}
 		val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-		// getForegroundService is required when targeting API 26+; the notif
-		// action is a user gesture so the FG-service start is allowed.
 		return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 			PendingIntent.getForegroundService(
 				context,

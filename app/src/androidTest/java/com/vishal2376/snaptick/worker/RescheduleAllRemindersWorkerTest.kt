@@ -53,9 +53,13 @@ class RescheduleAllRemindersWorkerTest {
 	private val completedId = 71_002
 	private val noReminderId = 71_003
 
-	@Before fun setUp() {
+	@Before
+	fun setUp() {
 		context = ApplicationProvider.getApplicationContext()
-		WorkManagerTestInitHelper.initializeTestWorkManager(context, Configuration.Builder().build())
+		WorkManagerTestInitHelper.initializeTestWorkManager(
+			context,
+			Configuration.Builder().build()
+		)
 		db = Room.inMemoryDatabaseBuilder(context, TaskDatabase::class.java)
 			.allowMainThreadQueries()
 			.build()
@@ -63,18 +67,28 @@ class RescheduleAllRemindersWorkerTest {
 		scheduler = ReminderScheduler(context, am)
 		val settings = SettingsStore(context)
 		val pusher = CalendarPusher(CalendarRepository(context), db.taskDao(), settings)
-		repo = TaskRepository(db.taskDao(), db.taskCompletionDao(), db.taskReminderDao(), db, context, pusher, scheduler)
+		repo = TaskRepository(
+			db.taskDao(),
+			db.taskCompletionDao(),
+			db.taskReminderDao(),
+			db,
+			context,
+			pusher,
+			scheduler
+		)
 
 		// Clear any leftover alarms from prior runs so assertions are clean.
 		listOf(activeId, completedId, noReminderId).forEach { scheduler.cancel(it) }
 	}
 
-	@After fun tearDown() {
+	@After
+	fun tearDown() {
 		listOf(activeId, completedId, noReminderId).forEach { scheduler.cancel(it) }
 		db.close()
 	}
 
-	@Test fun worker_armsActiveTask_butNotCompleted_orReminderOff() = runBlocking {
+	@Test
+	fun worker_armsActiveTask_butNotCompleted_orReminderOff() = runBlocking {
 		fun task(id: Int, completed: Boolean, reminder: Boolean) = Task(
 			id = id, uuid = "all-rearm-$id",
 			title = "T$id",
@@ -100,7 +114,8 @@ class RescheduleAllRemindersWorkerTest {
 		assertNull("reminder-off task must NOT be armed", pendingIntentFor(noReminderId))
 	}
 
-	@Test fun worker_succeedsOnEmptyDb() = runBlocking {
+	@Test
+	fun worker_succeedsOnEmptyDb() = runBlocking {
 		val worker = TestListenableWorkerBuilder<RescheduleAllRemindersWorker>(context)
 			.setWorkerFactory(factory())
 			.build()

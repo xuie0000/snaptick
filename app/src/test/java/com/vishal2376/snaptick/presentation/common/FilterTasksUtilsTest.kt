@@ -36,7 +36,8 @@ class FilterTasksUtilsTest {
 		isRepeated = false, date = date,
 	)
 
-	@Test fun `filterTasksByDate includes future repeats whose weekday matches`() {
+	@Test
+	fun `filterTasksByDate includes future repeats whose weekday matches`() {
 		val tasks = listOf(repeatTask(repeatWeekdays = "0,2,4")) // Mon Wed Fri
 		val nextWed = createdMon.plusDays(2)
 		val nextFri = createdMon.plusDays(4)
@@ -46,7 +47,8 @@ class FilterTasksUtilsTest {
 		assertEquals(1, filterTasksByDate(tasks, nextMon).size)
 	}
 
-	@Test fun `filterTasksByDate excludes future repeats whose weekday does not match`() {
+	@Test
+	fun `filterTasksByDate excludes future repeats whose weekday does not match`() {
 		val tasks = listOf(repeatTask(repeatWeekdays = "0,2,4")) // Mon Wed Fri
 		val nextTue = createdMon.plusDays(1)
 		val nextSun = createdMon.plusDays(6)
@@ -54,13 +56,15 @@ class FilterTasksUtilsTest {
 		assertTrue(filterTasksByDate(tasks, nextSun).isEmpty())
 	}
 
-	@Test fun `filterTasksByDate excludes one-off task on different date`() {
+	@Test
+	fun `filterTasksByDate excludes one-off task on different date`() {
 		val tasks = listOf(oneOffTask(date = createdMon))
 		assertEquals(1, filterTasksByDate(tasks, createdMon).size)
 		assertTrue(filterTasksByDate(tasks, createdMon.plusDays(1)).isEmpty())
 	}
 
-	@Test fun `filterTasksByDate excludes repeats before creation date`() {
+	@Test
+	fun `filterTasksByDate excludes repeats before creation date`() {
 		val tasks = listOf(repeatTask(repeatWeekdays = "0")) // Mon, created 2026-04-27
 		val priorMon = createdMon.minusWeeks(1)
 		assertFalse(filterTasksByDate(tasks, priorMon).any { it.uuid == "u1" })

@@ -26,7 +26,6 @@ import com.vishal2376.snaptick.presentation.common.SortTask
 import com.vishal2376.snaptick.presentation.common.h2TextStyle
 import com.vishal2376.snaptick.presentation.common.h3TextStyle
 import com.vishal2376.snaptick.presentation.common.taskTextStyle
-import com.vishal2376.snaptick.ui.theme.Blue
 import com.vishal2376.snaptick.ui.theme.SnaptickTheme
 
 @Composable

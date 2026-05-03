@@ -16,13 +16,13 @@ private fun playMediaSound(context: Context, @RawRes soundResId: Int) {
 }
 
 fun playSound(context: Context, soundEvent: SoundEvent, enabled: Boolean = true) {
-    if (!enabled) return
-    val soundResId = when (soundEvent) {
-	    SoundEvent.TASK_ADDED -> R.raw.task_added
-	    SoundEvent.TASK_COMPLETED -> R.raw.task_completed
-	    SoundEvent.TASK_DELETED -> R.raw.task_deleted
-    }
-    playMediaSound(context, soundResId)
+	if (!enabled) return
+	val soundResId = when (soundEvent) {
+		SoundEvent.TASK_ADDED -> R.raw.task_added
+		SoundEvent.TASK_COMPLETED -> R.raw.task_completed
+		SoundEvent.TASK_DELETED -> R.raw.task_deleted
+	}
+	playMediaSound(context, soundResId)
 }
 
 enum class SoundEvent {

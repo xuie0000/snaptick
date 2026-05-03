@@ -18,11 +18,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.vishal2376.snaptick.wheelpicker.WheelTimePicker
 import com.vishal2376.snaptick.R
 import com.vishal2376.snaptick.presentation.common.durationTextStyle
 import com.vishal2376.snaptick.presentation.common.h3TextStyle
 import com.vishal2376.snaptick.ui.theme.SnaptickTheme
+import com.vishal2376.snaptick.wheelpicker.WheelTimePicker
 import java.time.LocalTime
 
 @Composable

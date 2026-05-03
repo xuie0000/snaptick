@@ -15,7 +15,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Backup
-import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Settings
@@ -98,8 +97,7 @@ fun NavigationDrawerComponent(
 
 			Spacer(modifier = Modifier.height(8.dp))
 
-			// Analytics intentionally hidden for 4.0 — UI rework planned post-release.
-			// Keep onClickAnalytics in the API so wiring stays intact when restored.
+			// Analytics hidden for 4.0 — restore after the rework.
 
 			NavDrawerItemUI(
 				icon = Icons.Default.Settings,

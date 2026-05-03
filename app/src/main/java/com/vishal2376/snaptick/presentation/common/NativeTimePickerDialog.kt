@@ -22,8 +22,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.vishal2376.snaptick.R
-import com.vishal2376.snaptick.ui.theme.Black500
-import com.vishal2376.snaptick.ui.theme.Blue
 import com.vishal2376.snaptick.ui.theme.SnaptickTheme
 import java.time.LocalTime
 
@@ -39,7 +37,11 @@ fun NativeTimePickerDialog(
 		Card(
 			modifier = Modifier
 				.fillMaxWidth()
-				.border(4.dp, MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(16.dp)),
+				.border(
+					4.dp,
+					MaterialTheme.colorScheme.primaryContainer,
+					RoundedCornerShape(16.dp)
+				),
 			shape = RoundedCornerShape(16.dp),
 			colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
 		) {

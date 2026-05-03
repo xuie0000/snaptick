@@ -21,12 +21,14 @@ class UtilsTest {
 
 	private lateinit var context: Context
 
-	@Before fun setUp() {
+	@Before
+	fun setUp() {
 		context = mockk(relaxed = true)
 		mockkStatic(Uri::class)
 	}
 
-	@After fun tearDown() {
+	@After
+	fun tearDown() {
 		unmockkStatic(Uri::class)
 	}
 
@@ -38,49 +40,57 @@ class UtilsTest {
 	// constructors. We can still verify startActivity is *called*; the
 	// argument's content is exercised in instrumented tests.
 
-	@Test fun `https URI launches ACTION_VIEW`() {
+	@Test
+	fun `https URI launches ACTION_VIEW`() {
 		stubScheme("https://example.com", "https")
 		openUrl(context, "https://example.com")
 		verify(exactly = 1) { context.startActivity(any<Intent>()) }
 	}
 
-	@Test fun `HTTPS uppercase scheme also accepted (case insensitive)`() {
+	@Test
+	fun `HTTPS uppercase scheme also accepted (case insensitive)`() {
 		stubScheme("HTTPS://example.com", "HTTPS")
 		openUrl(context, "HTTPS://example.com")
 		verify(exactly = 1) { context.startActivity(any<Intent>()) }
 	}
 
-	@Test fun `http URI is rejected`() {
+	@Test
+	fun `http URI is rejected`() {
 		stubScheme("http://example.com", "http")
 		openUrl(context, "http://example.com")
 		verify(exactly = 0) { context.startActivity(any<Intent>()) }
 	}
 
-	@Test fun `file URI is rejected`() {
+	@Test
+	fun `file URI is rejected`() {
 		stubScheme("file:///etc/passwd", "file")
 		openUrl(context, "file:///etc/passwd")
 		verify(exactly = 0) { context.startActivity(any<Intent>()) }
 	}
 
-	@Test fun `intent URI is rejected`() {
+	@Test
+	fun `intent URI is rejected`() {
 		stubScheme("intent://launch#Intent;...;end", "intent")
 		openUrl(context, "intent://launch#Intent;...;end")
 		verify(exactly = 0) { context.startActivity(any<Intent>()) }
 	}
 
-	@Test fun `content URI is rejected`() {
+	@Test
+	fun `content URI is rejected`() {
 		stubScheme("content://com.evil.provider/secret", "content")
 		openUrl(context, "content://com.evil.provider/secret")
 		verify(exactly = 0) { context.startActivity(any<Intent>()) }
 	}
 
-	@Test fun `null scheme is rejected`() {
+	@Test
+	fun `null scheme is rejected`() {
 		stubScheme("not-a-url", null)
 		openUrl(context, "not-a-url")
 		verify(exactly = 0) { context.startActivity(any<Intent>()) }
 	}
 
-	@Test fun `null Uri parse result returns silently`() {
+	@Test
+	fun `null Uri parse result returns silently`() {
 		every { Uri.parse("garbage") } returns null
 		openUrl(context, "garbage")
 		verify(exactly = 0) { context.startActivity(any<Intent>()) }

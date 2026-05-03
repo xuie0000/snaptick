@@ -113,56 +113,57 @@ fun CalenderScreen(
 	else
 		monthState.lastVisibleMonth.yearMonth.month
 
-	Scaffold(topBar = {
-		TopAppBar(
-			colors = TopAppBarDefaults.topAppBarColors(
-				containerColor = MaterialTheme.colorScheme.background,
-			),
-			title = {
-				Text(
-					text = currentMonthTitle.getDisplayName(
-						TextStyle.FULL,
-						Locale.getDefault()
-					),
-					style = h1TextStyle
-				)
-			},
-			navigationIcon = {
-				IconButton(onClick = { onBack() }) {
-					Icon(
-						imageVector = Icons.Rounded.ArrowBack,
-						contentDescription = null
+	Scaffold(
+		topBar = {
+			TopAppBar(
+				colors = TopAppBarDefaults.topAppBarColors(
+					containerColor = MaterialTheme.colorScheme.background,
+				),
+				title = {
+					Text(
+						text = currentMonthTitle.getDisplayName(
+							TextStyle.FULL,
+							Locale.getDefault()
+						),
+						style = h1TextStyle
 					)
-				}
-			},
-			actions = {
-				IconButton(onClick = {
-					scope.launch {
-						selectedDay = currentDate
-						if (calenderView == CalenderView.WEEKLY)
-							weekState.animateScrollToWeek(currentDate)
-						else
-							monthState.animateScrollToMonth(currentMonth)
+				},
+				navigationIcon = {
+					IconButton(onClick = { onBack() }) {
+						Icon(
+							imageVector = Icons.Rounded.ArrowBack,
+							contentDescription = null
+						)
 					}
-				}) {
-					Icon(imageVector = Icons.Default.Restore, contentDescription = null)
-				}
+				},
+				actions = {
+					IconButton(onClick = {
+						scope.launch {
+							selectedDay = currentDate
+							if (calenderView == CalenderView.WEEKLY)
+								weekState.animateScrollToWeek(currentDate)
+							else
+								monthState.animateScrollToMonth(currentMonth)
+						}
+					}) {
+						Icon(imageVector = Icons.Default.Restore, contentDescription = null)
+					}
 
-				IconButton(onClick = {
-					calenderView = if (calenderView == CalenderView.WEEKLY)
-						CalenderView.MONTHLY
-					else
-						CalenderView.WEEKLY
+					IconButton(onClick = {
+						calenderView = if (calenderView == CalenderView.WEEKLY)
+							CalenderView.MONTHLY
+						else
+							CalenderView.WEEKLY
 
-					onAction(MainAction.UpdateCalenderView(calenderView))
-				}) {
-					val currentIcon =
-						if (calenderView == CalenderView.WEEKLY) Icons.Default.CalendarMonth else Icons.Default.ViewWeek
-					Icon(imageVector = currentIcon, contentDescription = null)
+						onAction(MainAction.UpdateCalenderView(calenderView))
+					}) {
+						val currentIcon =
+							if (calenderView == CalenderView.WEEKLY) Icons.Default.CalendarMonth else Icons.Default.ViewWeek
+						Icon(imageVector = currentIcon, contentDescription = null)
+					}
 				}
-			}
-		)
-	},
+			)
+		},
 		floatingActionButton = {
 			if (selectedDay >= LocalDate.now()) {
 				FloatingActionButton(
@@ -236,7 +237,8 @@ fun CalenderScreen(
 						.padding(16.dp, 0.dp),
 					contentPadding = PaddingValues(vertical = 12.dp)
 				) {
-					itemsIndexed(items = selectedDayTasks,
+					itemsIndexed(
+						items = selectedDayTasks,
 						key = { index, task ->
 							task.id
 						}) { index, task ->
@@ -259,8 +261,17 @@ fun CalenderScreen(
 								},
 								onComplete = {
 									if (task.date >= LocalDate.now()) {
-										playSound(context, SoundEvent.TASK_COMPLETED, appState.soundEnabled)
-										onTaskAction(TaskListAction.ToggleCompletion(it, !task.isCompleted))
+										playSound(
+											context,
+											SoundEvent.TASK_COMPLETED,
+											appState.soundEnabled
+										)
+										onTaskAction(
+											TaskListAction.ToggleCompletion(
+												it,
+												!task.isCompleted
+											)
+										)
 									}
 								},
 								onPomodoro = { taskId ->

@@ -89,7 +89,8 @@ internal fun DefaultWheelDatePicker(
 						if (!newDate.isBefore(minDate) && !newDate.isAfter(maxDate)) {
 							snappedDate = newDate
 						}
-						val newIndex = dayOfMonths.find { it.value == snappedDate.dayOfMonth }?.index
+						val newIndex =
+							dayOfMonths.find { it.value == snappedDate.dayOfMonth }?.index
 						newIndex?.let {
 							onSnappedDate(
 								SnappedDate.DayOfMonth(
@@ -124,7 +125,8 @@ internal fun DefaultWheelDatePicker(
 						if (!newDate.isBefore(minDate) && !newDate.isAfter(maxDate)) {
 							snappedDate = newDate
 						}
-						dayOfMonths = calculateDayOfMonths(snappedDate.month.value, snappedDate.year)
+						dayOfMonths =
+							calculateDayOfMonths(snappedDate.month.value, snappedDate.year)
 						val newIndex = months.find { it.value == snappedDate.monthValue }?.index
 						newIndex?.let {
 							onSnappedDate(
@@ -160,7 +162,8 @@ internal fun DefaultWheelDatePicker(
 							if (!newDate.isBefore(minDate) && !newDate.isAfter(maxDate)) {
 								snappedDate = newDate
 							}
-							dayOfMonths = calculateDayOfMonths(snappedDate.month.value, snappedDate.year)
+							dayOfMonths =
+								calculateDayOfMonths(snappedDate.month.value, snappedDate.year)
 							val newIndex = years.find { it.value == snappedDate.year }?.index
 							newIndex?.let {
 								onSnappedDate(

@@ -80,7 +80,8 @@ fun WeekDaysItemComponent(title: String, isSelected: Boolean, onChange: (Boolean
 			.border(borderWidth, MaterialTheme.colorScheme.primaryContainer, CircleShape),
 		contentAlignment = Alignment.Center
 	) {
-		Checkbox(modifier = Modifier.alpha(0f),
+		Checkbox(
+			modifier = Modifier.alpha(0f),
 			checked = isSelected,
 			onCheckedChange = { onChange(it) }
 		)

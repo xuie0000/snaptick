@@ -3,8 +3,8 @@ package com.vishal2376.snaptick.wheelpicker.core
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -202,7 +202,8 @@ internal fun DefaultWheelTimePicker(
 						hours.find { it.value == snappedTime.hour }?.value
 					} else {
 						amPmHourToHour24(
-							amPmHours.find { it.value == localTimeToAmPmHour(snappedTime) }?.value ?: 0,
+							amPmHours.find { it.value == localTimeToAmPmHour(snappedTime) }?.value
+								?: 0,
 							snappedTime.minute,
 							snappedAmPm.value
 						)
@@ -244,7 +245,8 @@ internal fun DefaultWheelTimePicker(
 					rowCount = rowCount,
 					style = textStyle,
 					color = textColor,
-					startIndex = amPms.find { it.value == amPmValueFromTime(startTime) }?.index ?: 0,
+					startIndex = amPms.find { it.value == amPmValueFromTime(startTime) }?.index
+						?: 0,
 					scrollToIndex = ampmScrollIndex,
 					scrollGeneration = scrollGeneration,
 					selectorProperties = WheelPickerDefaults.selectorProperties(
@@ -267,7 +269,8 @@ internal fun DefaultWheelTimePicker(
 						val newMinute = minutes.find { it.value == snappedTime.minute }?.value
 
 						val newHour = amPmHourToHour24(
-							amPmHours.find { it.value == localTimeToAmPmHour(snappedTime) }?.value ?: 0,
+							amPmHours.find { it.value == localTimeToAmPmHour(snappedTime) }?.value
+								?: 0,
 							snappedTime.minute,
 							snappedAmPm.value
 						)
@@ -367,6 +370,7 @@ private fun amPmHourToHour24(amPmHour: Int, amPmMinute: Int, amPmValue: AmPmValu
 		AmPmValue.AM -> {
 			if (amPmHour == 12 && amPmMinute <= 59) 0 else amPmHour
 		}
+
 		AmPmValue.PM -> {
 			if (amPmHour == 12 && amPmMinute <= 59) amPmHour else amPmHour + 12
 		}

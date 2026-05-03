@@ -102,7 +102,8 @@ fun HomeScreen(
 	val completedTasks = remember(tasks) { tasks.filter { it.isCompleted } }
 	val inCompletedTasks = remember(tasks) { tasks.filter { !it.isCompleted } }
 
-	val totalTaskTime = remember(inCompletedTasks) { inCompletedTasks.sumOf { it.getDuration(checkPastTask = true) } }
+	val totalTaskTime =
+		remember(inCompletedTasks) { inCompletedTasks.sumOf { it.getDuration(checkPastTask = true) } }
 	val freeTimeText = getFreeTime(totalTaskTime, appState.sleepTime)
 
 	val packageVersionCode = remember(context) {
@@ -175,41 +176,42 @@ fun HomeScreen(
 				)
 			}
 		}) {
-		Scaffold(topBar = {
-			TopAppBar(
-				colors = TopAppBarDefaults.topAppBarColors(
-					containerColor = Color.Transparent
-				),
-				title = {
-					Text(
-						text = stringResource(id = R.string.app_name),
-						style = h1TextStyle
-					)
-				},
-				navigationIcon = {
-					IconButton(onClick = {
-						scope.launch {
-							drawerState.apply {
-								if (isClosed) open() else close()
+		Scaffold(
+			topBar = {
+				TopAppBar(
+					colors = TopAppBarDefaults.topAppBarColors(
+						containerColor = Color.Transparent
+					),
+					title = {
+						Text(
+							text = stringResource(id = R.string.app_name),
+							style = h1TextStyle
+						)
+					},
+					navigationIcon = {
+						IconButton(onClick = {
+							scope.launch {
+								drawerState.apply {
+									if (isClosed) open() else close()
+								}
 							}
+						}) {
+							Icon(
+								imageVector = Icons.Default.Menu,
+								contentDescription = null
+							)
 						}
-					}) {
-						Icon(
-							imageVector = Icons.Default.Menu,
-							contentDescription = null
-						)
-					}
-				},
-				actions = {
-					IconButton(onClick = { onNavigate(Routes.CalenderScreen.name) }) {
-						Icon(
-							imageVector = Icons.Default.CalendarMonth,
-							contentDescription = null
-						)
-					}
-					Spacer(modifier = Modifier.width(8.dp))
-				})
-		},
+					},
+					actions = {
+						IconButton(onClick = { onNavigate(Routes.CalenderScreen.name) }) {
+							Icon(
+								imageVector = Icons.Default.CalendarMonth,
+								contentDescription = null
+							)
+						}
+						Spacer(modifier = Modifier.width(8.dp))
+					})
+			},
 			floatingActionButton = {
 				FloatingActionButton(
 					onClick = {
@@ -362,7 +364,8 @@ fun HomeScreen(
 						contentPadding = PaddingValues(vertical = 12.dp)
 					) {
 
-						itemsIndexed(items = sortedTasks,
+						itemsIndexed(
+							items = sortedTasks,
 							key = { _, task ->
 								task.id
 							}) { index, task ->
@@ -379,7 +382,11 @@ fun HomeScreen(
 									item = task,
 									swipeBehavior = appState.swipeBehaviour,
 									onDelete = {
-										playSound(context, SoundEvent.TASK_DELETED, appState.soundEnabled)
+										playSound(
+											context,
+											SoundEvent.TASK_DELETED,
+											appState.soundEnabled
+										)
 										onTaskAction(TaskListAction.SwipeTask(it))
 										showCustomSnackbar(
 											msg = "Task Deleted",
@@ -388,7 +395,11 @@ fun HomeScreen(
 										)
 									},
 									onComplete = {
-										playSound(context, SoundEvent.TASK_COMPLETED, appState.soundEnabled)
+										playSound(
+											context,
+											SoundEvent.TASK_COMPLETED,
+											appState.soundEnabled
+										)
 										onTaskAction(TaskListAction.ToggleCompletion(it.id, true))
 										showCustomSnackbar(
 											msg = "Task Completed",
@@ -404,7 +415,11 @@ fun HomeScreen(
 											onNavigate("${Routes.EditTaskScreen.name}/$taskId")
 										},
 										onComplete = {
-											playSound(context, SoundEvent.TASK_COMPLETED, appState.soundEnabled)
+											playSound(
+												context,
+												SoundEvent.TASK_COMPLETED,
+												appState.soundEnabled
+											)
 											onTaskAction(TaskListAction.ToggleCompletion(it, true))
 										},
 										onPomodoro = { taskId ->

@@ -36,20 +36,36 @@ class WidgetUpdateWorkerTest {
 	private lateinit var repo: TaskRepository
 	private lateinit var settings: SettingsStore
 
-	@Before fun setUp() {
+	@Before
+	fun setUp() {
 		context = ApplicationProvider.getApplicationContext()
-		WorkManagerTestInitHelper.initializeTestWorkManager(context, Configuration.Builder().build())
+		WorkManagerTestInitHelper.initializeTestWorkManager(
+			context,
+			Configuration.Builder().build()
+		)
 		db = Room.inMemoryDatabaseBuilder(context, TaskDatabase::class.java)
 			.allowMainThreadQueries()
 			.build()
 		settings = SettingsStore(context)
 		val pusher = CalendarPusher(CalendarRepository(context), db.taskDao(), settings)
-		val am = context.getSystemService(android.content.Context.ALARM_SERVICE) as android.app.AlarmManager
+		val am =
+			context.getSystemService(android.content.Context.ALARM_SERVICE) as android.app.AlarmManager
 		val scheduler = com.vishal2376.snaptick.util.ReminderScheduler(context, am)
-		repo = TaskRepository(db.taskDao(), db.taskCompletionDao(), db.taskReminderDao(), db, context, pusher, scheduler)
+		repo = TaskRepository(
+			db.taskDao(),
+			db.taskCompletionDao(),
+			db.taskReminderDao(),
+			db,
+			context,
+			pusher,
+			scheduler
+		)
 	}
 
-	@After fun tearDown() { db.close() }
+	@After
+	fun tearDown() {
+		db.close()
+	}
 
 	private fun today(title: String, completed: Boolean) = Task(
 		id = 0, uuid = "u-$title", title = title, isCompleted = completed,
@@ -65,7 +81,8 @@ class WidgetUpdateWorkerTest {
 		): ListenableWorker = WidgetUpdateWorker(appContext, workerParameters, repo, settings)
 	}
 
-	@Test fun doWork_writesOnlyIncompleteTasksToWidgetState() = runBlocking {
+	@Test
+	fun doWork_writesOnlyIncompleteTasksToWidgetState() = runBlocking {
 		repo.insertTask(today("Stand up", completed = false))
 		repo.insertTask(today("Lunch", completed = false))
 		repo.insertTask(today("Old meeting", completed = true))

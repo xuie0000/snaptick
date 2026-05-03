@@ -1,5 +1,7 @@
 package com.vishal2376.snaptick.presentation.onboarding
 
+import android.os.Build
+import android.view.HapticFeedbackConstants
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
@@ -24,28 +26,24 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import android.os.Build
-import android.view.HapticFeedbackConstants
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.flow.drop
 import com.vishal2376.snaptick.data.calendar.CalendarInfo
-import com.vishal2376.snaptick.presentation.common.AppTheme
 import com.vishal2376.snaptick.presentation.common.taskTextStyle
 import com.vishal2376.snaptick.presentation.main.action.MainAction
 import com.vishal2376.snaptick.presentation.main.state.MainState
 import com.vishal2376.snaptick.presentation.onboarding.pages.RestoreAndSyncPage
 import com.vishal2376.snaptick.presentation.onboarding.pages.ThemePreviewPage
 import com.vishal2376.snaptick.presentation.onboarding.pages.WelcomePage
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 
 private const val TOTAL_PAGES = 3
@@ -110,6 +108,7 @@ fun OnboardingScreen(
 					selectedTheme = state.theme,
 					onThemeSelected = { onAction(MainAction.UpdateAppTheme(it)) }
 				)
+
 				2 -> RestoreAndSyncPage(
 					calendarSyncEnabled = state.calendarSyncEnabled,
 					notificationsEnabled = notificationsEnabled,

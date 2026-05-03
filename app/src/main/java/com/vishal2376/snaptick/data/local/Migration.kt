@@ -103,7 +103,7 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
 		)
 		db.execSQL(
 			"INSERT OR IGNORE INTO `task_reminders` (uuid, offsetMinutes) " +
-				"SELECT uuid, 0 FROM `task_table` WHERE reminder = 1"
+					"SELECT uuid, 0 FROM `task_table` WHERE reminder = 1"
 		)
 	}
 }

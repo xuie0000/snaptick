@@ -16,7 +16,7 @@ class SplashThemeMirrorTest {
 		val editor = mockk<SharedPreferences.Editor>(relaxed = true)
 		val prefs = mockk<SharedPreferences>()
 		every { prefs.getInt("theme_ordinal", AppTheme.Amoled.ordinal) } returns
-			(stored ?: AppTheme.Amoled.ordinal)
+				(stored ?: AppTheme.Amoled.ordinal)
 		every { prefs.edit() } returns editor
 		val ctx = mockk<Context>()
 		every {
@@ -25,17 +25,20 @@ class SplashThemeMirrorTest {
 		return ctx to editor
 	}
 
-	@Test fun read_defaultsToAmoled_whenPrefsEmpty() {
+	@Test
+	fun read_defaultsToAmoled_whenPrefsEmpty() {
 		val (ctx, _) = mockContextWithPrefs(stored = null)
 		assertEquals(AppTheme.Amoled, SplashThemeMirror.read(ctx))
 	}
 
-	@Test fun read_returnsStoredOrdinal() {
+	@Test
+	fun read_returnsStoredOrdinal() {
 		val (ctx, _) = mockContextWithPrefs(stored = AppTheme.Light.ordinal)
 		assertEquals(AppTheme.Light, SplashThemeMirror.read(ctx))
 	}
 
-	@Test fun write_persistsOrdinalViaEditor() {
+	@Test
+	fun write_persistsOrdinalViaEditor() {
 		val (ctx, editor) = mockContextWithPrefs()
 		val slot = slot<Int>()
 		every { editor.putInt("theme_ordinal", capture(slot)) } returns editor
