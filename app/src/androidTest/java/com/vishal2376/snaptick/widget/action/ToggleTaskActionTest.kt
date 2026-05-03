@@ -10,6 +10,7 @@ import androidx.work.Configuration
 import androidx.work.testing.WorkManagerTestInitHelper
 import com.vishal2376.snaptick.data.local.TaskDatabase
 import com.vishal2376.snaptick.domain.model.Task
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertFalse
@@ -51,15 +52,24 @@ class ToggleTaskActionTest {
 	@Test fun onAction_togglesTaskCompletion() = runBlocking {
 		val params: ActionParameters = actionParametersOf(ToggleTaskAction.TaskIdKey to 1)
 		val glanceId = object : GlanceId {}
-		ToggleTaskAction().onAction(context, glanceId, params)
 
-		val toggled = db.taskDao().getTaskById(1)
-		assertTrue(toggled?.isCompleted == true)
-
-		// toggle again → back to false
+		// onAction returns as soon as the optimistic widget push is done; the
+		// repository write runs on a process-lifetime background scope, so
+		// poll the DB instead of asserting synchronously.
 		ToggleTaskAction().onAction(context, glanceId, params)
-		val back = db.taskDao().getTaskById(1)
-		assertFalse(back?.isCompleted == true)
+		assertTrue(awaitCompleted(true))
+
+		ToggleTaskAction().onAction(context, glanceId, params)
+		assertTrue(awaitCompleted(false))
+	}
+
+	private suspend fun awaitCompleted(expected: Boolean, timeoutMs: Long = 3000L): Boolean {
+		val deadline = System.currentTimeMillis() + timeoutMs
+		while (System.currentTimeMillis() < deadline) {
+			if (db.taskDao().getTaskById(1)?.isCompleted == expected) return true
+			delay(50)
+		}
+		return false
 	}
 
 	@Test fun onAction_noopForMissingParam() = runBlocking {
