@@ -65,26 +65,11 @@ fun WhatsNewDialogComponent(
 	}
 
 	val newFeatures = listOf(
-		NewItem(
-			"Pomodoro Timer",
-			"Foreground timer keeps running even when the app is closed."
-		),
-		NewItem(
-			"Multiple Reminders",
-			"Set up to four reminders per task with custom offsets."
-		),
-		NewItem(
-			"Calendar Sync & ICS Import",
-			"Mirror tasks to your device calendar and import .ics files."
-		),
-		NewItem(
-			"Home-screen Widget",
-			"Today's tasks at a glance with one-tap complete."
-		),
-		NewItem(
-			"Refreshed UI",
-			"New onboarding, theme cards, swipe action picker, and minimal time picker."
-		),
+		NewItem("Pomodoro Timer", "Runs in the background."),
+		NewItem("Refreshed UI", "Onboarding, themes, settings."),
+		NewItem("Multiple Reminders", "Up to four per task."),
+		NewItem("Home-screen Widget", "Today's tasks, one-tap complete."),
+		NewItem("Calendar Sync & ICS Import", "Mirror tasks, import events."),
 	)
 
 	Dialog(onDismissRequest = { safeClose(true) }) {
