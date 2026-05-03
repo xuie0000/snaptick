@@ -187,7 +187,7 @@ dependencies {
 	implementation("com.google.code.gson:gson:2.10.1")
 
 	//calender
-	implementation("com.kizitonwose.calendar:compose:2.4.1")
+	implementation("com.kizitonwose.calendar:compose:2.5.0")
 
 	//analytics charts
 	implementation("io.github.ehsannarmani:compose-charts:0.0.18")
