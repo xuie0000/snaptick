@@ -62,7 +62,12 @@ android {
 				getDefaultProguardFile("proguard-android-optimize.txt"),
 				"proguard-rules.pro"
 			)
-			signingConfig = signingConfigs.getByName("release")
+			// Only attach the signing config when a keystore is actually wired.
+			// Reproducible-build verifiers (IzzyOnDroid, F-Droid) build without
+			// one and need an unsigned APK to drop out of this task.
+			signingConfigs.getByName("release").storeFile?.let {
+				signingConfig = signingConfigs.getByName("release")
+			}
 		}
 
 		debug {
@@ -70,6 +75,7 @@ android {
 			versionNameSuffix = "-debug"
 		}
 	}
+
 	compileOptions {
 		sourceCompatibility = JavaVersion.VERSION_11
 		targetCompatibility = JavaVersion.VERSION_11
@@ -105,15 +111,13 @@ android {
 	sourceSets.getByName("androidTest").assets.srcDirs("$projectDir/schemas")
 }
 
-// Fail fast on misconfigured release builds. Catches:
-// - Forgotten env vars in CI.
-// - Local clones that don't have local.properties set.
-// - Anyone trying to ship a release APK signed with the public Android debug key.
-//
-// Hooked into gradle.taskGraph.whenReady so the guard fires BEFORE any release
-// task (including R8 / minify / package) starts, instead of after they've
-// already burned a couple of minutes of CPU.
-gradle.taskGraph.whenReady {
+// Fail-fast keystore guard, gated to CI only so reproducible-build verifiers
+// (IzzyOnDroid, F-Droid) can run `assembleRelease` against an unsigned APK
+// without tripping a hard require(). Locally and in RB land the build just
+// produces an unsigned APK.
+val isCiBuild = System.getenv("CI") == "true" ||
+	System.getenv("GITHUB_ACTIONS") == "true"
+if (isCiBuild) gradle.taskGraph.whenReady {
 	val isReleaseBuild = allTasks.any {
 		it.path.startsWith(":app:assembleRelease") ||
 				it.path.startsWith(":app:bundleRelease") ||
@@ -125,8 +129,7 @@ gradle.taskGraph.whenReady {
 	val storeFile = sc.storeFile
 	val alias = sc.keyAlias
 	require(storeFile != null && storeFile.exists()) {
-		"Release keystore not configured. Set SNAPTICK_KEYSTORE_FILE in " +
-				"local.properties (local dev) or as an env var (CI)."
+		"Release keystore not configured. Set SNAPTICK_KEYSTORE_FILE in CI env."
 	}
 	require(alias != null && alias != "androiddebugkey") {
 		"Refusing to sign release with the public Android debug key alias."
